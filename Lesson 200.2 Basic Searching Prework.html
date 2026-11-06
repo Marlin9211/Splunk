@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Missing Minute | Splunk Basic Searching Prework</title>
+<style>
+
+:root{--paper:#eee9df;--sheet:#faf7f0;--ink:#20201e;--muted:#716e66;--red:#b43b32;--navy:#263b49;--line:#c8c0b2;--yellow:#e4bd58;--green:#39765a;--bad:#a33c35}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:"Courier New",Courier,monospace;background:
+linear-gradient(90deg,transparent 49px,#d9d1c4 50px,transparent 51px),
+repeating-linear-gradient(0deg,#eee9df 0,#eee9df 31px,#e2ddd3 32px)}
+button,input,textarea{font:inherit}button{cursor:pointer}
+.shell{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+.topbar{position:sticky;top:0;z-index:20;background:#f8f4ebf2;border-bottom:2px solid var(--ink);padding:13px 22px;display:flex;gap:22px;align-items:center}
+.brand{font-weight:900;letter-spacing:.09em;font-size:14px}.brand span{background:var(--ink);color:#fff;padding:4px 7px}
+.progressWrap{flex:1;max-width:540px}.progressLabel{font-size:10px;text-transform:uppercase;letter-spacing:.12em;display:flex;justify-content:space-between;margin-bottom:5px;color:var(--muted)}
+.progress{height:8px;border:1px solid var(--ink);background:#fff}.progress>div{height:100%;width:0;background:var(--red);transition:.3s}
+.menuBtn{background:var(--sheet);border:1px solid var(--ink);padding:7px 11px;box-shadow:3px 3px 0 var(--ink)}
+.stage{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 100px)}
+.nav{padding:28px 15px;background:#ded7ca;border-right:2px solid var(--ink)}
+.nav h3{font-size:11px;text-transform:uppercase;letter-spacing:.14em;margin:0 0 8px;color:var(--red)}.jumpNote{font-size:10px;line-height:1.45;color:var(--muted);margin:0 8px 14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.nav button{width:100%;text-align:left;border:0;border-bottom:1px dashed #a69f93;background:transparent;padding:11px 8px;color:#777168;font-size:12px}
+.nav button.active{background:var(--sheet);color:var(--ink);font-weight:900;border-left:5px solid var(--red);padding-left:10px}
+.nav button:disabled{opacity:.42;cursor:not-allowed}
+.main{padding:46px clamp(22px,5vw,70px);max-width:1180px;width:100%;margin:auto}
+.screen{display:none}.screen.active{display:block;animation:appear .22s ease}@keyframes appear{from{opacity:.2;transform:translateX(5px)}}
+.kicker{display:inline-block;background:var(--red);color:#fff;padding:5px 9px;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;transform:rotate(-1deg)}
+h1{font-family:Georgia,serif;font-size:clamp(42px,6vw,78px);line-height:.96;margin:16px 0 20px;max-width:900px;font-weight:500;letter-spacing:-.035em}
+h2{font-family:Georgia,serif;font-size:clamp(30px,4vw,49px);margin:12px 0 16px;font-weight:500}h3{font-family:Georgia,serif;font-size:21px}
+.lead{font-family:Georgia,serif;font-size:20px;line-height:1.65;max-width:880px}
+.rule{height:2px;background:var(--ink);margin:28px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.card{position:relative;background:var(--sheet);border:1px solid var(--ink);padding:22px;box-shadow:7px 7px 0 #bcb4a7}.card:before{content:"";position:absolute;top:-7px;left:32px;width:58px;height:14px;background:#e7cf86aa;transform:rotate(-2deg)}.card h3{margin-top:0}.meta{font-size:11px;color:var(--muted)}
+.callout{background:#fff8d9;border:1px solid var(--ink);border-left:8px solid var(--yellow);padding:17px 20px;margin:24px 0;box-shadow:4px 4px 0 #cfc7b8}
+.btnRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:29px}.btn{background:var(--ink);color:#fff;border:1px solid var(--ink);padding:11px 17px;box-shadow:3px 3px 0 #8f887d;font-weight:900}.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #8f887d}.btn.secondary{background:var(--sheet);color:var(--ink)}.btn.rust{background:var(--red);border-color:var(--red)}.btn:disabled{opacity:.38;cursor:not-allowed;transform:none}
+.objectives{counter-reset:o;display:grid;gap:0;margin-top:25px;background:var(--sheet);border:1px solid var(--ink)}.obj{display:grid;grid-template-columns:55px 1fr;gap:12px;padding:13px;border-bottom:1px dashed var(--line)}.obj:before{counter-increment:o;content:"EX-"+counter(o,decimal-leading-zero);font-size:11px;font-weight:900;color:var(--red)}
+.vocabGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}.flip{height:195px;perspective:900px;background:transparent;border:0;padding:0;color:inherit}.flipInner{position:relative;width:100%;height:100%;transition:.5s;transform-style:preserve-3d}.flip.flipped .flipInner{transform:rotateY(180deg)}.face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--ink);padding:18px;background:var(--sheet);display:flex;flex-direction:column;justify-content:space-between;text-align:left;box-shadow:5px 5px 0 #bdb5a8}.front:before{content:"EVIDENCE TERM";font-size:10px;color:var(--red);font-weight:900;letter-spacing:.12em}.back{transform:rotateY(180deg);background:var(--navy);color:#fff}.term{font-family:Georgia,serif;font-size:25px}.hint{font-size:10px;color:var(--muted)}.back .hint{color:#d4dfe4}
+.brief{display:grid;grid-template-columns:1.2fr .8fr;gap:25px}.stamp{display:inline-block;border:3px double var(--red);color:var(--red);padding:7px 10px;font-size:11px;font-weight:900;letter-spacing:.13em;transform:rotate(-2deg)}
+.activityHead{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:22px}.question{font-family:Georgia,serif;font-size:19px;line-height:1.5;margin:23px 0 12px}
+.options{display:grid;gap:9px}.option{background:var(--sheet);border:1px solid var(--ink);padding:13px;text-align:left}.option:hover{background:#fff7d6}.option.correct{border:3px solid var(--green);background:#eef6ef}.option.wrong{border:3px solid var(--bad);background:#f9e9e7}
+.feedback{display:none;margin-top:14px;background:#e6edf0;border:1px solid var(--navy);border-left:7px solid var(--navy);padding:15px 18px;line-height:1.55}.feedback.show{display:block}
+.matchGrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.terms button,.defs button{width:100%;margin:6px 0;padding:12px;background:var(--sheet);border:1px solid var(--ink);text-align:left}.matchSel{outline:4px solid var(--yellow)}.matched{opacity:.42;text-decoration:line-through}
+.mock{border:2px solid var(--ink);background:#fff;color:#182027;font-family:Arial,sans-serif;box-shadow:7px 7px 0 #aaa}.mockTop{background:#30383d;color:#fff;padding:10px 14px}.searchbar{margin:13px;border:1px solid #777;padding:10px;font-family:Consolas,monospace}.mockTabs{display:flex;border-bottom:1px solid #bbb}.mockTabs span{padding:10px 14px}.mockTabs span:first-child{border-bottom:3px solid #6b8c37}.mockBody{display:grid;grid-template-columns:170px 1fr}.fields{border-right:1px solid #ddd;padding:12px}.events{padding:12px}.timeline{height:95px;display:flex;align-items:end;gap:5px;border-bottom:1px solid #777;padding:0 10px}.bar{flex:1;background:#7d98a4}.event{font:12px Consolas,monospace;border-bottom:1px solid #ddd;padding:8px 0}
+.hotspots{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.hotspots button{padding:8px 10px;background:var(--sheet);border:1px solid var(--ink)}
+.matrix{width:100%;border-collapse:collapse;background:var(--sheet)}.matrix th,.matrix td{border:1px solid var(--ink);padding:13px;text-align:left;vertical-align:top}.matrix th{background:#d9d1c4}
+.timelineLab{background:var(--sheet);border:2px solid var(--ink);padding:20px;box-shadow:6px 6px 0 #bdb5a8}.bars{height:170px;display:flex;align-items:end;gap:8px;border-bottom:2px solid var(--ink)}.bars button{flex:1;border:0;background:#647f8c;min-height:15px;position:relative}.bars button:hover,.bars button.sel{background:var(--red)}.bars button span{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:10px}
+.code{font:14px Consolas,monospace;background:#222;color:#f5df8d;padding:14px;overflow:auto}
+.jobFlow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.job{background:var(--sheet);border:1px solid var(--ink);padding:15px;min-height:145px;box-shadow:4px 4px 0 #c4bcaf}
+textarea{width:100%;min-height:110px;padding:12px;background:#fffef8;border:1px solid var(--ink)}.checks label{display:block;padding:11px;border-bottom:1px dashed var(--line)}.checks input{margin-right:9px;accent-color:var(--red)}
+.footer{padding:13px 22px;border-top:2px solid var(--ink);font-size:10px;color:var(--muted);background:#ded7ca}.badge{display:inline-block;padding:4px 7px;border:1px solid var(--red);color:var(--red);font-size:10px;font-weight:900}
+
+.objectivePaper{
+  margin:30px 0 26px;background:#fffdf7;color:#25231f;border:1px solid #292723;
+  padding:0;box-shadow:10px 12px 0 #b9b0a2;position:relative;transform:rotate(-.15deg)
+}
+.objectivePaper:before{
+  content:"";position:absolute;width:90px;height:22px;background:#e2c979a8;
+  top:-11px;left:50%;transform:translateX(-50%) rotate(1deg)
+}
+.paperHeader{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:24px 26px 18px;border-bottom:3px double #292723}
+.paperLabel{font-size:10px;letter-spacing:.15em;font-weight:900;color:#756e63;margin-bottom:6px}
+.paperTitle{font-family:Georgia,serif;font-size:23px;font-weight:700}
+.paperStatus{border:3px double var(--red);color:var(--red);padding:8px 11px;font-weight:900;font-size:11px;letter-spacing:.12em;transform:rotate(2deg)}
+.paperIntro{padding:20px 26px;background:#f3eee4;border-bottom:1px solid #bdb4a7;line-height:1.55;font-size:13px}
+.objectiveList{padding:8px 26px 14px}
+.objectiveRow{display:grid;grid-template-columns:48px 1fr;gap:13px;padding:14px 0;border-bottom:1px dashed #bdb4a7;align-items:start}
+.objectiveRow:last-child{border-bottom:0}
+.objNo{width:34px;height:34px;border:1px solid #292723;display:grid;place-items:center;font-weight:900;font-size:11px;background:#eee8dc}
+.objectiveRow strong{display:block;font-family:Georgia,serif;font-size:17px;margin-bottom:5px}
+.objectiveRow small{display:block;font-family:"Courier New",monospace;font-size:11px;line-height:1.5;color:#686158}
+.paperFooter{display:flex;justify-content:space-between;gap:18px;padding:14px 26px;background:#292723;color:#f5f0e7;font-size:9px;letter-spacing:.07em}
+
+@media(max-width:850px){.stage{grid-template-columns:1fr}.nav{display:none}.nav.open{display:block;position:fixed;inset:58px 0 0;z-index:15;overflow:auto}.grid,.brief,.matchGrid{grid-template-columns:1fr}.vocabGrid{grid-template-columns:1fr 1fr}.jobFlow{grid-template-columns:1fr 1fr}.main{padding:30px 18px}}
+@media(max-width:520px){.paperHeader,.paperFooter{flex-direction:column;align-items:flex-start}.objectivePaper{box-shadow:5px 6px 0 #b9b0a2}.objectiveList,.paperIntro{padding-left:16px;padding-right:16px}.objectiveRow{grid-template-columns:40px 1fr}.vocabGrid,.jobFlow{grid-template-columns:1fr}.topbar{padding:10px}.brand{font-size:11px}}
+
+
+/* PROFESSIONAL COLOR SYSTEM */
+:root{
+  --paper:#f3f5f7;
+  --sheet:#ffffff;
+  --ink:#1f2933;
+  --muted:#66727d;
+  --red:#35566f;
+  --navy:#263d4d;
+  --line:#cbd3da;
+  --yellow:#8fa7b7;
+  --green:#3f725b;
+  --bad:#9a4b4b;
+}
+body{
+  color:var(--ink);
+  background:
+    linear-gradient(90deg,transparent 49px,#e2e7eb 50px,transparent 51px),
+    repeating-linear-gradient(0deg,#f3f5f7 0,#f3f5f7 31px,#e8ecef 32px);
+}
+.topbar{background:#ffffffef;border-bottom:2px solid #263d4d}
+.brand span{background:#263d4d;color:#fff}
+.progress>div{background:#476f89}
+.menuBtn{background:#fff;border-color:#344a5a;box-shadow:3px 3px 0 #aeb8c0}
+.nav{background:#e7ebee;border-right-color:#344a5a}
+.nav h3{color:#35566f}
+.nav button{border-bottom-color:#c3cbd1;color:#697680}
+.nav button.active{background:#fff;color:#1f2933;border-left-color:#476f89}
+.card{background:#fff;border-color:#344a5a;box-shadow:7px 7px 0 #c7cfd5}
+.card:before{background:#b9c8d2aa}
+.callout{background:#eef3f6;border-color:#526b7c;border-left-color:#52758d;box-shadow:4px 4px 0 #c7cfd5}
+.btn{background:#263d4d;border-color:#263d4d;box-shadow:3px 3px 0 #aeb8c0}
+.btn.rust{background:#476f89;border-color:#476f89}
+.btn.secondary{background:#fff;color:#263d4d}
+.kicker{background:#35566f}
+.stamp{border-color:#476f89;color:#35566f}
+.objectives,.obj,.face,.terms button,.defs button,.option,.timelineLab,.job,textarea{background:#fff}
+.front:before,.badge{color:#35566f}
+.back{background:#263d4d}
+.option:hover{background:#eef3f6}
+.feedback{background:#eaf0f4;border-color:#476f89;border-left-color:#476f89}
+.matchSel{outline-color:#7894a6}
+.matrix th{background:#dce4e9}
+.timelineLab{box-shadow:6px 6px 0 #c7cfd5}
+.bars button{background:#708b9c}
+.bars button:hover,.bars button.sel{background:#355f79}
+.code{background:#202b33;color:#dce9ef}
+.footer{background:#e3e8eb;border-top-color:#344a5a}
+.objectivePaper{background:#fff;color:#202a31;border-color:#344a5a;box-shadow:10px 12px 0 #c7cfd5}
+.objectivePaper:before{background:#b7c8d2aa}
+.paperHeader{border-bottom-color:#344a5a}
+.paperLabel{color:#66727d}
+.paperStatus{border-color:#476f89;color:#35566f}
+.paperIntro{background:#eef2f4;border-bottom-color:#c7cfd5}
+.objectiveRow{border-bottom-color:#c7cfd5}
+.objNo{border-color:#526674;background:#e8edf0}
+.objectiveRow small{color:#5e6972}
+.paperFooter{background:#263d4d;color:#f7f9fa}
+
+
+.enhancedVocab{align-items:start}
+.evidenceCard{background:#fff;border:1px solid #344a5a;padding:18px;box-shadow:5px 5px 0 #c7cfd5;min-width:0;position:relative}
+.evidenceCard.reviewed{border-top:4px solid #476f89}
+.evTop{display:flex;justify-content:space-between;gap:10px;font-size:9px;letter-spacing:.09em;color:#66727d;border-bottom:1px solid #d6dde2;padding-bottom:8px}
+.evidenceCard h3{font-family:Georgia,serif;font-size:24px;margin:16px 0 8px}
+.predict{font-size:11px;line-height:1.5;color:#66727d;min-height:48px}
+.revealBtn{width:100%;border:1px solid #476f89;background:#eef3f6;color:#263d4d;padding:10px;font-weight:900}
+.evDetails{margin-top:14px;border-top:1px solid #d6dde2}
+.meaningLayer{padding:12px 0;border-bottom:1px dashed #cbd3da}
+.meaningLayer:last-child{border-bottom:0}
+.meaningLayer b{display:block;font-size:9px;letter-spacing:.12em;color:#35566f;margin-bottom:5px}
+.meaningLayer p{margin:0;font-family:Georgia,serif;font-size:14px;line-height:1.5}
+.exampleLayer{background:#f4f6f7;margin:0 -8px;padding:12px 8px}
+.connectionLayer{border-left:4px solid #8fa7b7;padding-left:10px}
+.vocabProgress{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;margin:20px 0;font-size:11px;color:#66727d}
+.vocabProgress strong{color:#263d4d;font-size:15px}
+.miniTrack{height:7px;background:#dce2e6;border:1px solid #b9c4cb}.miniTrack div{height:100%;width:0;background:#476f89;transition:.25s}
+.meaningCheck{margin:30px 0 20px;border:2px solid #344a5a;background:#f7f9fa;padding:22px;box-shadow:6px 6px 0 #c7cfd5}
+.meaningCheck h3{margin:12px 0 7px}.meaningCheck .btn{margin-top:14px}
+@media(max-width:850px){.enhancedVocab{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.enhancedVocab{grid-template-columns:1fr}.vocabProgress{grid-template-columns:1fr}}
+
+
+/* REPORTER PART B — RELIABLE ANSWER FEEDBACK */
+.reporter-feedback{display:none;margin:14px 0 28px;padding:18px;background:#fff;border:2px solid #35566f;border-left:8px solid #476f89;box-shadow:4px 4px 0 #c7cfd5;line-height:1.6}
+.reporter-feedback.visible{display:block !important}
+.reporter-feedback h4{font-family:Georgia,serif;font-size:20px;margin:0 0 10px}
+.reporter-feedback .rightbox{padding:14px;background:#eef6ef;border-left:6px solid #3f725b;margin:12px 0}
+.reporter-feedback .wrongbox{padding:12px 14px;background:#f7f9fa;border-left:5px solid #8fa7b7;margin:10px 0}
+.reporter-feedback p{margin:7px 0}
+
+/* TRANSLATOR EXPERIENCE ENHANCEMENTS */
+.translatorMission{border:2px solid #344a5a;background:#fff;padding:22px;margin:0 0 26px;box-shadow:7px 7px 0 #c7cfd5}
+.translatorMission h3{margin:8px 0}.missionSteps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}.missionStep{background:#eef3f6;border-left:5px solid #476f89;padding:14px;line-height:1.45}.missionStep b{display:block;font-size:11px;letter-spacing:.08em;margin-bottom:5px;color:#35566f}
+.caseTask{background:#263d4d;color:#fff;padding:16px 18px;margin:18px 0;border-left:7px solid #8fa7b7}.caseTask strong{display:block;letter-spacing:.08em;font-size:11px;margin-bottom:6px}.caseTask p{margin:0;line-height:1.55}.translatorLens{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.lens{border:1px solid #9eacb6;background:#fff;padding:14px}.lens b{display:block;color:#35566f;margin-bottom:5px}.lens span{font-size:12px;line-height:1.45;color:#5e6972}.decisionCue{margin:18px 0;padding:15px;background:#f5f8fa;border:1px dashed #7894a6}.decisionCue b{color:#35566f}.conceptStrip{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}.conceptStrip span{border:1px solid #7894a6;background:#fff;padding:7px 9px;font-size:11px;font-weight:700}.analystPrompt{font-family:Georgia,serif;font-size:17px;line-height:1.55;background:#fff;border-left:5px solid #476f89;padding:14px 16px;margin:16px 0}.checkpoint{font-size:11px;letter-spacing:.08em;color:#35566f;font-weight:900;margin-top:18px}.timelineMission{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}.timelineMission .card{box-shadow:4px 4px 0 #c7cfd5}.flowQuestion{background:#eef3f6;border:1px solid #7894a6;padding:14px;margin:15px 0}.flowQuestion strong{color:#35566f}@media(max-width:850px){.missionSteps,.translatorLens,.timelineMission{grid-template-columns:1fr}}
+
+
+/* HANDS-ON TRANSLATOR */
+.handChoice .option.selected,.timelineAction.selected,#preserveChoices .option.selected{outline:3px solid #476f89;background:#eef3f6}.translatorMission>.feedback{margin-top:16px}.jobScenario{border:1px solid #9eacb6;background:#f7f9fa;padding:16px;margin:12px 0}.jobScenario h4{font-family:Georgia,serif;font-size:18px;margin:0 0 8px}.jobScenario .options{grid-template-columns:repeat(4,minmax(0,1fr))}.jobScenario .feedback{margin-top:10px}@media(max-width:850px){.jobScenario .options{grid-template-columns:1fr}}
+ .rightbox{padding:12px;background:#eef6ef;border-left:5px solid #3f725b;margin:10px 0}.wrongbox{padding:10px 12px;background:#f3f6f8;border-left:4px solid #8fa7b7;margin:7px 0}.jobScenario .wrongbox p,.jobScenario .rightbox p{margin:5px 0;line-height:1.55}
+.labChoice{margin:16px 0}.labChoice select{width:100%;padding:12px;border:1px solid #7894a6;background:white}.labEvents button.selected{border-left:5px solid #35566f}#newLab3 .labTimeline{margin-bottom:36px}#newLab3 .labTimeline button{cursor:pointer}#newLab3 .labTimeline button:hover{background:#446f88}#newLab3 .missionSteps{margin:18px 0}#newLab4 .labJob{margin:18px 0}#newLab4 .card{box-shadow:3px 3px 0 #c7cfd5}#newLab3 .option p{margin:6px 0 0}#newLab3 .option.selected,#newLab4 .option.selected{outline:3px solid #476f89;background:#eef3f6}
+</style>
+<style>
+.labEvents{display:grid;gap:8px;margin:15px 0}.labEvents button{font:12px/1.6 Consolas,monospace;text-align:left;border:1px solid #9eacb6;background:#f7f9fa;padding:12px;white-space:normal;overflow-wrap:anywhere}.labEvents button:hover,.labEvents button.selected{outline:2px solid #476f89;background:#eaf0f4}.labControls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.labControls label,.labChoice label{display:grid;gap:8px;font-weight:700}.labControls select,.labChoice select{width:100%;padding:12px;border:1px solid #7894a6;background:#fff;font:inherit}.labConsole{padding:17px;background:#202b33;color:#dce9ef;margin:18px 0;overflow-wrap:anywhere}.labConsole .meta{color:#aebfc9}.labConsole code{display:block;margin-top:12px;font:14px Consolas,monospace}.labTimeline{display:flex;gap:8px;align-items:flex-end;height:180px;border-bottom:2px solid #344a5a;margin:28px 0}.labTimeline button{flex:1;min-width:0;background:#708b9c;border:0;position:relative}.labTimeline button.selected{background:#355f79;outline:3px solid #8fa7b7}.labTimeline button span{position:absolute;bottom:-25px;left:0;right:0;font-size:10px;text-align:center}.labJob .options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:15px 0}.labChoice{margin:20px 0}.translatorMission .feedback.show{display:block}.translatorMission button:disabled{opacity:.6;cursor:default}@media(max-width:650px){.labControls,.labJob .options{grid-template-columns:1fr 1fr}}
+</style><style>
+.expertReview{margin-top:16px;border-top:2px solid #aabac6;padding-top:14px;line-height:1.55}.expertReview h4{font-family:Georgia,serif;font-size:20px;margin:0 0 10px}.expertOption{background:#f7f9fa;border-left:4px solid #9aabb7;margin:10px 0;padding:12px 15px}.expertOption.expertCorrect{border-left-color:#39765a;background:#edf5f0}.expertOption p{margin:7px 0 0}.expertTakeaway{padding:12px;background:#e9eff3;border-left:4px solid #476f89}
+</style></head>
+<body>
+<div class="shell">
+<header class="topbar">
+  <div class="brand">THE <span>MISSING MINUTE</span></div>
+  <div class="progressWrap"><div class="progressLabel"><span>Prework progress</span><span id="pct">0%</span></div><div class="progress"><div id="prog"></div></div></div>
+  <button class="menuBtn" id="menuBtn" aria-label="Open section jump menu">Jump to section</button>
+</header>
+<div class="stage">
+<nav class="nav" id="nav">
+  <h3>Case Notebook</h3>
+  <p class="jumpNote">Jump directly to any section. Your work stays on the page while you move around.</p>
+  <div id="navItems"></div>
+</nav>
+<main class="main">
+
+<section class="screen active" data-title="Welcome">
+ <div class="kicker">Lesson 200.2 • Investigation 07:42</div>
+ <h1>At 07:42, the story disappears.</h1>
+ <p class="lead">You have joined <strong>Crescent City Digital Services</strong> as a junior search analyst. The operations team receives machine data from ticketing systems, station services, and web applications. Before your first live search session, you need a reliable mental map of how Splunk receives data, how searches are shaped, what results mean, and how search work is controlled and preserved.</p>
+ <div class="callout"><strong>Case assignment:</strong> build the case notebook in two passes. As the <em>Reporter</em>, capture the facts accurately. As the <em>Translator</em>, explain how the facts connect so the 07:42 activity can later be investigated with confidence. This prework stays at Bloom’s <strong>Remember → Understand</strong> levels so you arrive ready for hands-on application in class.</div>
+ <div class="grid">
+  <div class="card"><h3>Estimated time</h3><p><strong>≈ 40 minutes</strong></p><p class="meta">Move deliberately. Feedback is part of the instruction, not just scoring.</p></div>
+  <div class="card"><h3>What success looks like</h3><p>You can recognize Splunk search components and explain how data, search syntax, time, results, refinement, jobs, and saved output fit together.</p></div>
+ </div>
+ <div class="btnRow"><button class="btn rust next">Open Case 07:42</button></div>
+</section>
+
+<section class="screen" data-title="Objectives">
+ <div class="kicker">Case Brief • 02</div>
+ <h2>Investigation Objectives</h2>
+ <p class="lead">Before examining the 07:42 activity, you need to know what Splunk allows you to do with the data in front of you. This case paper defines the capabilities you are preparing to recognize throughout the lesson.</p>
+
+ <div class="objectivePaper">
+   <div class="paperHeader">
+     <div>
+       <div class="paperLabel">CRESCENT CITY DIGITAL SERVICES</div>
+       <div class="paperTitle">CASE 07:42 — SEARCH PREPARATION BRIEF</div>
+     </div>
+     <div class="paperStatus">PREWORK</div>
+   </div>
+
+   <div class="paperIntro">
+     <strong>Assignment:</strong> Build the foundational knowledge required to navigate a basic Splunk search workflow. By the end of Lesson 200.2, you should be able to:
+   </div>
+
+   <div class="objectiveList">
+     <div class="objectiveRow"><span class="objNo">01</span><div><strong>Describe adding data to Splunk.</strong><small>Recognize what it means for data to be sent to Splunk and indexed.</small></div></div>
+     <div class="objectiveRow"><span class="objNo">02</span><div><strong>Run basic searches.</strong><small>Recognize the foundational search interface and basic SPL search structure.</small></div></div>
+     <div class="objectiveRow"><span class="objNo">03</span><div><strong>Set the time range of a search.</strong><small>Understand how the search window limits the period Splunk examines.</small></div></div>
+     <div class="objectiveRow"><span class="objNo">04</span><div><strong>Identify the contents of search results.</strong><small>Recognize Events, Patterns, Statistics, Visualization, fields, and the timeline.</small></div></div>
+     <div class="objectiveRow"><span class="objNo">05</span><div><strong>Refine searches.</strong><small>Recognize basic methods used to narrow results and reduce irrelevant data.</small></div></div>
+     <div class="objectiveRow"><span class="objNo">06</span><div><strong>Use the timeline.</strong><small>Understand how event distribution over time helps reveal patterns, peaks, and lows.</small></div></div>
+     <div class="objectiveRow"><span class="objNo">07</span><div><strong>Use time modifiers.</strong><small>Recognize how earliest, latest, relative, snapped, and absolute time boundaries shape a search.</small></div></div>
+     <div class="objectiveRow"><span class="objNo">08</span><div><strong>Control a search job.</strong><small>Understand that a running search creates a job that can be inspected and managed.</small></div></div>
+     <div class="objectiveRow"><span class="objNo">09</span><div><strong>Save search results.</strong><small>Recognize ways search work can be preserved, reused, shared, or exported.</small></div></div>
+   </div>
+
+   <div class="paperFooter">
+     <span>CASE NOTE: These objectives are your roadmap—not a checklist to memorize.</span>
+     <span>FILE 200.2 / 07:42</span>
+   </div>
+ </div>
+
+ <div class="callout"><strong>Why this matters to the story:</strong> The 07:42 event cannot be understood simply by staring at raw logs. An analyst needs to know where the data lives, how to ask Splunk a precise question, how to control time, how to interpret what comes back, and how to preserve useful findings.</div>
+
+ <div class="btnRow"><button class="btn secondary prev">Back</button><button class="btn next">Continue to evidence vocabulary</button></div>
+</section>
+
+<section class="screen" data-title="Vocabulary">
+ <div class="kicker">Evidence Lab • 03</div>
+ <h2>Essential Vocabulary: Build the Meaning</h2>
+ <p class="lead">Instead of memorizing definitions, build a mental picture of each Splunk concept. Every evidence card moves through three layers: <strong>Recognize it → Understand it → Connect it</strong>.</p>
+
+ <div class="callout"><strong>Case method:</strong> First, predict what the term means. Then open its evidence card. Read the plain-language meaning, inspect the example, and use the connection clue to distinguish it from nearby concepts.</div>
+
+ <div class="vocabProgress">
+   <div><strong id="vocabMastery">0 / 12</strong><span> evidence cards investigated</span></div>
+   <div class="miniTrack"><div id="vocabTrack"></div></div>
+ </div>
+
+ <div class="vocabGrid enhancedVocab" id="vocab"></div>
+
+ <div class="meaningCheck">
+   <div class="kicker">Quick Meaning Check</div>
+   <h3>Can you recognize the concept from the clue?</h3>
+   <p id="vocabChallengePrompt">Investigate at least 4 evidence cards to unlock the first meaning check.</p>
+   <p id="meaningCheckInstruction" style="font-weight:700;color:#35566f;margin:12px 0">Select one answer below. The complete explanation will appear immediately after your selection.</p><div id="vocabChallengeOptions" class="options"></div>
+   <div id="vocabChallengeFeedback" class="feedback" aria-live="polite"></div>
+   <button type="button" class="btn secondary" id="newVocabChallenge" disabled>New clue</button>
+ </div>
+
+ <div class="callout" id="vocabCount">0 of 12 evidence cards investigated. Review every card before continuing.</div>
+ <div class="btnRow"><button class="btn secondary prev">Back</button><button class="btn next" id="vocabNext" disabled>Enter Reporter phase</button></div>
+</section>
+
+<section class="screen" data-title="Reporter Brief">
+ <div class="brief">
+  <div><div class="stamp">CASE PASS 01 • REPORTER</div><h2>Record what the evidence system can tell you.</h2><p class="lead">A Reporter captures foundational facts accurately before interpreting them. In this phase, retrieve names, purposes, locations, and basic syntax from the lesson.</p>
+  <div class="callout"><strong>How to think:</strong> ask “What is it?”, “Where does it appear?”, “What does it do?”, and “What syntax belongs to it?” You are not troubleshooting or deciding what an analyst should do in a live incident.</div></div>
+  <div class="card"><h3>Phase brief</h3><p><strong>Why:</strong> later search reasoning depends on recognizing Splunk’s building blocks without hesitation.</p><p><strong>Success:</strong> you can retrieve foundational facts about data ingestion, SPL, the search interface, results, time controls, jobs, and saved output.</p></div>
+ </div>
+ <div class="btnRow"><button class="btn secondary prev">Back</button><button class="btn next">Start Reporter activities</button></div>
+</section>
+
+<section class="screen" data-title="Reporter Activities">
+<div class="kicker">Reporter • Live Intake Simulation</div><h2>The 07:42 Intake Desk</h2>
+<p class="lead">An operations supervisor has opened ticket CCDS-0742. Before anyone can interpret the disruption, you must assemble an accurate factual record from a simulated Splunk workspace. Your assignment is to <strong>identify and record what the evidence actually shows</strong>—not diagnose the root cause.</p>
+<div class="callout"><strong>Incoming ticket — Maya Chen, Operations:</strong> “Several customers reported unsuccessful purchases shortly after 07:40. We need an accurate inventory of the available telemetry, relevant search components, and visible records for the next analyst.”</div>
+<div class="grid"><div class="card"><h3>Intake status</h3><p id="repStatus">0 of 4 evidence stations submitted</p><p class="meta">Make your selections, then submit each station for a detailed expert review. Incorrect submissions can be revised.</p></div><div class="card"><h3>Evidence handling rule</h3><p>Record only facts visible in the ticket, Splunk interface, or event records. A status code alone does not prove the cause of an outage.</p></div></div>
+<div class="translatorMission"><div class="kicker">Station 01 • Evidence Routing</div><h3>Identify the correct telemetry labels</h3><p>Review these incoming data notes and classify each using Splunk's basic vocabulary.</p>
+<div class="code">Storage destination: transit<br>Event format: access_combined<br>Record origin: /var/log/nginx/access.log<br>Reporting machine: web02</div>
+<div id="repRouting"></div><button class="btn" id="repCheck1">Submit routing record</button><div class="feedback" id="repFeed1"></div></div>
+<div class="translatorMission"><div class="kicker">Station 02 • Search Workspace</div><h3>Inspect the analyst's search screen</h3><div class="mock"><div class="mockTop">Search &amp; Reporting • Simulation</div><div class="searchbar">index=transit sourcetype=access_combined action=purchase</div><div class="mockTabs"><span>Events</span><span>Patterns</span><span>Statistics</span><span>Visualization</span></div><div class="mockBody"><div class="fields"><strong>Selected fields</strong><p>host</p><p>source</p><hr><strong>Interesting fields</strong><p>action</p><p>status</p></div><div class="events"><div class="timeline"><div class="bar" style="height:20%"></div><div class="bar" style="height:45%"></div><div class="bar" style="height:90%"></div><div class="bar" style="height:30%"></div></div><div class="event">07:42:08 host=web02 action=purchase status=503</div><div class="event">07:42:19 host=web02 action=purchase status=502</div></div></div></div>
+<p>Assign each request to the interface element you would inspect.</p><div id="repWorkspace"></div><button class="btn" id="repCheck2">Submit workspace record</button><div class="feedback" id="repFeed2"></div></div>
+<div class="translatorMission"><div class="kicker">Station 03 • Event Review</div><h3>Read the returned evidence</h3><p>Open the three event envelopes. Then record the precise facts supported by the data.</p><div id="repEnvelopes" class="grid"></div><div id="repEvents"></div><button class="btn" id="repCheck3">Submit event record</button><div class="feedback" id="repFeed3"></div></div>
+<div class="translatorMission"><div class="kicker">Station 04 • Search Readiness</div><h3>Prepare the next analyst's reference card</h3><p>Choose the accurate description for each basic search control. This station checks recognition, not troubleshooting.</p><div id="repReadiness"></div><button class="btn" id="repCheck4">Submit reference card</button><div class="feedback" id="repFeed4"></div></div>
+<div class="btnRow"><button class="btn secondary prev">Back</button><button class="btn next" id="reporterNext" disabled>Complete Reporter phase</button></div>
+<div style="display:none" aria-hidden="true"><div class="matchGrid"><div><h3 style="margin:4px 0 8px">A. Splunk terms</h3><div class="terms" id="matchTerms"></div></div><div><h3 style="margin:4px 0 8px">B. Possible definitions</h3><div class="defs" id="matchDefs"></div></div></div>
+ <div class="feedback show" id="matchFeed"><strong>Start here:</strong> Select a term from Column A, then select its definition from Column B. Correct pairs will lock.</div>
+ <div class="rule"></div>
+ <div class="activityHead"><div class="kicker">Case Note 02 • Search Workspace</div><h2>Take a guided tour of the Splunk search workspace</h2>
+ <p><strong>Your mission:</strong> Learn where four important pieces of information appear in a basic Splunk search. You are <strong>not</strong> being asked to run the search or troubleshoot anything yet.</p></div>
+ <div class="callout"><strong>WHAT TO DO — 2 PARTS</strong><br><br><strong>Part A — Explore:</strong> Look at the mock Splunk screen. Then click each of the four buttons underneath it: <strong>Search bar, Timeline, Fields sidebar, and Events viewer.</strong> Each button explains what that area represents.<br><br><strong>Part B — Check your recognition:</strong> After exploring the four areas, answer the questions that appear below. Use what you just observed to identify the correct Splunk component.</div>
+ <div class="card" style="margin-bottom:18px"><span class="badge">DO NOT OVERTHINK THIS SCREEN</span><h3 style="margin-bottom:8px">What am I looking for?</h3><p>As you inspect the interface, answer four simple questions in your head: <strong>Where do I type the search?</strong> <strong>Where do I see activity over time?</strong> <strong>Where do I see labeled details such as host and status?</strong> <strong>Where do I see the individual records returned by the search?</strong></p></div>
+ <div class="mock">
+   <div class="mockTop">Search &amp; Reporting</div>
+   <div class="searchbar">index=transit sourcetype=web action=purchase</div>
+   <div class="mockTabs"><span>Events</span><span>Patterns</span><span>Statistics</span><span>Visualization</span></div>
+   <div class="mockBody"><div class="fields"><strong>Selected fields</strong><p>host</p><p>source</p><hr><strong>Interesting fields</strong><p>action</p><p>status</p></div>
+   <div class="events"><div class="timeline"><div class="bar" style="height:20%"></div><div class="bar" style="height:45%"></div><div class="bar" style="height:75%"></div><div class="bar" style="height:35%"></div><div class="bar" style="height:90%"></div><div class="bar" style="height:40%"></div></div>
+   <div class="event">09:42:12 host=web01 action=purchase status=200</div><div class="event">09:41:55 host=web02 action=view status=200</div></div></div>
+ </div>
+ <div style="margin-top:16px"><strong>PART A — Click all four workspace areas to investigate them:</strong></div>
+ <div class="hotspots"><button data-note="SEARCH BAR — This is where you enter SPL search syntax. In the example above, index=transit tells Splunk where to search, sourcetype=web identifies the kind of data, and action=purchase narrows the events to a particular field/value condition.">1. Search bar</button><button data-note="TIMELINE — This visual shows how the matching events are distributed over time. Taller bars represent more matching events in that interval. It helps you notice peaks, lows, or clusters without reading every event individually.">2. Timeline</button><button data-note="FIELDS SIDEBAR — This area organizes extracted name/value details found in the returned events. In this example, host, source, action, and status are fields that describe pieces of the event data.">3. Fields sidebar</button><button data-note="EVENTS VIEWER — This area shows the individual timestamped records that matched the search. Each event is one piece of the returned story; fields such as host, action, and status appear inside those records.">4. Events viewer</button></div>
+ <div class="feedback" id="hotFeed"></div>
+ <div class="callout" style="margin-top:26px"><strong>PART B — Recognition Check</strong><br>Now answer the questions below. For each question, choose the Splunk concept that directly matches what is being described. After you select an answer, read the feedback before moving to the next question.</div>
+ <div id="reporterQs"></div>
+ </div>
+</section>
+
+<section class="screen" data-title="Translator Brief">
+ <div class="brief">
+  <div><div class="stamp">CASE PASS 02 • TRANSLATOR</div><h2>Turn parts into relationships.</h2><p class="lead">You now know the names. A Translator explains how those pieces work together: why narrowing time helps, how timeline actions differ, what search modes change, and how a running job differs from a saved search result.</p>
+  <div class="callout"><strong>How to think:</strong> compare, connect, classify, and explain. Ask “How are these related?” and “What changes when this choice changes?” Stay focused on meaning rather than performing live troubleshooting.</div></div>
+  <div class="card"><h3>Phase brief</h3><p><strong>Why:</strong> isolated facts are fragile. Connected mental models make later hands-on searching easier to learn.</p><p><strong>Success:</strong> you can explain important distinctions and relationships across the complete basic-search workflow.</p></div>
+ </div>
+ <div class="btnRow"><button class="btn secondary prev">Back</button><button class="btn next">Start Translator activities</button></div>
+</section>
+
+<section class="screen" data-title="Translator Activities">
+ <div class="activityHead"><div class="kicker">Translator Lab • Guided Investigation</div><h2>Make the 07:42 evidence tell a clearer story</h2>
+ <p class="lead"><strong>Your role:</strong> You are not expected to know what to click automatically. Each task teaches one relationship, lets you try it, and then explains what your choice changed.</p></div>
+ <div class="callout"><strong>The one idea to keep in mind:</strong> Reporter asked, “What is this?” Translator asks, <strong>“If I change this, what happens—and why?”</strong></div>
+
+ <div class="translatorMission"><div class="kicker">Incident Dispatch • 07:42</div><h3>Ticket CCDS-0742: Missing purchase confirmations</h3><p><strong>Maya Chen, Operations:</strong> “Customers reported missing confirmations between 07:40 and 07:45. We need to distinguish successful purchases from failures, identify the affected host, and retain a reproducible search for the morning shift.”</p><p class="meta">Training simulation: the event records and result counts below are synthetic. No live Splunk connection is required.</p></div>
+ <div class="translatorMission" id="newLab1"><div class="kicker">Station 1 • Evidence Intake</div><h3>Inspect the raw events before searching</h3><p>Review records from two web hosts and an edge gateway. Select any event to reveal its fields, then record which field would identify failed purchases.</p><div class="labEvents" id="labEvents"></div><div id="eventDetail" class="feedback show" aria-live="polite">Select a record to inspect its extracted fields and meaning.</div><div class="labChoice"><label for="fieldHypothesis"><strong>Which field distinguishes success from failure?</strong></label><select id="fieldHypothesis"><option value="">Choose a field</option><option value="host">host</option><option value="status">status</option><option value="sourcetype">sourcetype</option><option value="source">source</option></select></div></div>
+ <div class="translatorMission" id="newLab2"><div class="kicker">Station 2 • Search Console</div><h3>Construct a defensible search</h3><p>Use the evidence to select a data scope, purchase condition, failure condition, and time range. Your choices are not graded until you submit the complete search.</p><div class="labControls"><label>Index<select id="labIndex"><option value="main">main</option><option value="transit">transit</option><option value="_internal">_internal</option></select></label><label>Activity<select id="labAction"><option value="action=*">action=*</option><option value="action=purchase">action=purchase</option><option value="purchase">purchase</option></select></label><label>HTTP status<select id="labStatus"><option value="status=*">status=*</option><option value="status>=400">status>=400</option><option value="status=200">status=200</option></select></label><label>Time window<select id="labTime"><option value="all">All time</option><option value="wide">07:00–08:00</option><option value="focus">07:40–07:45</option></select></label></div><div class="labConsole"><div class="meta">SPL PREVIEW — changes as you build</div><code id="labSPL">index=main action=* status=*</code></div><button class="btn" id="runLabSearch" type="button">Run search and evaluate</button><div class="feedback" id="labSearchFeedback" aria-live="polite"></div><div id="labResults" hidden><h3>Matching events</h3><div class="labEvents" id="labMatches"></div><p class="meta" id="labMatchCount"></p></div></div>
+ <div class="translatorMission" id="newLab3"><div class="kicker">Station 3 • Timeline Investigation</div><h3>Investigate the 07:42 surge</h3><div class="caseTask"><strong>INCIDENT TICKET</strong><p>Customers report missing purchase confirmations. Your supervisor asks: <em>Which minute had the most matching events, and how would you investigate that minute more closely?</em></p></div><div class="missionSteps"><div class="missionStep"><b>1 — COMPARE</b>Click at least two different bars. Read the event counts below.</div><div class="missionStep"><b>2 — IDENTIFY</b>Click the bar with the largest count. The selected bar has a dark outline.</div><div class="missionStep"><b>3 — DECIDE</b>Choose how to focus the investigation, then submit your decision.</div></div><p><strong>Timeline: simulated matching events per minute</strong></p><div class="labTimeline" id="labTimeline" role="group" aria-label="Simulated event counts by minute"></div><p class="meta" id="labTimelineInfo" aria-live="polite">No interval inspected yet. Click any bar to reveal its event count.</p><div class="decisionCue"><b>DECISION:</b> Your supervisor needs a <strong>fresh search restricted to the busiest minute</strong>, rather than simply hiding some already-returned results. Which action matches that request?</div><div class="options"><button class="option" type="button" data-timeline="filter"><strong>Filter existing results</strong><p class="meta">Change what is displayed from the results already retrieved.</p></button><button class="option" type="button" data-timeline="zoom"><strong>Zoom to selected time and search again</strong><p class="meta">Run a new search with a narrower time window.</p></button></div><button class="btn" type="button" id="checkTimeline">Review my timeline decision</button><div class="feedback" id="labTimelineFeedback" aria-live="polite"></div></div>
+ <div class="translatorMission" id="newLab4"><div class="kicker">Station 4 • Job Control Desk</div><h3>Keep the investigation running while you leave</h3><div class="caseTask"><strong>SUPERVISOR REQUEST</strong><p>Splunk is processing a large search. You need to open another view to check a ticket, <strong>without interrupting the search</strong>. Which job control should you use?</p></div><div class="grid"><div class="card"><h3>Live job monitor</h3><p>Search: <code>index=transit action=purchase</code></p><p>Current state: <strong id="labJobState">RUNNING</strong></p><p class="meta" id="labJobDetail">The simulated search is processing. Choose a control below; the state will change only when you execute it.</p></div><div class="card"><h3>What the controls mean</h3><p><b>Pause:</b> Temporarily suspend work.</p><p><b>Stop:</b> End execution.</p><p><b>Background:</b> Continue working after leaving this view.</p><p><b>Delete:</b> Remove the search job.</p></div></div><p><strong>Select one control, then execute your decision:</strong></p><div class="labJob"><div class="options" id="labJobOptions"><button class="option" data-job="Pause">Pause</button><button class="option" data-job="Stop">Stop</button><button class="option" data-job="Background">Background</button><button class="option" data-job="Delete">Delete</button></div></div><div class="btnRow"><button class="btn" id="checkJob" type="button">Execute selected control</button><button class="btn secondary" id="resetJob" type="button">Reset simulated job</button></div><div class="feedback" id="labJobFeedback" aria-live="polite"></div></div>
+<div class="translatorMission" id="correlationLab"><div class="kicker">Station 5 • Correlation Board</div><h3>Reconstruct the 07:42 disruption</h3><p><strong>Operations update:</strong> A colleague claims “the entire web platform went down.” Inspect the incident cards, compare the evidence across systems, and decide which statement is actually supported. This is a simulated investigative briefing, not a live Splunk environment.</p><div class="grid"><div class="card"><h3>Evidence drawer</h3><p class="meta">Open at least three records. Each adds a clue to your case board.</p><div class="labEvents" id="correlationEvidence"></div></div><div class="card"><h3>Investigation notebook</h3><div id="correlationNotebook" class="feedback show">No evidence inspected yet. Select an evidence card.</div><p class="meta" id="correlationCount">0 / 4 evidence cards reviewed</p></div></div><div class="labChoice"><label>Which incident statement can you defend using the records?<select id="correlationClaim"><option value="">Select a conclusion</option><option value="all">All web hosts were unavailable for the entire period</option><option value="host">Observed purchase failures are concentrated on web02; root cause is unknown</option><option value="firewall">The firewall blocked the failed purchases</option><option value="fixed">The issue was permanently resolved at 07:46</option></select></label></div><div class="labChoice"><label>What additional evidence would most directly help investigate the cause?<select id="correlationNext"><option value="">Choose next evidence</option><option value="application">Application and upstream dependency logs around 07:42</option><option value="delete">Delete the search job and assume the incident ended</option><option value="month">Expand to all data from the previous month only</option><option value="dashboard">Rely on the timeline spike without inspecting events</option></select></label></div><button type="button" class="btn" id="correlationSubmit">Submit analyst interpretation</button><div id="correlationFeedback" class="feedback" aria-live="polite"></div></div>
+<div class="translatorMission" id="newLab5"><div class="kicker">Station 6 • Handoff Packet</div><h3>Preserve the findings for the morning shift</h3><p>Choose the deliverable that keeps the search reusable in Splunk, and write a brief handoff based on the evidence.</p><div class="labChoice"><label>Handoff method<select id="labPreserve"><option value="pause">Pause the job</option><option value="csv">Export results as CSV</option><option value="report">Save the search as a Report</option><option value="delete">Delete the job</option></select></label></div><label for="labHandoff"><strong>Analyst handoff (at least 30 characters)</strong></label><textarea id="labHandoff" placeholder="Describe the affected host, status codes, incident time, and recommended follow-up..."></textarea><button class="btn rust" id="submitLab" type="button">Submit complete case for expert review</button><div class="feedback" id="labFinalFeedback" aria-live="polite"></div></div>
+ <div class="btnRow"><button class="btn secondary prev">Back</button><button class="btn next" id="translatorNext" disabled>Finish Translator phase</button></div>
+ <div style="display:none"><div id="translatorQ1"></div><div id="translatorQ2"></div><div id="translatorQ3"></div><div id="bars"></div></div>
+ <div class="btnRow"><button class="btn secondary prev">Back</button><button class="btn next">Finish Translator phase</button></div>
+</section>
+
+<section class="screen" data-title="Final Reflection">
+ <div class="kicker">Synthesis • 08</div><h2>Final Reflection</h2>
+ <p class="lead">Explain your understanding in your own words. This is not graded for a “perfect” answer; it is a preparation record for instructor-led learning.</p>
+ <div class="card"><h3>1. Build the chain</h3><p>In 3–5 sentences, explain the relationship among indexed data, a basic search, time, search results, and refinement.</p><textarea id="r1"></textarea></div>
+ <div class="card" style="margin-top:16px"><h3>2. Name your strongest connection</h3><p>Which relationship is clearest to you now, and why?</p><textarea id="r2"></textarea></div>
+ <div class="card" style="margin-top:16px"><h3>3. Bring one question</h3><p>What concept—timeline, time modifiers, search modes, search jobs, saved results, or another lesson concept—would you like clarified in class?</p><textarea id="r3"></textarea></div>
+ <div class="btnRow"><button class="btn secondary prev">Back</button><button class="btn next" id="reflectionNext" disabled>Record reflection</button></div>
+</section>
+
+<section class="screen" data-title="Completion">
+ <div class="kicker">Readiness Check • 09</div><h2>Completion Checklist</h2>
+ <p class="lead">Confirm that you completed the required learning journey. This checklist confirms completion; it is not another assessment.</p>
+ <div class="checks" id="checks">
+  <label><input type="checkbox"> I reviewed the learning objectives.</label>
+  <label><input type="checkbox"> I reviewed all Essential Vocabulary cards.</label>
+  <label><input type="checkbox"> I completed the Reporter activities.</label>
+  <label><input type="checkbox"> I completed the Translator activities.</label>
+  <label><input type="checkbox"> I submitted the Final Reflection responses.</label>
+  <label><input type="checkbox"> I identified at least one question or clarification for class.</label>
+ </div>
+ <div class="btnRow"><button class="btn secondary prev">Back</button><button class="btn next" id="completionNext" disabled>Complete prework</button></div>
+</section>
+
+<section class="screen" data-title="Bridge">
+ <div class="kicker">Next Stage • 10</div><h1>Case notebook complete. Next comes the investigation.</h1>
+ <p class="lead"><strong>Reporter — Remember</strong> established foundational recognition and retrieval. <strong>Translator — Understand</strong> connected those facts into meaning, relationships, and distinctions.</p>
+ <div class="rule"></div>
+ <div class="grid">
+  <div class="card"><div class="stamp">OPERATOR • APPLY</div><h3>Coming in instructor-led learning</h3><p>You will use the foundation to perform more authentic search work with Splunk.</p></div>
+  <div class="card"><div class="stamp">DETECTIVE • ANALYZE</div><h3>Then deepen the reasoning</h3><p>You will examine evidence and relationships more closely as the Practitioner Cycle advances.</p></div>
+ </div>
+ <div class="callout"><strong>Prework complete.</strong> Bring your unresolved case question to the live session. The goal was not to master every search technique—it was to arrive with a dependable conceptual map of Basic Searching.</div>
+ <div class="btnRow"><button class="btn secondary prev">Review completion</button><button class="btn" onclick="go(0)">Return to start</button></div>
+</section>
+
+</main></div>
+<footer class="footer">Signal Atlas • Crescent City Digital Services • Lesson 200.2 Basic Searching • Session progress is kept only while this page remains open.</footer>
+</div>
+<script>
+const screens=[...document.querySelectorAll('.screen')], nav=document.getElementById('nav'), navItems=document.getElementById('navItems');
+let current=0, unlocked=0;
+const state={vocab:new Set(),matches:0,reporter:0,t1:0,t2:0,t3:0};
+screens.forEach((s,i)=>{let b=document.createElement('button');b.textContent=(i+1).toString().padStart(2,'0')+'  '+s.dataset.title;b.disabled=false;b.setAttribute('aria-label','Jump to '+s.dataset.title);b.onclick=()=>go(i);navItems.appendChild(b)});
+function updateNav(){[...navItems.children].forEach((b,i)=>{b.classList.toggle('active',i===current);b.disabled=false});let pct=Math.round(current/(screens.length-1)*100);document.getElementById('pct').textContent=pct+'%';document.getElementById('prog').style.width=pct+'%'}
+function go(i){if(i<0||i>=screens.length)return;screens[current].classList.remove('active');current=i;screens[current].classList.add('active');unlocked=Math.max(unlocked,i);updateNav();window.scrollTo({top:0,behavior:'smooth'});nav.classList.remove('open')}
+function advance(){go(Math.min(current+1,screens.length-1))}
+document.querySelectorAll('.next').forEach(b=>b.addEventListener('click',advance));document.querySelectorAll('.prev').forEach(b=>b.addEventListener('click',()=>go(current-1)));
+document.getElementById('menuBtn').onclick=()=>nav.classList.toggle('open');
+
+const vocab=[
+{term:'Index',tag:'WHERE DATA LIVES',meaning:'A repository that stores machine-generated data after Splunk ingests and indexes it.',plain:'Think of an index as the organized destination where searchable event data is stored.',example:'Examples from the lesson include main, _internal, and _audit. Organizations can also create custom indexes.',connect:'Do not confuse the container with the format: an index stores the data; a sourcetype describes the event format.'},
+{term:'Sourcetype',tag:'WHAT THE DATA LOOKS LIKE',meaning:'Metadata that identifies the source and format of an event so Splunk knows how to interpret it.',plain:'It tells Splunk what kind of event structure it is dealing with.',example:'The lesson gives examples such as access_combined, syslog, and JSON.',connect:'Index answers “where is it stored?” Sourcetype helps answer “what kind of data is this?”'},
+{term:'SPL',tag:'HOW YOU ASK',meaning:'The search language used in Splunk to query indexed data.',plain:'SPL is how you express what you want Splunk to find or work with.',example:'A basic search can include fields, values, Boolean operators, wildcards, and time criteria.',connect:'SPL is the language; the Search bar is the interface location where you enter it.'},
+{term:'Key-value pair',tag:'HOW YOU GET SPECIFIC',meaning:'A field/key connected to a value with an equals sign.',plain:'Instead of searching for a loose word, you tell Splunk which field should contain the value.',example:'action=purchase',connect:'The lesson states keys are case-sensitive and values are not case-sensitive. Key-value searching is more specific than value-only searching.'},
+{term:'Wildcard (*)',tag:'HOW YOU MATCH A PATTERN',meaning:'A search character that can match an unlimited number of characters.',plain:'Use it when part of a value can vary and you want a broader pattern match.',example:'A wildcard can represent an unknown or changing portion of a field value.',connect:'A wildcard broadens a pattern. It is different from AND/OR/NOT, which define relationships among search terms.'},
+{term:'Event',tag:'ONE PIECE OF THE STORY',meaning:'A single timestamped unit of data returned in search results.',plain:'An event is one individual record in the set of matching search data.',example:'A web event might contain a timestamp plus host, action, status, and other information.',connect:'Events contain information. Fields are the extracted name/value pairs found within that information.'},
+{term:'Field',tag:'A LABELED DETAIL',meaning:'An extracted name/value pair identified from event data.',plain:'Fields turn pieces of event information into labeled details you can recognize and search.',example:'host=web01, action=purchase, or status=200 are examples of field/value information.',connect:'The Fields sidebar organizes Selected fields and Interesting fields found in your search results.'},
+{term:'Timeline',tag:'WHEN THE STORY CHANGES',meaning:'A visual representation of how matching events are distributed over time.',plain:'The bars let you see whether activity is steady, clustered, unusually high, or unusually low.',example:'A tall bar can indicate a spike in event activity; a low period can help reveal possible downtime.',connect:'The timeline visualizes returned events over time. The Time Range Picker controls the period searched.'},
+{term:'Time Range Picker',tag:'HOW MUCH TIME TO SEARCH',meaning:'The interface control used to choose the time period Splunk searches.',plain:'It limits the search window before you interpret the returned events.',example:'The lesson includes Presets, Relative, Real Time, Date Range, Date and Time Range, and Advanced.',connect:'This is a UI control. Time modifiers such as earliest and latest place time boundaries directly in search syntax.'},
+{term:'Time modifier',tag:'TIME INSIDE THE SEARCH',meaning:'Search syntax that defines time boundaries using terms such as earliest and latest.',plain:'It lets the query itself specify when Splunk should begin and end looking for events.',example:'earliest=-mon@mon latest=@mon represents the previous month in the lesson.',connect:'The @ character can snap relative time to a boundary. Absolute time can also be specified with exact date/time values.'},
+{term:'Search job',tag:'THE WORK IN PROGRESS',meaning:'The background process Splunk creates when it executes a search and retrieves/processes results.',plain:'Your query starts work; the search job is the running process doing that work.',example:'A job can be paused, stopped, inspected, sent to the background, edited, or deleted.',connect:'The lesson gives a default job lifetime of 10 minutes and notes it can be extended to 7 days. A job is not the same as a saved report.'},
+{term:'Save As / Export',tag:'HOW THE WORK SURVIVES',meaning:'Ways to preserve or share useful search work after the search has produced results.',plain:'This is how useful findings move beyond a temporary search session.',example:'Save As can create a Report or Alert. Results can be exported as Raw events, CSV, XML, or JSON.',connect:'Search jobs are temporary processes; saving or exporting preserves useful work for later use or sharing.'}
+];
+const vg=document.getElementById('vocab');
+vocab.forEach((v,i)=>{
+ let d=document.createElement('article'); d.className='evidenceCard';
+ d.innerHTML=`<div class="evTop"><span>FILE ${(i+1).toString().padStart(2,'0')}</span><span>${v.tag}</span></div>
+ <h3>${v.term}</h3>
+ <p class="predict">Before opening: What do you think this term controls, describes, or represents?</p>
+ <button type="button" class="revealBtn">Open evidence card</button>
+ <div class="evDetails" hidden>
+   <div class="meaningLayer"><b>RECOGNIZE IT</b><p>${v.meaning}</p></div>
+   <div class="meaningLayer"><b>UNDERSTAND IT</b><p>${v.plain}</p></div>
+   <div class="meaningLayer exampleLayer"><b>SEE IT</b><p>${v.example}</p></div>
+   <div class="meaningLayer connectionLayer"><b>CONNECT IT</b><p>${v.connect}</p></div>
+ </div>`;
+ const btn=d.querySelector('.revealBtn'), details=d.querySelector('.evDetails');
+ btn.addEventListener('click',()=>{
+   const opening=details.hidden;
+   details.hidden=!opening;
+   btn.textContent=opening?'Close evidence card':'Open evidence card';
+   if(opening){
+     state.vocab.add(i); d.classList.add('reviewed'); updateVocabProgress();
+   }
+ });
+ vg.appendChild(d);
+});
+function updateVocabProgress(){
+ const n=state.vocab.size, total=vocab.length;
+ document.getElementById('vocabMastery').textContent=`${n} / ${total}`;
+ document.getElementById('vocabTrack').style.width=(n/total*100)+'%';
+ document.getElementById('vocabCount').textContent=`${n} of ${total} evidence cards investigated.${n===total?' Vocabulary investigation complete.':' Review every card before continuing.'}`;
+ document.getElementById('vocabNext').disabled=n!==total;
+ if(n>=4 && document.getElementById('newVocabChallenge').disabled){
+   document.getElementById('newVocabChallenge').disabled=false; buildVocabChallenge();
+ }
+}
+let challengeIndex=0;
+const challengeOrder=[7,1,10,3,8,5,0,11,6,9,4,2];
+function buildVocabChallenge(){
+ const target=challengeOrder[challengeIndex%challengeOrder.length];
+ const item=vocab[target];
+ const prompt=document.getElementById('vocabChallengePrompt');
+ const box=document.getElementById('vocabChallengeOptions');
+ const fb=document.getElementById('vocabChallengeFeedback');
+ prompt.textContent=item.connect;
+ box.innerHTML='';
+ fb.innerHTML='';
+ fb.classList.remove('show');
+ fb.style.display='none';
+
+ const choices=[target,(target+3)%vocab.length,(target+7)%vocab.length,(target+9)%vocab.length].filter((x,p,a)=>a.indexOf(x)===p);
+ choices.sort((a,b)=>((a*7+challengeIndex)%11)-((b*7+challengeIndex)%11));
+
+ function explain(selectedIdx){
+   const selectedCorrect=selectedIdx===target;
+   [...box.querySelectorAll('button')].forEach(btn=>{
+     btn.disabled=true;
+     const choiceIdx=Number(btn.dataset.idx);
+     if(choiceIdx===target) btn.classList.add('correct');
+     else if(choiceIdx===selectedIdx) btn.classList.add('wrong');
+   });
+   const wrongBlocks=choices.filter(choiceIdx=>choiceIdx!==target).map(choiceIdx=>{
+     const v=vocab[choiceIdx];
+     return `<div class="meaningLayer" style="margin-top:14px;padding-top:14px;border-top:1px solid #b8c6cf">
+       <b style="font-size:12px">WHY ${v.term.toUpperCase()} IS NOT THE RIGHT ANSWER</b>
+       <p><strong>What it means:</strong> ${v.meaning}</p>
+       <p><strong>What it does in Splunk:</strong> ${v.plain}</p>
+       <p><strong>Why it does not fit this clue:</strong> This clue is testing <strong>${item.term}</strong>. ${item.connect} The defining relationship for <strong>${v.term}</strong> is different: ${v.connect}</p>
+     </div>`;
+   }).join('');
+   fb.innerHTML=`
+     <div style="font-size:19px;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid #476f89"><strong>ANSWER EXPLANATION</strong><br><span style="font-size:14px">${selectedCorrect?'✓ Your selection is correct.':'✗ Your selection is incorrect. The correct answer is '+item.term+'.'}</span></div>
+     <div class="meaningLayer">
+       <b style="font-size:12px">WHY ${item.term.toUpperCase()} IS THE RIGHT ANSWER</b>
+       <p><strong>What it means:</strong> ${item.meaning}</p>
+       <p><strong>What words in the clue point to it:</strong> ${item.connect}</p>
+       <p><strong>How to understand it:</strong> ${item.plain}</p>
+       <p><strong>Splunk example:</strong> ${item.example}</p>
+       <p><strong>Recognition takeaway:</strong> When you see a clue describing this same role or relationship, connect it to <strong>${item.term}</strong>.</p>
+     </div>
+     <div style="margin-top:22px;padding-top:14px;border-top:2px solid #476f89"><strong>WHY THE OTHER ANSWERS ARE NOT RIGHT</strong>${wrongBlocks}</div>`;
+   fb.style.display='block';
+   fb.classList.add('show');
+   setTimeout(()=>fb.scrollIntoView({behavior:'smooth',block:'nearest'}),0);
+ }
+
+ choices.forEach(idx=>{
+   const b=document.createElement('button');
+   b.type='button'; b.className='option'; b.textContent=vocab[idx].term; b.dataset.idx=idx;
+   b.onclick=function(){ explain(idx); };
+   box.appendChild(b);
+ });
+}
+document.getElementById('newVocabChallenge').addEventListener('click',()=>{challengeIndex++;buildVocabChallenge();});
+
+const pairs=[
+['Index','Repository where ingested machine data is stored after indexing.'],
+['Sourcetype','Metadata describing event source/format for parsing and field handling.'],
+['Field','Extracted name/value pair.'],
+['Event','Single timestamped unit of matching data.'],
+['Search job','Running background process that fetches and processes search results.'],
+['Report / Alert','Saved forms of search work available from Save As.']
+];
+let chosen=null, matched=new Set();
+pairs.forEach((p,i)=>{let b=document.createElement('button');b.textContent=p[0];b.dataset.i=i;b.onclick=()=>{if(matched.has(i))return;document.querySelectorAll('.terms button').forEach(x=>x.classList.remove('matchSel'));b.classList.add('matchSel');chosen=i};document.getElementById('matchTerms').appendChild(b)});
+[3,0,5,2,1,4].forEach(i=>{let b=document.createElement('button');b.textContent=pairs[i][1];b.dataset.i=i;b.onclick=()=>{if(chosen===null||matched.has(i))return;if(+b.dataset.i===chosen){matched.add(chosen);document.querySelector(`.terms button[data-i="${chosen}"]`).classList.add('matched');b.classList.add('matched');chosen=null;state.matches=matched.size;document.getElementById('matchFeed').innerHTML=`<strong>Correct connection.</strong> ${matched.size} of ${pairs.length} pairs complete.`;checkReporter()}else{document.getElementById('matchFeed').innerHTML='<strong>Not yet.</strong> Recheck the distinction. A term and definition should describe the same Splunk object or concept—not merely something related to it.'}};document.getElementById('matchDefs').appendChild(b)});
+
+document.querySelectorAll('.hotspots button').forEach(b=>b.onclick=()=>{let f=document.getElementById('hotFeed');f.textContent=b.dataset.note;f.classList.add('show')});
+const reporterQs=[
+{q:'Which syntax correctly links a key and value?',a:['action=purchase','action:purchase','action → purchase','action IS purchase'],c:0,e:'Splunk key-value syntax uses an equals sign: action=purchase.',deep:'A key-value pair tells Splunk exactly which field should contain a particular value. Here, action is the field/key and purchase is the value. This is more precise than searching for an unqualified word because the search is tied to a named field.',wrong:{1:'A colon is not the basic key-value operator taught in this lesson. The lesson defines the relationship with an equals sign.',2:'The arrow is visual notation, not SPL key-value search syntax.',3:'IS is natural-language wording, not the field=value structure used for this basic Splunk search.'}},
+{q:'If two search terms are entered with no Boolean operator between them, what does the lesson say Splunk assumes?',a:['OR','NOT','AND','XOR'],c:2,e:'The lesson states that no operator defaults to AND, so both terms are required.',deep:'AND narrows the match because both search conditions must be satisfied. This matters when reading basic SPL: two adjacent terms are not automatically alternatives; the lesson treats them as requirements that must occur together.',wrong:{0:'OR allows either condition to match, which broadens the possible result set. It is not the default relationship described by this lesson.',1:'NOT excludes a term or condition from the matching results. It is an explicit exclusion operator, not the default.',3:'XOR is not one of the Boolean operators taught here for basic Splunk searching. The lesson focuses on AND, OR, and NOT.'}},
+{q:'Which tab lists common structures among returned events?',a:['Patterns','Statistics','Visualization','Jobs'],c:0,e:'Patterns displays common patterns among events that share a similar structure.',deep:'The Patterns view helps the learner recognize repeated structures in returned event data. It is useful for seeing how events group by similar textual form rather than examining each raw event individually.',wrong:{1:'Statistics is associated with tabular or calculated search output rather than identifying common raw-event structures.',2:'Visualization presents results graphically when the search output supports visualization; its purpose is presentation, not pattern grouping.',3:'Jobs concerns the background search work Splunk creates when a search executes. It is not one of the result tabs shown for identifying event structures.'}}
+];
+function makeQuiz(rootId,qs,key){
+  const root=document.getElementById(rootId);
+  root.innerHTML='';
+  qs.forEach((x,qi)=>{
+    const wrap=document.createElement('div');
+    wrap.className='reporter-question-block';
+    const q=document.createElement('div');
+    q.className='question';
+    q.textContent=(qi+1)+'. '+x.q;
+    const opts=document.createElement('div');
+    opts.className='options';
+    const fb=document.createElement('div');
+    fb.className='reporter-feedback';
+    fb.setAttribute('aria-live','polite');
+    wrap.append(q,opts,fb);
+
+    x.a.forEach((choice,ai)=>{
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='option';
+      b.textContent=choice;
+      b.addEventListener('click',function(){
+        if(wrap.dataset.done==='1') return;
+        wrap.dataset.done='1';
+        [...opts.children].forEach((btn,idx)=>{
+          btn.disabled=true;
+          if(idx===x.c) btn.classList.add('correct');
+          if(idx===ai && ai!==x.c) btn.classList.add('wrong');
+        });
+        const correct=x.a[x.c];
+        let html='<h4>'+(ai===x.c?'✓ Correct':'✗ Not quite — review the explanation')+'</h4>';
+        html+='<div class="rightbox"><strong>WHY “'+correct+'” IS CORRECT</strong><p>'+x.e+'</p>'+(x.deep?'<p>'+x.deep+'</p>':'')+'</div>';
+        x.a.forEach((other,ci)=>{
+          if(ci!==x.c){
+            const why=(x.wrong&&x.wrong[ci])?x.wrong[ci]:'This choice represents a different Splunk concept and does not satisfy what this question is asking.';
+            html+='<div class="wrongbox"><strong>WHY “'+other+'” IS WRONG FOR THIS QUESTION</strong><p>'+why+'</p></div>';
+          }
+        });
+        fb.innerHTML=html;
+        fb.classList.add('visible');
+        state[key]++;
+        if(key==='reporter') checkReporter(); else checkTranslator();
+        setTimeout(()=>fb.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+      });
+      opts.appendChild(b);
+    });
+    root.appendChild(wrap);
+  });
+}
+makeQuiz('reporterQs',reporterQs,'reporter');
+function checkReporter(){document.getElementById('reporterNext').disabled=!(state.matches===pairs.length&&state.reporter===reporterQs.length)}
+
+['r1','r2','r3'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{document.getElementById('reflectionNext').disabled=!['r1','r2','r3'].every(x=>document.getElementById(x).value.trim().length>=8)}));
+document.querySelectorAll('#checks input').forEach(c=>c.addEventListener('change',()=>{document.getElementById('completionNext').disabled=![...document.querySelectorAll('#checks input')].every(x=>x.checked)}));
+updateNav();
+</script>
+<script>
+(function(){
+const records=[
+ {time:'07:39:52',host:'web01',source:'/var/log/web/access.log',sourcetype:'access_combined',action:'purchase',status:200,detail:'Successful purchase before the reported incident'},
+ {time:'07:40:17',host:'web02',source:'/var/log/web/access.log',sourcetype:'access_combined',action:'purchase',status:502,detail:'Gateway error on purchase request'},
+ {time:'07:41:03',host:'web02',source:'/var/log/web/access.log',sourcetype:'access_combined',action:'purchase',status:503,detail:'Service unavailable during the reported window'},
+ {time:'07:41:48',host:'web01',source:'/var/log/web/access.log',sourcetype:'access_combined',action:'view',status:200,detail:'Unrelated successful page view'},
+ {time:'07:42:11',host:'web02',source:'/var/log/web/access.log',sourcetype:'access_combined',action:'purchase',status:502,detail:'Repeated purchase failure on web02'},
+ {time:'07:42:37',host:'web02',source:'/var/log/web/access.log',sourcetype:'access_combined',action:'purchase',status:503,detail:'Another purchase failure on web02'},
+ {time:'07:43:05',host:'edge-fw',source:'/var/log/syslog',sourcetype:'syslog',action:'allow',status:200,detail:'Firewall record, not a web purchase'},
+ {time:'07:44:21',host:'web02',source:'/var/log/web/access.log',sourcetype:'access_combined',action:'purchase',status:502,detail:'Purchase errors continue'},
+ {time:'07:46:09',host:'web01',source:'/var/log/web/access.log',sourcetype:'access_combined',action:'purchase',status:200,detail:'Successful purchase outside the focus window'}
+];
+const $=id=>document.getElementById(id);let inspected=new Set(),searched=false,searchCorrect=false,intervals=new Set(),peak=null,action=null,job=null,finalDone=false;
+function show(id,html){$(id).innerHTML=html;$(id).classList.add('show')}
+function expertReview(title,chosen,options,correct,context){
+ const rows=options.map(o=>`<div class="expertOption ${o.value===correct?'expertCorrect':''}"><strong>${o.value===correct?'✓ Correct approach':'Alternative'} — ${o.label}</strong><p>${o.why}</p></div>`).join('');
+ const selected=options.find(o=>o.value===chosen);
+ return `<div class="expertReview"><h4>Expert review: ${title}</h4><p><strong>Your selection:</strong> ${selected?selected.label:'No selection'} — ${chosen===correct?'Appropriate for this task.':'Does not fully meet the task requirements.'}</p>${rows}<p class="expertTakeaway"><strong>Real-world SOC connection:</strong> ${context}</p></div>`;
+}
+
+function recordButton(r,i){let b=document.createElement('button');b.type='button';b.textContent=`${r.time}  host=${r.host}  sourcetype=${r.sourcetype}  action=${r.action}  status=${r.status}`;b.onclick=()=>{inspected.add(i);document.querySelectorAll('#labEvents button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');show('eventDetail',`<strong>Event ${i+1} • ${r.time}</strong><p><strong>host:</strong> ${r.host} identifies the system; <strong>sourcetype:</strong> ${r.sourcetype} identifies event format; <strong>status:</strong> ${r.status} identifies the HTTP outcome.</p><p>${r.detail}. A single event is evidence of a request, not proof of the root cause.</p>`)};return b}
+records.forEach((r,i)=>$('labEvents').appendChild(recordButton(r,i)));
+const selectors=['labIndex','labAction','labStatus','labTime'];function updateSPL(){let t=$('labTime').value;let q=`index=${$('labIndex').value} ${$('labAction').value} ${$('labStatus').value}`;if(t==='focus')q+=' earliest=07:40 latest=07:45';if(t==='wide')q+=' earliest=07:00 latest=08:00';$('labSPL').textContent=q}selectors.forEach(id=>$(id).addEventListener('change',updateSPL));
+$('runLabSearch').onclick=()=>{searched=true;searchCorrect=$('labIndex').value==='transit'&&$('labAction').value==='action=purchase'&&$('labStatus').value==='status>=400'&&$('labTime').value==='focus';let subset=records.filter(r=>($('labIndex').value==='transit'||$('labIndex').value==='main')&&($('labAction').value==='action=*'||$('labAction').value==='purchase'||r.action==='purchase')&&($('labStatus').value==='status=*'||($('labStatus').value==='status>=400'?r.status>=400:r.status===200))&&($('labTime').value==='all'||($('labTime').value==='wide'||(r.time>='07:40'&&r.time<'07:45'))));if($('labIndex').value==='_internal')subset=[];
+$('labResults').hidden=false;$('labMatches').replaceChildren();subset.forEach(r=>{let e=document.createElement('button');e.textContent=`${r.time} | ${r.host} | ${r.action} | ${r.status}`;e.onclick=()=>show('labSearchFeedback',`<strong>Selected result:</strong> ${r.detail}. This is one event matching the current search.`);$('labMatches').appendChild(e)});$('labMatchCount').textContent=`${subset.length} simulated matching records. Counts reflect the visible sample only.`;
+show('labSearchFeedback',`<strong>${searchCorrect?'Search validated.':'Search returned results, but the investigation scope needs revision.'}</strong><p>The goal is to isolate failed purchase requests in the reported incident window. The visible sample alone does not establish root cause.</p>`+
+ expertReview('Index',$('labIndex').value,[{value:'transit',label:'transit',why:'This simulated case stores the purchase records in the transit index.'},{value:'main',label:'main',why:'A general-purpose index may contain other data, but it is not the assigned destination for this case.'},{value:'_internal',label:'_internal',why:'Splunk internal operational logs are not the case purchase telemetry.'}],'transit','An incorrect index can hide relevant events even when the other search conditions are accurate.')+
+ expertReview('Activity',$('labAction').value,[{value:'action=purchase',label:'action=purchase',why:'Specifies the purchase value in the action field, directly matching the reported symptom.'},{value:'action=*',label:'action=*',why:'Matches any event with an action field, including unrelated browsing and gateway actions.'},{value:'purchase',label:'purchase',why:'A free-text term may match text outside the intended action field; it is less precise.'}],'action=purchase','Field/value searches help analysts create reproducible evidence scopes.')+
+ expertReview('HTTP status',$('labStatus').value,[{value:'status>=400',label:'status>=400',why:'Includes HTTP client and server error responses, including the 502 and 503 failures in the case.'},{value:'status=*',label:'status=*',why:'Includes successful 200 responses as well as errors, so it does not isolate failures.'},{value:'status=200',label:'status=200',why:'Selects successful responses, which cannot by themselves identify the reported failures.'}],'status>=400','Response codes identify observed outcomes; they do not alone prove which dependency failed.')+
+ expertReview('Time range',$('labTime').value,[{value:'focus',label:'07:40–07:45',why:'Matches the reported interval and limits unrelated records.'},{value:'wide',label:'07:00–08:00',why:'Includes the incident but adds many minutes that are not needed for this initial targeted check.'},{value:'all',label:'All time',why:'Searches far beyond the ticket window, making the result set less focused.'}],'focus','An appropriately bounded search is easier to verify and hand off.'))};
+const times=['07:39','07:40','07:41','07:42','07:43','07:44','07:45','07:46'],counts=[1,3,7,15,8,5,2,1];
+times.forEach((t,i)=>{let b=document.createElement('button');b.type='button';b.style.height=(counts[i]/15*100)+'%';b.setAttribute('aria-label',`${t}, ${counts[i]} events`);b.innerHTML=`<span>${t}</span>`;b.onclick=()=>{intervals.add(i);peak=i;[...$('labTimeline').children].forEach(x=>x.classList.remove('selected'));b.classList.add('selected');$('labTimelineInfo').textContent=`Selected ${t}: ${counts[i]} simulated events. You have compared ${intervals.size} distinct minute(s).`;};$('labTimeline').appendChild(b)});
+document.querySelectorAll('[data-timeline]').forEach(b=>b.onclick=()=>{action=b.dataset.timeline;document.querySelectorAll('[data-timeline]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')});
+$('checkTimeline').onclick=()=>{if(intervals.size<2||peak===null||!action){show('labTimelineFeedback','<strong>Complete all three steps.</strong><p>Inspect at least two different bars, select the busiest minute, and choose an action before submitting.</p>');return;}const valid=peak===3&&action==='zoom';show('labTimelineFeedback',`<strong>${valid?'Decision verified.':'Review your decision and try again.'}</strong><p><strong>Observed peak:</strong> 07:42 has 15 simulated events. Your selected interval: ${times[peak]} (${counts[peak]} events). A high count shows activity volume, not a confirmed cause.</p>`+expertReview('Time selection',String(peak),times.map((t,i)=>({value:String(i),label:`${t} — ${counts[i]} events`,why:i===3?'This is the highest count in the displayed dataset.':'This interval has fewer events than 07:42; selecting it would miss the busiest minute.'})),'3','Compare interval counts before narrowing a search; never equate a spike with proof of an outage.')+expertReview('Timeline action',action,[{value:'zoom',label:'Zoom and run a new search',why:'Creates a new search restricted to the selected time interval, exactly as the supervisor requested.'},{value:'filter',label:'Filter existing results',why:'Can be useful for inspecting the current result set, but does not execute the fresh time-bounded search requested here.'}],'zoom','Filtering and rerunning are different operations; document which one produced your evidence.'))};;
+document.querySelectorAll('[data-job]').forEach(b=>b.onclick=()=>{job=b.dataset.job;document.querySelectorAll('[data-job]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')});
+$('checkJob').onclick=()=>{if(!job){show('labJobFeedback','<strong>Choose a job control first.</strong><p>Select one of the four actions, then execute it.</p>');return;}$('labJobState').textContent=job==='Background'?'RUNNING IN BACKGROUND':job==='Pause'?'PAUSED':job==='Stop'?'STOPPED':'DELETED';$('labJobDetail').textContent=job==='Background'?'The search continues while you navigate to another view.':job==='Pause'?'Processing is suspended; this does not meet the requirement to keep searching.':job==='Stop'?'The search has ended and is no longer processing.':'The job was removed; the investigation cannot continue with this job.';show('labJobFeedback',`<strong>${job==='Background'?'Decision verified.':'This action does not meet the supervisor’s request.'}</strong><p><strong>Observed state:</strong> ${$('labJobState').textContent}. The requirement is to keep processing while navigating away.</p>`+expertReview('Search job control',job,[{value:'Pause',label:'Pause',why:'Temporarily suspends processing. This can be useful when a job needs to wait, but violates the requirement to keep running.'},{value:'Stop',label:'Stop',why:'Ends the running search rather than allowing continued execution.'},{value:'Background',label:'Background',why:'Allows the search job to continue while the analyst works in another view.'},{value:'Delete',label:'Delete',why:'Removes the job and is inappropriate while its results are still needed.'}],'Background','Managing a job is different from preserving its query or exporting results. Use Reset to safely explore the other outcomes.'))};;
+$('resetJob').onclick=()=>{job=null;$('labJobState').textContent='RUNNING';$('labJobDetail').textContent='The simulated search is processing. Choose a control below; the state will change only when you execute it.';document.querySelectorAll('[data-job]').forEach(x=>x.classList.remove('selected'));$('labJobFeedback').classList.remove('show');$('labJobFeedback').innerHTML=''};
+const clueCards=[
+ ['WEB02 / 07:42:11','action=purchase status=502','A gateway error occurred for a purchase request on web02. This establishes a failed request, not the faulty component.'],
+ ['WEB02 / 07:42:37','action=purchase status=503','Another purchase failed with service unavailable. Repeated failures support an incident pattern on this host.'],
+ ['WEB01 / 07:39:52','action=purchase status=200','A successful purchase on web01 before the disruption prevents an unsupported claim that all hosts failed throughout the period.'],
+ ['EDGE-FW / 07:43:05','action=allow status=200','This record shows allowed traffic; it does not establish a firewall block or prove the application was healthy.']
+];const clueSeen=new Set();let correlationChecked=false;
+clueCards.forEach((c,i)=>{let b=document.createElement('button');b.type='button';b.textContent=c[0]+'  •  '+c[1];b.onclick=()=>{clueSeen.add(i);b.classList.add('selected');show('correlationNotebook',`<strong>${c[0]}</strong><p>${c[2]}</p><p><strong>Investigation distinction:</strong> An observed HTTP outcome is evidence; the underlying cause requires further correlation.</p>`);$('correlationCount').textContent=`${clueSeen.size} / 4 evidence cards reviewed`};$('correlationEvidence').appendChild(b)});
+$('correlationSubmit').onclick=()=>{correlationChecked=clueSeen.size>=3&&$('correlationClaim').value==='host'&&$('correlationNext').value==='application';let claim=$('correlationClaim').value,next=$('correlationNext').value;show('correlationFeedback',`<h3>${correlationChecked?'Interpretation verified':'Review the evidence and revise'}</h3><p><strong>Supported finding:</strong> Repeated 502/503 purchase errors appear on web02. These records alone cannot prove a platform-wide outage or a specific root cause.</p><p><strong>Your conclusion:</strong> ${claim==='host'?'Correctly separates the observed host-specific pattern from unproven causation.':claim==='all'?'A platform-wide outage is not demonstrated by this limited sample.':claim==='firewall'?'The available firewall event says allow, not block.':claim==='fixed'?'One later success on web01 does not establish permanent recovery.':'Choose a conclusion grounded in the inspected records.'}</p><p><strong>Next evidence:</strong> ${next==='application'?'Application and upstream dependency logs could help test why web02 returned gateway/service errors.':next==='delete'?'Deleting the job discards a useful investigative artifact.':next==='month'?'A broad monthly search alone is less targeted than correlating the relevant service logs.':next==='dashboard'?'A timeline shows volume, not the underlying failure mechanism.':'Select a follow-up source.'}</p>${expertReview('Incident conclusion',claim,[{value:'host',label:'Failures concentrate on web02; cause unknown',why:'The inspected purchase records show repeated 502/503 responses on web02 without confirming a root cause.'},{value:'all',label:'All hosts were down',why:'The limited sample does not establish a complete platform outage or its duration.'},{value:'firewall',label:'Firewall blocked the purchases',why:'The provided gateway record is an allow event, not proof of blocking.'},{value:'fixed',label:'Issue permanently resolved at 07:46',why:'One later success on web01 cannot prove recovery on web02 or sustained remediation.'}],'host','Describe only what the available logs establish and keep hypotheses separate from facts.')}${expertReview('Next evidence',next,[{value:'application',label:'Application and upstream logs',why:'Directly tests the services and dependencies that may explain 502/503 responses.'},{value:'delete',label:'Delete the job',why:'Discards useful investigation work without collecting evidence of the cause.'},{value:'month',label:'Search the entire prior month only',why:'Historical context can help later, but it does not directly test the immediate failure mechanism.'},{value:'dashboard',label:'Use timeline alone',why:'Counts reveal volume and timing but not the cause of HTTP failures.'}],'application','Correlate timestamps and request identifiers across services before assigning causation.')}<p><strong>Expert takeaway:</strong> Distinguish observation, inference, and confirmation. Avoid claiming a root cause that the available logs cannot establish.</p>`)};
+$('submitLab').onclick=()=>{let f=$('fieldHypothesis').value==='status',t=intervals.size>=2&&peak===3&&action==='zoom',j=job==='Background',p=$('labPreserve').value==='report',h=$('labHandoff').value.trim().length>=30;let checks=[['Evidence field',f,'The HTTP status field distinguishes 2xx successes from 5xx failures; host identifies which system produced the event.'],['Search scope',searched&&searchCorrect,'Use index=transit, action=purchase, status>=400, and the 07:40–07:45 window.'],['Timeline reasoning',t,'Compare multiple intervals, identify the 07:42 peak, and zoom for a new time-bounded search.'],['Job control',j,'Background retains execution while leaving the active search view.'],['Correlation board',correlationChecked,'Review at least three evidence cards, identify the web02 failure pattern without overstating the cause, and request application/upstream logs.'],['Preservation',p,'Save as Report keeps the search reusable inside Splunk; CSV preserves a snapshot of result rows instead.'],['Handoff',h,'Include the affected host web02, the 502/503 responses, the time window, and that root cause is not yet confirmed.']];finalDone=checks.every(x=>x[1]);show('labFinalFeedback',`<h3>Expert case review • ${checks.filter(x=>x[1]).length}/7 checkpoints met</h3>${checks.map(x=>`<p><strong>${x[1]?'✓':'○'} ${x[0]}:</strong> ${x[2]}</p>`).join('')}<p><strong>Evidence-based conclusion:</strong> The synthetic records show multiple failed purchase requests on web02 around 07:42. This is an observed pattern, not proof of a specific infrastructure fault. Preserve the search and escalate for correlation with application and upstream service logs.</p>${expertReview('Evidence field',$('fieldHypothesis').value,[{value:'status',label:'status',why:'HTTP response status distinguishes success (such as 200) from error responses (such as 502 and 503).'},{value:'host',label:'host',why:'Identifies the system producing the event, not whether its request succeeded.'},{value:'source',label:'source',why:'Identifies the file or input where data originated, not the HTTP outcome.'},{value:'sourcetype',label:'sourcetype',why:'Identifies the event format used for parsing, not whether a request failed.'}],'status','Use status to classify request outcomes and host to locate where those outcomes were observed.')}${expertReview('Preserve the search',$('labPreserve').value,[{value:'report',label:'Save as Report',why:'Retains the search definition for reuse within Splunk, meeting the morning-shift requirement.'},{value:'csv',label:'Export CSV',why:'Useful as a snapshot of result rows, but not a reusable Splunk search definition.'},{value:'pause',label:'Pause job',why:'Only suspends a running process; it does not save a reusable search.'},{value:'delete',label:'Delete job',why:'Removes a job instead of preserving the investigation.'}],'report','Save the reproducible query and separately export evidence snapshots when required.')} ${finalDone?'<strong>Case complete. You may continue.</strong>':'<strong>Revise the incomplete checkpoints and submit again.</strong>'}`);$('translatorNext').disabled=!finalDone};
+})();
+</script><script>
+(()=>{
+const stations=[false,false,false,false];const $=id=>document.getElementById(id);
+const groups=[
+[['Storage destination: transit','Index',['Sourcetype','Index','Source','Host'],'The index is the repository holding searchable data. transit names the destination, not the format or machine.'],['Event format: access_combined','Sourcetype',['Source','Host','Sourcetype','Index'],'Sourcetype identifies how events are structured and interpreted.'],['Record origin: /var/log/nginx/access.log','Source',['Index','Source','Field','Sourcetype'],'Source identifies where the record came from, such as a file path.'],['Reporting machine: web02','Host',['Host','Source','Index','Event'],'Host identifies the machine associated with the event.']],
+[['Enter a new SPL query','Search bar',['Events viewer','Search bar','Timeline','Fields sidebar'],'The Search bar accepts SPL; it is not the same as the results area.'],['See the distribution of matching events over time','Timeline',['Time Range Picker','Timeline','Events viewer','Patterns'],'The timeline displays counts distributed over intervals. It does not itself identify the cause of a spike.'],['Locate extracted host and status labels','Fields sidebar',['Statistics','Fields sidebar','Search bar','Timeline'],'The sidebar organizes fields extracted from matching events.'],['Read individual timestamped records','Events viewer',['Events viewer','Patterns','Timeline','Search bar'],'The Events view contains individual returned event records.']],
+[['Which host appears in the failed purchase records?','web02',['web01','web02','edge-fw','auth01'],'The 502 and 503 purchase events both identify web02.'],['Which response codes are visible on web02?','502 and 503',['200 and 503','502 and 503','404 and 500','200 and 302'],'The two visible failure records contain status=503 and status=502.'],['Which event is a successful response?','07:41:54 web01 status=200',['07:42:08 web02 status=503','07:42:19 web02 status=502','07:41:54 web01 status=200','All three'],'HTTP 200 is a success response; 502 and 503 are server-error responses.']],
+[['Which expression is a field/value condition?','action=purchase',['purchase','action=purchase','action:purchase','purchase=action'],'Basic key/value searches use field=value syntax.'],['Which control limits the searched period?','Time Range Picker',['Timeline','Time Range Picker','Patterns','Fields sidebar'],'The picker defines the search window; the timeline shows the distribution of matching results.'],['Which is a temporary execution process?','Search job',['Saved report','Exported CSV','Search job','Sourcetype'],'A search job is the execution process, not a reusable saved report.'],['Which view groups similarly structured events?','Patterns',['Visualization','Events','Patterns','Jobs'],'Patterns groups events with similar structures; Events displays individual records.']]
+];
+function build(idx,id){groups[idx].forEach((q,j)=>{const box=document.createElement('div');box.className='jobScenario';const title=document.createElement('h4');title.textContent=(j+1)+'. '+q[0];const select=document.createElement('select');select.style.cssText='width:100%;padding:11px;border:1px solid #7894a6;background:white';select.innerHTML='<option value="">Choose an evidence label…</option>';q[2].forEach(v=>{const opt=document.createElement('option');opt.value=v;opt.textContent=v;select.appendChild(opt)});select.dataset.answer=q[1];box.append(title,select);$(id).appendChild(box)})}
+build(0,'repRouting');build(1,'repWorkspace');build(2,'repEvents');build(3,'repReadiness');
+const logs=['07:41:54 host=web01 action=purchase status=200 source=/var/log/nginx/access.log','07:42:08 host=web02 action=purchase status=503 source=/var/log/nginx/access.log','07:42:19 host=web02 action=purchase status=502 source=/var/log/nginx/access.log'];
+logs.forEach((log,i)=>{let card=document.createElement('div');card.className='card';let h=document.createElement('h3');h.textContent='Evidence envelope '+(i+1);let b=document.createElement('button');b.className='btn secondary';b.textContent='Open envelope';let pre=document.createElement('pre');pre.className='code';pre.style.whiteSpace='pre-wrap';pre.hidden=true;pre.textContent=log;b.onclick=()=>{pre.hidden=!pre.hidden;b.textContent=pre.hidden?'Open envelope':'Close envelope'};card.append(h,b,pre);$('repEnvelopes').append(card)});
+const distinctions={
+'Index':'An index is the searchable storage destination; it is not the event format, original file path, or reporting machine.',
+'Sourcetype':'A sourcetype describes how Splunk classifies and parses the event format; it is not a storage index, source path, or host.',
+'Source':'A source identifies the origin of the event, commonly a file path or input; it does not name the reporting host or searchable index.',
+'Host':'A host identifies the system associated with the event; it does not identify the original file path, data format, or index.',
+'Field':'A field is an extracted named attribute within an event, not the original log file itself.',
+'Event':'An event is one timestamped record, not the host name or the container holding many events.',
+'Search bar':'The search bar is where analysts enter SPL. It is not a results visualization or the list of returned events.',
+'Timeline':'The timeline visualizes counts across time buckets. It does not set the original search time range or display complete event details.',
+'Time Range Picker':'The Time Range Picker sets the time boundaries searched; the timeline displays the distribution of matching events.',
+'Events viewer':'The Events viewer displays individual matching records, unlike aggregate statistics, patterns, or timeline counts.',
+'Fields sidebar':'The Fields sidebar lists extracted field names and values; it is not where SPL is typed or time trends are plotted.',
+'Patterns':'Patterns groups events by similar structure; it is not the individual-event view or a chart of counts over time.',
+'Statistics':'Statistics presents tabular aggregations produced by transforming searches, rather than the field inventory.',
+'Visualization':'Visualization displays charted results, not the pattern-grouping view or raw individual event list.',
+'Jobs':'Jobs refers to search execution management, not grouping event structures.',
+'Saved report':'A saved report preserves a search definition for reuse; it is not the temporary process executing a search.',
+'Exported CSV':'CSV is an exported snapshot of result data; it is not the active execution process.',
+'Search job':'A search job is the running or completed execution instance. Saving a report and exporting results are different operations.',
+'purchase':'A bare word searches for matching text and does not explicitly require the action field to equal purchase.',
+'action=purchase':'This explicitly restricts the action field to purchase using field=value syntax.',
+'action:purchase':'This colon form is not the basic field=value equality syntax used in this lesson.',
+'purchase=action':'This reverses the intended field and value; purchase is the value, while action is the field name.',
+'web01':'The visible web01 purchase event returned HTTP 200, not the observed 502/503 failures.',
+'web02':'The failed purchase records explicitly show host=web02.',
+'edge-fw':'The gateway host is not present in the three opened web purchase envelopes.',
+'auth01':'No opened purchase envelope identifies auth01 as its host.',
+'200 and 503':'HTTP 200 belongs to web01, while the two web02 failures show 502 and 503.',
+'502 and 503':'Both 502 and 503 appear on the web02 failed purchase records.',
+'404 and 500':'Neither 404 nor 500 appears in the displayed web02 records.',
+'200 and 302':'Neither a 200 nor a 302 response is shown for web02 in the opened envelopes.',
+'07:42:08 web02 status=503':'HTTP 503 indicates service unavailable; it is not a successful response.',
+'07:42:19 web02 status=502':'HTTP 502 indicates a bad gateway response; it is not a successful response.',
+'07:41:54 web01 status=200':'HTTP 200 indicates a successful response for this request; it does not prove the entire service is healthy.',
+'All three':'The two web02 records have 5xx errors, so not all three requests succeeded.'
+};
+const safe=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const stationContext=[
+'Operational context: Incorrectly labeling metadata can send a SOC analyst to the wrong index, log source, or system during triage.',
+'Operational context: Choosing the wrong interface component can cause an analyst to confuse search scope, displayed event evidence, and time distribution.',
+'Operational context: The three synthetic envelopes show a successful web01 purchase at 07:41:54 and two failed web02 purchases at 07:42:08 and 07:42:19. They do not establish root cause.',
+'Operational context: Accurate SPL syntax, time scoping, and job terminology help analysts reproduce and preserve an investigation.'
+];
+for(let i=0;i<4;i++)$('repCheck'+(i+1)).onclick=()=>{
+ const selects=[...$(['repRouting','repWorkspace','repEvents','repReadiness'][i]).querySelectorAll('select')];
+ let correct=0;
+ let html='<h3>Expert evidence review</h3><p>Each question includes the evidence-based answer, an explanation of your selection, and a review of every alternative.</p>';
+ selects.forEach((sel,j)=>{
+  const q=groups[i][j], answer=q[1], choice=sel.value, ok=choice===answer;
+  if(ok)correct++;
+  html+='<section class="jobScenario"><h4>Record '+(j+1)+' — '+safe(q[0])+'</h4>';
+  html+='<p><strong>Assessment:</strong> '+(ok?'Correct':'Needs revision')+' | <strong>Your selection:</strong> '+safe(choice||'No answer selected')+'</p>';
+  html+='<div class="rightbox"><strong>Correct answer: '+safe(answer)+'</strong><p><strong>Why this is correct:</strong> '+safe(q[3])+' '+safe(distinctions[answer]||'This choice directly matches the evidence or the Splunk definition required by the question.')+'</p></div>';
+  if(!ok)html+='<div class="wrongbox"><strong>Why your answer does not fit:</strong><p>'+safe(choice?(distinctions[choice]||'This option does not match the displayed evidence or the precise definition requested.'):'A selection is required before this record can be verified.')+'</p></div>';
+  html+='<p><strong>Review every alternative:</strong></p>';
+  q[2].forEach(opt=>{html+='<div class="wrongbox"><strong>'+safe(opt)+(opt===answer?' — CORRECT':' — NOT CORRECT')+'</strong><p>'+safe(distinctions[opt]||(opt===answer?q[3]:'This option describes a different component or does not match the evidence shown.'))+'</p></div>'});
+  html+='</section>';
+ });
+ stations[i]=correct===selects.length;
+ html+='<p><strong>Expert SOC takeaway:</strong> '+safe(stationContext[i])+'</p>';
+ const fb=$('repFeed'+(i+1));fb.innerHTML='<strong>'+correct+'/'+selects.length+' correct — '+(stations[i]?'station verified':'revise your answers and resubmit')+'</strong>'+html;
+ fb.classList.add('show');
+ $('repStatus').textContent=stations.filter(Boolean).length+' of 4 evidence stations verified';
+ $('reporterNext').disabled=!stations.every(Boolean);
+};
+})();
+</script></body></html>
