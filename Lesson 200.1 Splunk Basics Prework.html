@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Signal Foundry | Splunk Basics Prework</title>
+<style>
+:root{
+  --ink:#20262b; --paper:#f5f0e6; --paper2:#fffaf0; --rust:#b94f35; --teal:#276f72;
+  --gold:#d4a63b; --muted:#6b6f70; --line:#c9c0ad; --ok:#39744d; --bad:#a33c32;
+}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#d9d2c3;color:var(--ink)}
+button,input,textarea{font:inherit}
+.shell{min-height:100vh;display:grid;grid-template-columns:280px 1fr}
+.rail{background:#252a2d;color:#f8f1df;padding:28px 20px;position:sticky;top:0;height:100vh;overflow:auto;border-right:8px solid var(--rust)}
+.brand{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#e5bd63}.brand h1{font-size:26px;letter-spacing:-.03em;text-transform:none;margin:8px 0 4px;color:#fff}
+.brand p{font-size:13px;line-height:1.5;color:#cfd3d1}
+.progress{height:8px;background:#4a5052;margin:22px 0 6px}.progress>div{height:100%;background:var(--gold);width:0;transition:.3s}
+#progressText{font-size:12px;color:#d8d8d2}
+nav{margin-top:24px;display:grid;gap:7px}
+nav button{width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#cfd3d1;padding:10px 10px;cursor:pointer}
+nav button.active{color:#fff;border-left-color:var(--gold);background:#343a3c}
+nav button.locked{opacity:.38;cursor:not-allowed}
+.role{margin-top:24px;border-top:1px solid #4b5052;padding-top:16px;font-size:12px;color:#cfd3d1;line-height:1.6}
+main{padding:36px;min-width:0}
+.screen{display:none;max-width:1100px;margin:auto;background:var(--paper);min-height:calc(100vh - 72px);border:1px solid #b7ae9d;box-shadow:0 10px 30px rgba(0,0,0,.12);position:relative;overflow:hidden}
+.screen.active{display:block}
+.mast{padding:42px 48px 28px;border-bottom:1px solid var(--line);position:relative}
+.mast:before{content:"";position:absolute;top:0;left:0;width:180px;height:10px;background:var(--rust)}
+.kicker{text-transform:uppercase;letter-spacing:.18em;font-weight:bold;font-size:12px;color:var(--rust)}
+h2{font-family:Georgia,serif;font-size:44px;line-height:1.05;margin:10px 0 12px;font-weight:normal}
+.lede{font-size:18px;line-height:1.55;max-width:820px;color:#41484b}
+.body{padding:32px 48px 48px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.note{border-left:5px solid var(--teal);background:#ebe5d8;padding:18px 20px;line-height:1.55}
+.artifact{background:var(--paper2);border:1px solid var(--line);padding:22px;position:relative}
+.artifact:before{content:"ARCHIVE COPY";position:absolute;right:14px;top:10px;font-size:10px;letter-spacing:.16em;color:#9b9385}
+.tag{display:inline-block;border:1px solid var(--ink);padding:4px 8px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin:2px}
+.btnrow{display:flex;gap:12px;justify-content:flex-end;margin-top:28px;flex-wrap:wrap}
+.btn{border:2px solid var(--ink);background:var(--ink);color:#fff;padding:12px 18px;cursor:pointer;font-weight:bold}
+.btn.secondary{background:transparent;color:var(--ink)} .btn:disabled{opacity:.35;cursor:not-allowed}
+.objective{padding:18px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:48px 1fr;gap:14px}
+.num{font-family:Georgia,serif;font-size:30px;color:var(--rust)}
+.vocabgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.flip{height:210px;perspective:1000px;cursor:pointer}.flipin{width:100%;height:100%;position:relative;transition:.55s;transform-style:preserve-3d}.flip.flipped .flipin{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--line);padding:24px;background:var(--paper2);display:flex;flex-direction:column;justify-content:center}
+.face.back{transform:rotateY(180deg);background:#e7e0d2}.term{font-family:Georgia,serif;font-size:26px}.hint{font-size:12px;color:var(--muted);margin-top:10px}
+.phaseband{display:flex;align-items:center;gap:24px;margin:10px 0 24px}.phasebadge{width:94px;height:94px;border-radius:50%;border:8px double var(--rust);display:grid;place-items:center;font-family:Georgia,serif;font-size:34px}
+.activity-title{font-size:25px;font-family:Georgia,serif;margin-bottom:6px}.brief{font-size:14px;color:#50575a;line-height:1.55;margin-bottom:22px}
+.record{border-bottom:1px dashed #aaa08d;padding:16px 0}.record:last-child{border:0}
+.choice{display:block;width:100%;text-align:left;margin:8px 0;padding:13px;border:1px solid #aaa08d;background:#fffaf0;cursor:pointer}
+.choice.selected{outline:3px solid var(--teal)} .choice.correct{border-color:var(--ok);background:#e7f1e9}.choice.wrong{border-color:var(--bad);background:#f5e4df}
+.feedback{display:none;margin-top:18px;padding:18px;border-top:4px solid var(--teal);background:#ece7db;line-height:1.55}.feedback.show{display:block}
+.diagram{display:grid;grid-template-columns:1fr 70px 1fr 70px 1fr;align-items:center;gap:8px;margin:26px 0}
+.node{min-height:150px;border:2px solid var(--ink);background:#fffaf0;padding:18px;display:flex;flex-direction:column;justify-content:center}.arrow{text-align:center;font-size:36px;color:var(--rust)}
+.pool{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.chip{border:1px solid var(--ink);background:#fffaf0;padding:10px 12px;cursor:pointer}.chip.used{opacity:.35}
+.slot{min-height:58px;border:2px dashed #9d9483;padding:10px;margin-top:12px;background:rgba(255,255,255,.35)}.slot .chip{margin:2px}
+.arch-context{background:#2f3538;color:#f7f0df;padding:20px 22px;margin:0 0 24px;border-left:6px solid var(--gold);line-height:1.55}
+.arch-source{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.source-card{border:1px solid var(--line);background:#fffaf0;padding:14px;min-height:105px}
+.source-card b{display:block;margin-bottom:7px}.arch-node{position:relative;min-height:235px}
+.arch-node .stepno{position:absolute;right:12px;top:10px;font-family:Georgia,serif;font-size:42px;color:#d7cdbb}
+.jobline{font-size:13px;line-height:1.45;color:#5e6465;margin-top:8px;max-width:90%}
+.arch-help{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.help-card{border-top:4px solid var(--teal);background:#e9e3d7;padding:15px;line-height:1.45}
+.feedback-detail{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:15px}
+.feedback-detail>div{background:#fffaf0;border:1px solid var(--line);padding:14px}
+@media(max-width:900px){.arch-source,.arch-help,.feedback-detail{grid-template-columns:1fr}}
+.compare{width:100%;border-collapse:collapse}.compare th,.compare td{border:1px solid var(--line);padding:14px;text-align:left;vertical-align:top}.compare th{background:#ded5c4}
+.pathway{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:22px 0}.pathstep{padding:18px 10px;border:1px solid var(--line);background:#fffaf0;text-align:center;min-height:112px}.pathstep b{display:block;margin-bottom:8px;color:var(--rust)}
+textarea{width:100%;min-height:105px;border:1px solid #9f9687;background:#fffaf0;padding:14px;resize:vertical}
+.check{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)} .check input{width:20px;height:20px}
+.small{font-size:13px;color:var(--muted)} .scoreline{font-weight:bold;margin-top:12px}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.rail{position:relative;height:auto;border-right:0;border-bottom:7px solid var(--rust)}nav{grid-template-columns:repeat(2,1fr)}main{padding:14px}.screen{min-height:auto}.mast,.body{padding:28px 24px}.grid2,.grid3,.vocabgrid{grid-template-columns:1fr}.diagram{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}.pathway{grid-template-columns:1fr}h2{font-size:34px}}
+
+.labstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0 28px}.labstats>div{padding:16px;background:#e8e0d0;border:1px solid var(--line)}.labstats span{display:block;font-size:22px;font-weight:bold;color:var(--teal)}.labstats small{display:block;margin-top:4px;color:#555}.labgrid{display:grid;grid-template-columns:240px minmax(0,1fr);gap:18px}.labqueue{display:grid;align-content:start;gap:8px}.labqueue button{padding:13px;text-align:left;background:#fffaf0;border:1px solid var(--line);cursor:pointer}.labqueue button.active{border:2px solid var(--teal);background:#e2eeea}.labqueue button small{display:block;color:#606769;margin-top:5px}.labdetail{background:#fffaf0;border:1px solid var(--line);padding:20px;min-width:0}.terminal{font-family:Consolas,monospace;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;background:#20292c;color:#d6e9df;padding:20px;line-height:1.7;min-height:165px;margin:16px 0 22px}.labdetail label{display:block;margin:14px 0 7px}.labdetail select,.labroute select{width:100%;padding:12px;background:white;border:1px solid #aaa08d}.labroute{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.labroute>div{padding:18px;border:1px solid var(--line);background:#fffaf0}.labroute p{min-height:110px;line-height:1.55}.labroute .stepno{font-family:Georgia,serif;font-size:28px;color:var(--rust)}@media(max-width:900px){.labgrid,.labroute,.labstats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="rail">
+  <div class="brand"><span>Northstar Transit Analytics</span><h1>Signal Foundry</h1><p>Machine-data orientation dossier • Lesson 200.1</p></div>
+  <div class="progress"><div id="bar"></div></div><div id="progressText">Stage 1 of 10</div>
+  <nav id="nav"></nav>
+  <div class="role"><b>YOUR ROLE</b><br>Junior Observability Associate<br><br><b>MISSION</b><br>Prepare to recognize and explain how Splunk turns machine-generated records into searchable, useful information.</div>
+</aside>
+<main>
+<section class="screen active" data-stage="0">
+ <div class="mast"><div class="kicker">Welcome • Prework Overview</div><h2>The city moves. Its machines leave a trail.</h2><p class="lede">Northstar Transit Analytics supports a regional transportation network. Servers, applications, network devices, sensors, and security systems continuously generate records. Your first assignment is to build the vocabulary and mental model needed to understand how Splunk works with that machine data.</p></div>
+ <div class="body">
+  <div class="grid2"><div class="artifact"><h3>Assignment Card</h3><p>You are joining the <b>Observability Enablement Team</b>. Before the live workshop, you will move through two learning phases:</p><p><span class="tag">Reporter • Remember</span> recognize and retrieve foundational facts.</p><p><span class="tag">Translator • Understand</span> connect those facts into meaningful relationships.</p></div>
+  <div class="note"><b>Estimated time: about 40 minutes.</b><br><br>This experience prepares you for later instructor-led practice. You are not expected to troubleshoot or design Splunk solutions yet. Focus on recognizing the parts, understanding what they mean, and seeing how they connect.</div></div>
+  <div class="btnrow"><button class="btn" onclick="go(1)">Open Learning Objectives →</button></div>
+ </div>
+</section>
+
+<section class="screen" data-stage="1">
+ <div class="mast"><div class="kicker">Learning Objectives</div><h2>What you are preparing to know.</h2><p class="lede">By the end of this prework, you should be able to recognize and explain the major ideas introduced in Lesson 200.1.</p></div>
+ <div class="body" id="objectives"></div>
+</section>
+
+<section class="screen" data-stage="2">
+ <div class="mast"><div class="kicker">Essential Vocabulary</div><h2>Build your Splunk language.</h2><p class="lede">Try to recall what each term means, then flip the card. Review every card before entering the Reporter phase.</p></div>
+ <div class="body"><div class="small" id="vprog">0 of 10 terms reviewed</div><div class="vocabgrid" id="vocab"></div><div class="btnrow"><button id="vnext" class="btn" onclick="go(3)">Enter Reporter Brief →</button></div></div>
+</section>
+
+<section class="screen" data-stage="3">
+ <div class="mast"><div class="kicker">Reporter Phase Brief • Remember</div><h2>First, learn to see the system.</h2><p class="lede">This phase is designed for beginners. You are building recognition first—before you are expected to configure, troubleshoot, or investigate anything in Splunk.</p></div>
+ <div class="body">
+  <div class="phaseband"><div class="phasebadge">R</div><div><h3>Recognition before interpretation</h3><p class="lede">Before you can use Splunk confidently, you need to recognize the major pieces and remember their basic jobs. Splunk helps organizations work with large amounts of <b>machine data</b>—information automatically created by computers, applications, network devices, security tools, sensors, and other technology.</p></div></div>
+
+  <div class="note" style="margin-bottom:24px"><b>Your goal in this phase is simple:</b><br><br>
+  When you see a Splunk term or component, practice answering three questions:<br>
+  <b>1. What is it?</b> &nbsp;→&nbsp; <b>2. What does it do?</b> &nbsp;→&nbsp; <b>3. Where does it fit?</b><br><br>
+  You are <b>not</b> being asked to configure Splunk or solve a new security problem yet.</div>
+
+  <div class="artifact" style="margin-bottom:24px">
+   <h3>Beginner Picture: How the Core Components Fit Together</h3>
+   <p>Start with this simple mental model:</p>
+   <div class="diagram">
+    <div class="node"><b>1. Machine Creates Data</b><span class="small">A server, application, network device, or security tool generates logs or other machine data.</span></div>
+    <div class="arrow">→</div>
+    <div class="node"><b>2. Forwarder Collects & Sends</b><span class="small">The Forwarder collects data from the source system and forwards it into Splunk.</span></div>
+    <div class="arrow">→</div>
+    <div class="node"><b>3. Indexer Processes & Stores</b><span class="small">The Indexer receives and processes the data, then stores it so it can be searched.</span></div>
+   </div>
+   <div class="note"><b>Then comes the Search Head:</b> this is the component the user interacts with to search and analyze the indexed data and view the results.</div>
+  </div>
+
+  <div class="grid2">
+   <div class="artifact"><h3>Key Terms to Recognize</h3>
+    <p><b>Machine data</b><br><span class="small">Information automatically generated by technology, such as login records, application errors, network activity, security events, and sensor readings.</span></p>
+    <p><b>Forwarder</b><br><span class="small">Collects data from a source machine and sends it to one or more indexers.</span></p>
+    <p><b>Indexer</b><br><span class="small">Receives, processes, indexes, stores, and retrieves data so it can be searched.</span></p>
+    <p><b>Search Head</b><br><span class="small">The user-facing component used to search and analyze data and view returned results.</span></p>
+   </div>
+   <div class="artifact"><h3>Other Ideas You Will Recognize</h3>
+    <p><b>Splunk's five functions</b><br><span class="small">Index Data; Search and Investigate; Add Knowledge; Monitor and Alert; Report and Analyze.</span></p>
+    <p><b>Apps and Add-ons</b><br><span class="small">Ways of extending Splunk with additional content or functionality.</span></p>
+    <p><b>Deployment types</b><br><span class="small">Standalone, distributed, and cloud describe different ways Splunk can be arranged.</span></p>
+    <p><b>Navigation and settings</b><br><span class="small">Recognize where users access Splunk features and basic account settings, including time-zone settings.</span></p>
+   </div>
+  </div>
+
+  <div class="grid2" style="margin-top:24px">
+   <div class="note"><b>Pay attention to:</b><br><br>What generated the data? Which Splunk component are you looking at? What is that component's basic job? Which function or deployment term does the description represent?</div>
+   <div class="artifact"><b>Success looks like:</b><p>If someone shows you a Splunk term or component, you can say:</p><p><b>“I recognize that. I know what it is, what its basic job is, and where it fits.”</b></p><p class="small">Approx. phase time: 10–12 minutes.</p></div>
+  </div>
+
+  <div class="artifact" style="margin-top:24px"><h3>Remember This Progression</h3><p style="font-size:20px"><b>Recognize it → Name it → Recall its purpose → Know where it fits</b></p><p class="small">The next Translator phase will build on this foundation by helping you explain how the pieces relate to one another.</p></div>
+  <div class="btnrow"><button class="btn" onclick="go(4)">Begin Reporter Activities →</button></div>
+ </div>
+</section>
+
+<section class="screen" data-stage="4">
+<div class="mast"><div class="kicker">Reporter • Field Assignment 01</div><h2>Northstar Signal Intake</h2><p class="lede">The morning commute is underway. Six telemetry messages have arrived without source labels. Review the original-looking records, classify each signal, and reconstruct the Splunk data route before shift handoff.</p></div>
+<div class="body">
+<div class="arch-context"><b>INCOMING SERVICE REQUEST • NT-2041</b><p>From: Elena Ortiz, Operations Lead<br>Priority: Morning shift<br>“Our dashboard needs reliable machine-data coverage. Confirm what each incoming record represents and identify the Splunk components that collect, store, and search it. Submit your findings before the next shift.”</p></div>
+<div class="labstats"><div><span id="labCount">0 / 6</span><small>Records classified</small></div><div><span id="labRoute">0 / 3</span><small>Components assigned</small></div><div><span id="labStatus">IN PROGRESS</span><small>Shift status</small></div></div>
+<h3>Mission 1 — Telemetry Intake Console</h3><p class="brief">Select an incoming record. Read its raw message and identify the source category from the evidence. Record a short clue that supports your choice. No correctness indicators are shown until you submit all six classifications.</p>
+<div class="labgrid"><div class="labqueue" id="labQueue"></div><div class="labdetail"><div class="kicker" id="labTicket">RECORD 01 / 06</div><h3 id="labName">Incoming record</h3><div class="terminal" id="labRaw"></div><label for="labCategory"><b>Source category</b></label><select id="labCategory"><option value="">Select the best category…</option></select><label for="labClue"><b>Evidence clue</b> <span class="small">(what in the record supports your selection?)</span></label><textarea id="labClue" rows="3" placeholder="For example: the record includes…"></textarea><div class="btnrow"><button class="btn secondary" onclick="labNext(-1)">← Previous</button><button class="btn" onclick="labSave()">Save & Next →</button></div></div></div>
+<div class="btnrow"><button class="btn secondary" onclick="labResetIntake()">Clear Intake</button><button class="btn" onclick="labVerifyIntake()">Submit Intake Report</button></div><div class="feedback" id="labIntakeFeedback"></div>
+<hr style="margin:36px 0;border:0;border-top:1px solid var(--line)">
+<h3>Mission 2 — Restore the Data Route</h3><p class="brief">Operations has three unassigned Splunk component cards. Examine each station's work order, select the component that belongs there, and record your assignment. Submit the complete route to test it.</p>
+<div class="arch-context"><b>ROUTE WORK ORDER</b><p>Windows sign-in events, branch network logs, and scheduling application messages must reach searchable storage and then appear in analyst search results. Assign the three core components to their jobs.</p></div>
+<div class="labroute" id="labRouteBoard"></div><div class="btnrow"><button class="btn secondary" onclick="labResetRoute()">Reset Route</button><button class="btn" onclick="labVerifyRoute()">Run Route Test</button></div><div class="feedback" id="labRouteFeedback"></div>
+<div class="note" style="margin-top:24px"><b>Shift handoff:</b> Once both missions have been submitted, review the explanations and continue to the Translator phase. You may retry either mission to improve your result.</div>
+<div class="btnrow"><button class="btn" onclick="go(5)">Continue to Translator Brief →</button></div>
+</div></section>
+
+<section class="screen" data-stage="5">
+ <div class="mast"><div class="kicker">Translator Phase Brief • Understand</div><h2>Now connect the pieces into meaning.</h2></div>
+ <div class="body"><div class="phaseband"><div class="phasebadge" style="border-color:var(--teal)">T</div><div><h3>From “what is it?” to “how does it fit?”</h3><p class="lede">You can now recognize the parts. The next phase asks you to interpret relationships: what Splunk does with data, how its functions connect, and how deployment choices differ conceptually.</p></div></div>
+ <div class="note"><b>Your thinking changes here:</b> compare, connect, explain, differentiate, and organize meaning. Stay at the understanding level—you are not yet being asked to configure, troubleshoot, or recommend a production solution.</div>
+ <div class="btnrow"><button class="btn" onclick="go(6)">Begin Translator Activities →</button></div></div>
+</section>
+
+<section class="screen" data-stage="6">
+ <div class="mast"><div class="kicker">Translator Field Lab • Understand</div><h2>Operations Briefing: Make the data meaningful.</h2><p class="lede">Northstar Transit Analytics needs a clear explanation of what Splunk can do with its incoming telemetry and how different deployment arrangements affect the workflow. You are the junior associate preparing the briefing—not configuring a live system.</p></div>
+ <div class="body">
+ <div class="arch-context"><b>REQUEST NT-2047 · OPERATIONS ENABLEMENT</b><p>Operations Lead Maya Chen: “Our team has records coming in from the transit network, but the leadership briefing mixes up storing events, searching them, adding context, watching for conditions, and reporting findings. Please translate our operational needs into Splunk functions, then explain the deployment models in plain language.”</p><span class="tag">Training simulation</span><span class="tag">Understanding-level mission</span></div>
+ <div class="activity-title">Mission 1 — Operations Request Queue</div><p class="brief">Open each request, inspect the sample record and the team's desired outcome. Assign the Splunk function that best addresses that need, then choose the explanation that best communicates <b>why</b>. Requests appear in a shuffled order, and the reasoning options include plausible competing actions. Submit the entire briefing to see expert feedback; no answers are revealed during selection.</p>
+ <div class="note" style="margin-bottom:16px"><b>Available functions:</b> Index Data · Search and Investigate · Add Knowledge · Monitor and Alert · Report and Analyze. Each function has a distinct primary purpose, although a real Splunk workflow can combine several.</div>
+ <div id="translatorQueue"></div><div class="feedback" id="ffeed"></div><div class="btnrow"><button class="btn secondary" onclick="resetTranslatorQueue()">Clear Responses</button><button class="btn" onclick="checkFunctions()">Submit Operations Briefing →</button></div>
+ <hr style="margin:36px 0;border:0;border-top:1px solid var(--line)">
+ <div class="activity-title">Mission 2 — Deployment Briefing Room</div><p class="brief">Three environment cards have arrived from Northstar's infrastructure team. For each card, select the deployment model and identify the <b>architectural clue</b> that supports your choice. The cards are shuffled, and each includes distracting but realistic infrastructure details; distinguish where Splunk runs from other tools and data sources.</p>
+ <div id="translatorDeploy"></div><div class="feedback" id="dfeed"></div><div class="btnrow"><button class="btn secondary" onclick="resetTranslatorDeploy()">Clear Deployment Brief</button><button class="btn" onclick="checkDeploy()">Submit Deployment Briefing →</button><button id="transDone" class="btn" onclick="go(7)">Continue to Reflection →</button></div>
+ <div class="artifact" style="margin-top:28px"><h3>Translator Takeaway</h3><p><b>Reporter:</b> “I can recognize the term and recall its purpose.”</p><p><b>Translator:</b> “I can explain which capability a team needs, why it fits, and how it differs from similar capabilities.”</p><p class="small">These are simulated requests and illustrative logs. No actual Splunk service or production infrastructure is contacted.</p></div>
+ </div>
+</section>
+
+<section class="screen" data-stage="7">
+ <div class="mast"><div class="kicker">Final Reflection</div><h2>Put the lesson into your own words.</h2><p class="lede">Summarize what you now understand. Your responses stay in this browser session.</p></div>
+ <div class="body">
+  <label><b>1. In your own words, what problem does Splunk help organizations address?</b></label><textarea id="ref1" oninput="saveText()"></textarea><br><br>
+  <label><b>2. Explain the relationship among a forwarder, an indexer, and a search head.</b></label><textarea id="ref2" oninput="saveText()"></textarea><br><br>
+  <label><b>3. Which concept feels strongest, and which concept would you like clarified during class?</b></label><textarea id="ref3" oninput="saveText()"></textarea>
+  <div class="btnrow"><button class="btn" onclick="finishReflection()">Save Reflection & Continue →</button></div>
+ </div>
+</section>
+
+<section class="screen" data-stage="8">
+ <div class="mast"><div class="kicker">Completion Checklist</div><h2>Confirm your prework is complete.</h2></div>
+ <div class="body" id="checklist"></div>
+</section>
+
+<section class="screen" data-stage="9">
+ <div class="mast"><div class="kicker">Bridge to the Practitioner Cycle</div><h2>You have the map. Next, you use it.</h2></div>
+ <div class="body">
+  <div class="grid2"><div class="artifact"><h3>What you built here</h3><p><b>Reporter → Remember</b><br>You practiced recognizing machine data, Splunk terminology, and core architecture.</p><p><b>Translator → Understand</b><br>You connected functions, components, and deployment models into a coherent mental model.</p></div>
+  <div class="note"><h3>What comes next</h3><p>In instructor-led learning, this foundation prepares you to move into the <b>Practitioner Cycle</b>:</p><p><b>Operator — Apply:</b> use Splunk knowledge in guided tasks.</p><p><b>Detective — Analyze:</b> inspect information and relationships more deeply.</p><p>You are not expected to perform those higher-level tasks in this prework.</p></div></div>
+  <h3 style="margin-top:30px">Carry these anchors forward</h3>
+  <p><span class="tag">Machine data is generated by systems and devices</span> <span class="tag">Splunk makes machine data searchable and useful</span> <span class="tag">Forward → Index → Search</span></p>
+  <div class="scoreline" id="summary"></div>
+ </div>
+</section>
+</main></div>
+
+<script>
+const labels=["Welcome","Objectives","Vocabulary","Reporter Brief","Reporter Activities","Translator Brief","Translator Activities","Final Reflection","Completion","Bridge"];
+let unlocked=0, reviewed=new Set(), recordPassed=false, compPassed=false, funcPassed=false, deployPassed=false, reflectionDone=false;
+let selectedComp=null, compSlots=[null,null,null], selectedFunc=null, funcSlots=[null,null,null,null,null];
+
+const objectives=[
+"Explain machine data and recognize common sources of machine-generated information.",
+"Describe Splunk as a platform for searching, analyzing, and visualizing machine-generated data.",
+"Recognize Splunk's five main functions: Index Data; Search and Investigate; Add Knowledge; Monitor and Alert; Report and Analyze.",
+"Describe the roles of Indexers, Search Heads, and Forwarders.",
+"Describe major uses of Splunk in IT operations, security, business analytics, and IoT.",
+"Define Splunk apps and add-ons and recognize how they extend the platform.",
+"Describe standalone, distributed, and cloud deployment types.",
+"Recognize basic Splunk navigation and important account/user settings, including time zone."
+];
+document.getElementById("objectives").innerHTML=objectives.map((x,i)=>`<div class="objective"><div class="num">${String(i+1).padStart(2,"0")}</div><div>${x}</div></div>`).join("")+`<div class="btnrow"><button class="btn" onclick="go(2)">Build Essential Vocabulary →</button></div>`;
+
+const vocab=[
+["Machine data","Data generated automatically by machines, systems, or devices. Examples in this lesson include server, network, application, security, sensor, and IoT data.","Remember: it often arrives in large quantities and can be difficult for people to interpret without the right tools."],
+["Splunk","A platform that searches, analyzes, and visualizes machine-generated data from many sources.","Its value comes from turning large volumes of machine data into searchable information and visible insights."],
+["Indexing","The process of ingesting data, breaking it into events, parsing/extracting fields, normalizing fields, and storing events in an index.","Indexing is what prepares data to be searched, correlated, and analyzed."],
+["SPL","Search Processing Language—the language Splunk users use to create search queries.","Associate SPL with Search and Investigate."],
+["Forwarder","A Splunk component that collects data from source machines and forwards it to one or more indexers.","Universal forwarders are lightweight; heavy forwarders are full Splunk Enterprise instances with additional capabilities."],
+["Indexer","A component that receives, processes, indexes, stores, and retrieves data so it can be searched.","Think of the indexer as the component that makes incoming machine data searchable."],
+["Search Head","The component users interact with to search and analyze data; it distributes searches to indexers and presents returned results.","It can also support reports and alerts."],
+["Splunk App","A pre-built package of dashboards, reports, and other content that extends Splunk for particular needs or use cases.","Apps may be created by Splunk, vendors, or other developers."],
+["Add-on","A software module that adds functionality—often data inputs, parsers, or components that help Splunk ingest and analyze specific sources.","An add-on supports the platform or an app; it is not simply another name for a dashboard."],
+["Deployment type","The way Splunk Enterprise is arranged: standalone, distributed, or cloud.","Standalone uses one instance; distributed separates functions across multiple instances; cloud is hosted and managed by a third-party cloud provider."]
+];
+document.getElementById("vocab").innerHTML=vocab.map((v,i)=>`<div class="flip" onclick="flipCard(${i},this)"><div class="flipin"><div class="face front"><div class="kicker">Term ${i+1}</div><div class="term">${v[0]}</div><div class="hint">Recall first • click to reveal</div></div><div class="face back"><b>${v[0]}</b><p>${v[1]}</p><span class="small">${v[2]}</span></div></div></div>`).join("");
+
+const records=[
+["Northstar's Windows authentication server creates an event after an employee signs in. The same system records an unexpected service failure and later logs that a Windows security update was installed.","Server logs",
+"<b>Why Server logs is correct:</b> The important clue is the <b>Windows server</b>. These records describe events occurring on the server itself: authentication activity, a service failure, and an operating-system update. Server logs commonly record operating-system events, services, authentication activity, errors, and system changes. In Splunk, these records could help an analyst review when a user signed in, when a service stopped working, or when a system change occurred."],
+["A branch router records a connection from 10.24.8.17 to 172.16.40.12 over TCP port 443. The record also includes the protocol, source and destination addresses, and the amount of traffic sent.","Network logs",
+"<b>Why Network logs is correct:</b> The clues are the <b>source IP, destination IP, protocol, port, and traffic information</b>. These describe communication moving across a network rather than an event inside one application or server. Network devices such as routers, switches, and firewalls can generate records that help Splunk users understand who communicated with whom, over which protocol or port, and how network traffic behaved."],
+["A temperature sensor inside a transit equipment room reports 78°F and 42% humidity at 10:15 AM. Five minutes later, it automatically sends another environmental reading.","Sensor data",
+"<b>Why Sensor data is correct:</b> The device is measuring a <b>physical condition</b>—temperature and humidity—and automatically producing measurements. That is the defining characteristic of sensor data. Sensors can continuously generate readings such as temperature, humidity, pressure, motion, or equipment status. Splunk can ingest these measurements so users can search and visualize changes over time."],
+["Northstar's employee scheduling application records that a user opened the weekly schedule, then logs a database timeout and a 4.8-second response time while loading the page.","Application logs",
+"<b>Why Application logs is correct:</b> Every event describes the behavior of a <b>software application</b>: a user interaction, an application/database error, and a performance measurement. Application logs help show what an application is doing and how well it is performing. In Splunk, this type of data can help users search application events, errors, and performance information."],
+["The endpoint security platform records five failed sign-in attempts for an administrator account and then generates a malware-detection event for a suspicious executable on the same workstation.","Security data",
+"<b>Why Security data is correct:</b> The record is produced by a <b>security system</b> and describes security-relevant events: repeated failed authentication and malware detection. Security data can include authentication events, malware alerts, access violations, and other security events. Splunk can centralize these records so security teams can search and correlate activity across systems."],
+["A connected vehicle-monitoring device automatically reports battery voltage, engine temperature, device ID, and operational status to the transit platform every 60 seconds.","IoT data",
+"<b>Why IoT data is correct:</b> The source is a <b>connected device</b> that automatically sends telemetry about itself and its environment. That makes it Internet of Things (IoT) data. IoT devices commonly generate measurements, status information, identifiers, and operational telemetry. Splunk can collect this machine-generated information so organizations can monitor connected devices at scale."]
+];
+const cats=["Server logs","Network logs","Sensor data","Application logs","Security data","IoT data"];
+
+// Shuffle answer order independently for each question so learners cannot
+// use position as a shortcut. The same category set is used each time.
+function shuffled(arr){
+  const copy=[...arr];
+  for(let i=copy.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [copy[i],copy[j]]=[copy[j],copy[i]];
+  }
+  return copy;
+}
+const recordChoiceOrders=records.map(()=>shuffled(cats));
+if(document.getElementById("records")) document.getElementById("records").innerHTML=records.map((r,i)=>`<div class="record"><b>Record ${i+1}</b><p>${r[0]}</p><select id="rec${i}"><option value="">Choose category…</option>${recordChoiceOrders[i].map(c=>`<option>${c}</option>`).join("")}</select><div class="feedback" id="recfb${i}"></div></div>`).join("");
+
+function renderNav(){
+ const n=document.getElementById("nav"); n.innerHTML=labels.map((l,i)=>`<button class="${i===currentStage()?'active':''}" onclick="go(${i})">${String(i+1).padStart(2,"0")} · ${l}</button>`).join("");
+ document.getElementById("bar").style.width=((currentStage()+1)/10*100)+"%";
+ document.getElementById("progressText").textContent=`Stage ${currentStage()+1} of 10`;
+}
+function currentStage(){return [...document.querySelectorAll(".screen")].findIndex(x=>x.classList.contains("active"))}
+function go(i){ unlocked=Math.max(unlocked,i); document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active")); document.querySelector(`[data-stage="${i}"]`).classList.add("active"); renderNav(); window.scrollTo(0,0); if(i===8)renderChecklist(); if(i===9)renderSummary();}
+function flipCard(i,el){el.classList.toggle("flipped"); reviewed.add(i); document.getElementById("vprog").textContent=`${reviewed.size} of 10 terms reviewed`; if(reviewed.size===10)document.getElementById("vnext").disabled=false}
+function checkRecords(){
+ let right=0;
+ records.forEach((r,i)=>{
+   const sel=document.getElementById("rec"+i).value;
+   const fb=document.getElementById("recfb"+i);
+   fb.classList.add("show");
+   if(sel===r[1]){
+     right++;
+     fb.innerHTML=`<b>Correct — ${r[1]}.</b><br><br>${r[2]}`;
+   }else if(sel===""){
+     fb.innerHTML=`<b>No category selected yet.</b> Choose the category that best matches the system or device generating the record.`;
+   }else{
+     fb.innerHTML=`<b>Not quite — you selected ${sel}.</b><br><br>${r[2]}<br><br><b>Recognition clue:</b> Focus first on <em>what generated the record</em>, then on <em>what kind of information the record contains</em>.`;
+   }
+ });
+ recordPassed=right===records.length;
+ let f=document.getElementById("rfeedback"); f.classList.add("show");
+ f.innerHTML=recordPassed
+ ? `<b>Machine Data Intake verified — 6 of 6.</b><br><br>You correctly recognized each data source. A useful beginner strategy is to identify the <b>producer</b> of the data first: server, network device, sensor, application, security tool, or connected IoT device. Then look at the information being recorded. This helps you recognize the data category before you begin deeper analysis.`
+ : `<b>${right} of ${records.length} records correctly identified.</b><br><br>Read the explanation beneath each record before trying again. Do not focus on a single technical word. Ask: <b>What system generated this record, and what is it recording?</b>`;
+ updateReporter();
+}
+const componentChoiceOrder=shuffled(["Forwarder","Indexer","Search Head"]);
+function renderCompPool(){document.getElementById("compPool").innerHTML=componentChoiceOrder.map(x=>`<button class="chip ${compSlots.includes(x)?'used':''}" onclick="selectComp('${x}')">${x}</button>`).join("");document.querySelectorAll("[data-slot]").forEach((s,i)=>{s.innerHTML=compSlots[i]?`<button class="chip" onclick="removeComp(${i})">${compSlots[i]} ×</button>`:`<span class="small">Select a component, then place it here.</span>`;s.onclick=()=>placeComp(i)})}
+function selectComp(x){if(!compSlots.includes(x)){selectedComp=x;renderCompPool()}}
+function placeComp(i){if(selectedComp&&!compSlots[i]){compSlots[i]=selectedComp;selectedComp=null;renderCompPool()}}
+function removeComp(i){compSlots[i]=null;renderCompPool()}
+function resetComponents(){compSlots=[null,null,null];compPassed=false;renderCompPool();document.getElementById("cfeedback").classList.remove("show");updateReporter()}
+function checkComponents(){
+ compPassed=JSON.stringify(compSlots)===JSON.stringify(["Forwarder","Indexer","Search Head"]);
+ let f=document.getElementById("cfeedback");f.classList.add("show");
+ if(compPassed){
+   f.innerHTML=`<b>Architecture reconstructed correctly.</b><br><br>
+   The important idea is not simply the order of three names. Each component has a different responsibility in the movement from <b>raw machine data</b> to <b>searchable information</b>.
+   <div class="feedback-detail">
+     <div><b>1. Forwarder — Collect & Send</b><p>The Forwarder collects data from source machines and sends it to one or more indexers. In this scenario, source systems such as the Windows server, network device, and scheduling application are producing records. The Forwarder is associated with getting that machine data moving toward Splunk.</p><p class="small"><b>Key clue:</b> collect + forward.</p></div>
+     <div><b>2. Indexer — Process & Store</b><p>The Indexer receives the incoming data. Splunk breaks the data into events, processes it, indexes it, and stores it so that it can later be searched and retrieved. This is why the Indexer belongs in the processing/storage stage.</p><p class="small"><b>Key clue:</b> index + searchable storage.</p></div>
+     <div><b>3. Search Head — Search & Analyze</b><p>The Search Head is the component users interact with. A user's search is distributed to the appropriate indexers, and the results are returned to the Search Head for the user to view and analyze.</p><p class="small"><b>Key clue:</b> user + search + results.</p></div>
+   </div>
+   <div class="note" style="margin-top:15px"><b>Beginner mental model:</b> <b>Forwarder moves the data → Indexer makes the data searchable → Search Head lets people search the data.</b><br><br>Notice that the Search Head does not replace the Indexer. The Indexer stores/retrieves the searchable data, while the Search Head provides the interface and coordinates the user's search.</div>`;
+ } else {
+   const expected=["Forwarder","Indexer","Search Head"];
+   let details=compSlots.map((x,i)=>x===expected[i]?`Stage ${i+1}: <b>${x}</b> is correctly placed.`:`Stage ${i+1}: <b>${x||"empty"}</b> does not match the job described here.`).join("<br>");
+   f.innerHTML=`<b>The architecture is not complete yet.</b><br><br>${details}<br><br>
+   <b>Use the job descriptions rather than guessing by position:</b><br>
+   • Which component <b>collects and forwards</b> data?<br>
+   • Which component <b>indexes and stores</b> data so it becomes searchable?<br>
+   • Which component is where the <b>user searches and views results</b>?<br><br>
+   Adjust only the stages that do not match those responsibilities, then verify again.`;
+ }
+ updateReporter();
+}
+function updateReporter(){}
+if(document.getElementById("compPool")) renderCompPool();
+
+const translatorCases=[
+ {id:'A',title:'The missing Tuesday window',source:'edge-fw · 09:14:03 · action=allow src=10.24.8.17 dest=172.16.40.12 dest_port=443',request:'“Our shift dashboard shows current firewall activity, but when someone asks about Tuesday morning, the historical records are unavailable. We need those incoming records kept in a form the team can retrieve later.”',answer:'Index Data',why:'The missing capability is processing and retaining incoming records as searchable events.',contrast:'A dashboard or search may be the visible symptom, but neither restores historical events that were never indexed.',reasons:['Preserve incoming records in searchable storage so later questions can be answered.','Create a repeatable view of the latest records for supervisors to consult.','Run a focused query against whatever records are already retained.','Attach business-friendly labels to existing firewall fields.']},
+ {id:'B',title:'The disputed dispatch account',source:'auth01 · 09:14:03 failed login user=dispatcher; 09:14:18 success user=dispatcher',request:'“We have the sign-in records in Splunk. Two supervisors disagree about whether these events involve the same account and how close together they occurred. We need to examine the actual matching events before drawing a conclusion.”',answer:'Search and Investigate',why:'The task is to retrieve and compare specific events that are already indexed.',contrast:'Reporting summarizes patterns, while this request needs direct examination of the underlying events.',reasons:['Create a recurring summary of authentication activity for the operations meeting.','Inspect matching stored events and compare their timestamps and account values.','Create a reusable account-to-department mapping for future queries.','Set a recurring condition that notifies the team of similar sequences.']},
+ {id:'C',title:'The station-code confusion',source:'sensor07 · device_id=STN-04 temp_f=78 status=OK',request:'“Several reports show STN-04, but teams interpret that code differently. We already have the events and charts. We need the same station name to appear consistently wherever this identifier is used.”',answer:'Add Knowledge',why:'Reusable context, such as a lookup, can consistently associate an identifier with its meaning.',contrast:'Editing one chart or report would not establish a reusable interpretation across searches.',reasons:['Publish an updated chart legend for the weekly equipment review.','Keep the sensor records indexed so analysts can revisit old readings.','Maintain a reusable identifier-to-station mapping available to multiple searches.','Notify a supervisor when this station sends an unusual measurement.']},
+ {id:'D',title:'The unattended morning shift',source:'web01 · 09:16:22 status=503 route=/schedule response_ms=4810',request:'“An analyst can already search for 503 errors, but nobody watches that screen overnight. The operations lead wants the team notified when a specified pattern appears without waiting for a person to notice it.”',answer:'Monitor and Alert',why:'A defined condition must be evaluated automatically and generate a notification.',contrast:'An ad hoc search can locate the same errors but does not by itself provide unattended notification.',reasons:['Schedule a presentation of daily error totals for the leadership meeting.','Make service identifiers consistent across existing searches.','Configure repeated evaluation of the condition and notify the team when it matches.','Examine yesterday’s matching events in an interactive search.']},
+ {id:'E',title:'The executive performance briefing',source:'web01 · 09:14–10:14 · sample count of response statuses and latency values',request:'“The events are searchable and the team already knows which errors to examine. Leadership now wants to compare service behavior across shifts and discuss the pattern using a clear, shareable visual summary.”',answer:'Report and Analyze',why:'The primary need is to summarize and communicate patterns using reports or visualizations.',contrast:'Searches produce evidence, but the deliverable here is a shareable interpretation of patterns.',reasons:['Examine a handful of individual slow requests to identify their exact timestamps.','Build a shareable visualization comparing response behavior across shifts.','Define a recurring condition that pages staff during service disruption.','Add reusable route descriptions to make raw event codes easier to interpret.']}
+];
+const translatorFunctions=['Index Data','Search and Investigate','Add Knowledge','Monitor and Alert','Report and Analyze'];
+const translatorCaseOrder=shuffled(translatorCases);
+const translatorOrders=Object.fromEntries(translatorCases.map(c=>[c.id,shuffled(translatorFunctions)]));
+const translatorReasonOrders=Object.fromEntries(translatorCases.map(c=>[c.id,shuffled(c.reasons)]));
+function tEscape(x){return x.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
+function renderTranslatorQueue(){document.getElementById('translatorQueue').innerHTML=translatorCaseOrder.map((c,i)=>`<div class="artifact" style="margin:14px 0"><div class="kicker">Request ${i+1} · ${c.id}</div><h3>${c.title}</h3><div style="background:#2f3538;color:#f7f0df;padding:12px;font-family:monospace;font-size:13px;overflow-wrap:anywhere">${tEscape(c.source)}</div><p>${c.request}</p><label for="tf${c.id}"><b>Which Splunk function primarily meets this request?</b></label><select id="tf${c.id}" style="width:100%;padding:11px;margin:8px 0 16px"><option value="">Select a function…</option>${translatorOrders[c.id].map(x=>`<option value="${x}">${x}</option>`).join('')}</select><label for="tr${c.id}"><b>Which explanation best supports your choice?</b></label><select id="tr${c.id}" style="width:100%;padding:11px;margin:8px 0"><option value="">Select the strongest reasoning…</option>${translatorReasonOrders[c.id].map(x=>`<option value="${tEscape(x)}">${x}</option>`).join('')}</select></div>`).join('')}
+function resetTranslatorQueue(){translatorCases.forEach(c=>{document.getElementById('tf'+c.id).value='';document.getElementById('tr'+c.id).value=''});funcPassed=false;document.getElementById('ffeed').classList.remove('show')}
+const functionTeaching={
+'Index Data':'Ingests, processes, indexes, and retains incoming events for retrieval. It does not itself interpret individual events, enrich identifiers, trigger alerts, or produce executive visualizations.',
+'Search and Investigate':'Retrieves and examines indexed events using queries and filters. It depends on available data and is different from automatically monitoring a condition or publishing a summary.',
+'Add Knowledge':'Adds reusable interpretation through fields, lookups, tags, or other knowledge objects. It does not substitute for ingestion, event investigation, automated notifications, or reports.',
+'Monitor and Alert':'Evaluates defined conditions and can notify responders. A scheduled alert can use searches, but the defining requirement is automatic condition-based monitoring.',
+'Report and Analyze':'Summarizes and communicates results through reports, charts, and dashboards. It can rely on searches but does not replace raw-data indexing or unattended alerting.'};
+const caseEvidence={A:'The request says Tuesday records are unavailable for later retrieval; storing searchable history is the unmet requirement.',B:'The events are already in Splunk; the question concerns timestamps and account values in individual events.',C:'The same station identifier must be interpreted consistently across multiple searches and reports.',D:'The team needs notification without a person watching the screen; this is a condition-triggered workflow.',E:'Leadership needs a visual comparison across shifts rather than a one-off event inspection.'};
+function checkFunctions(){let score=0,completed=true,blocks='';translatorCaseOrder.forEach(c=>{const chosen=document.getElementById('tf'+c.id).value,reason=document.getElementById('tr'+c.id).value,goodReason=c.reasons[0],right=chosen===c.answer&&reason===goodReason;if(!chosen||!reason)completed=false;if(right)score++;const otherFunctions=translatorFunctions.filter(x=>x!==c.answer).map(x=>`<li><b>${x}:</b> ${functionTeaching[x]} In this request it is not the primary unmet need.</li>`).join('');const otherReasons=c.reasons.filter(x=>x!==goodReason).map(x=>`<li><b>${tEscape(x)}</b> — This describes a related but different deliverable. ${c.contrast}</li>`).join('');blocks+=`<div class="artifact" style="margin:12px 0"><h3>${right?'Correct':'Review'} — ${c.title}</h3><p><b>Your function:</b> ${tEscape(chosen||'Not selected')} · <b>Correct function:</b> ${c.answer}</p><p><b>Why the correct function is right:</b> ${c.why} <b>Evidence:</b> ${caseEvidence[c.id]}</p><p><b>Why your selected function ${chosen===c.answer?'fits':'does not best fit'}:</b> ${chosen?functionTeaching[chosen]:'No function was selected.'} ${chosen!==c.answer?'The scenario specifically calls for '+c.answer+'.':''}</p><p><b>Why every other function is less appropriate:</b></p><ul>${otherFunctions}</ul><p><b>Your selected reasoning:</b> ${tEscape(reason||'Not selected')}</p><p><b>Why the strongest reasoning is correct:</b> ${tEscape(goodReason)} — ${c.why}</p><p><b>Why the other reasoning choices are weaker:</b></p><ul>${otherReasons}</ul><p><b>Workplace application:</b> An analyst would first clarify this operational requirement, use the corresponding Splunk capability, and verify that the requested outcome is achieved. Other functions may support the workflow but are not the primary answer.</p><p><b>Remember:</b> Identify the outcome the requester needs, not merely a technical term appearing in the record.</p></div>`});funcPassed=completed&&score===5;const f=document.getElementById('ffeed');f.classList.add('show');f.innerHTML=`<b>Operations briefing: ${score} of 5 requests fully supported.</b><p>${completed?'Review the expert explanations and revise incorrect selections.':'Complete both selections for each request, then resubmit.'}</p>`+blocks}
+
+renderTranslatorQueue();
+const translatorDeployCases=[
+ {id:'one',name:'Depot pilot — responsibility inventory',detail:'A depot technician maintains the Splunk software on one local virtual machine. The same installation accepts inputs, retains events, serves the search interface, and produces the pilot dashboards. The depot also uses an external backup service.',answer:'Standalone',clue:'One Splunk installation performs ingestion, indexing, and search despite an external backup service.',why:'The Splunk functions are consolidated in a single instance. An external backup service does not make the Splunk deployment distributed.'},
+ {id:'many',name:'Regional operations — service handoff',detail:'A team maintains a local Splunk search interface while two other Splunk machines retain and process incoming events. A separate hosted ticketing tool receives notifications, but does not run Splunk.',answer:'Distributed',clue:'Different Splunk instances perform search and indexing even though ticketing is hosted elsewhere.',why:'Splunk responsibilities are divided among multiple Splunk instances. The hosted ticketing tool does not by itself make this a cloud-hosted Splunk service.'},
+ {id:'host',name:'Transit analytics — managed service agreement',detail:'Analysts access Splunk through a provider-hosted service. Northstar manages its searches, dashboards, and data onboarding choices, while the service provider operates the underlying Splunk infrastructure. Northstar still has local data-producing systems.',answer:'Cloud',clue:'The provider operates the underlying Splunk service even though Northstar manages searches and local sources.',why:'The hosting and infrastructure management of Splunk distinguish this as cloud. Local source systems do not change where Splunk is hosted.'}
+];
+const translatorDeployOrder=shuffled(translatorDeployCases);
+const translatorModels=['Standalone','Distributed','Cloud'];
+const translatorClues=shuffled(translatorDeployCases.map(x=>x.clue).concat(["A hosted auxiliary tool is present alongside the local Splunk deployment.","The organization owns the telemetry sources and chooses what to search."]));
+function renderTranslatorDeploy(){document.getElementById('translatorDeploy').innerHTML=translatorDeployOrder.map((c,i)=>`<div class="artifact" style="margin:14px 0"><div class="kicker">Environment Card ${i+1}</div><h3>${c.name}</h3><p>${c.detail}</p><label for="td${c.id}"><b>Deployment model</b></label><select id="td${c.id}" style="width:100%;padding:11px;margin:8px 0 16px"><option value="">Select a model…</option>${shuffled(translatorModels).map(x=>`<option>${x}</option>`).join('')}</select><label for="tc${c.id}"><b>What detail proves your interpretation?</b></label><select id="tc${c.id}" style="width:100%;padding:11px;margin:8px 0"><option value="">Select an architectural clue…</option>${shuffled(translatorClues).map(x=>`<option>${x}</option>`).join('')}</select></div>`).join('')}
+function resetTranslatorDeploy(){translatorDeployCases.forEach(c=>{document.getElementById('td'+c.id).value='';document.getElementById('tc'+c.id).value=''});deployPassed=false;document.getElementById('dfeed').classList.remove('show')}
+const deploymentTeaching={Standalone:'A single Splunk instance handles the core responsibilities. Other non-Splunk services or local data sources do not change this classification.',Distributed:'Multiple Splunk instances divide responsibilities such as indexing and searching. Merely using a hosted ticketing or backup tool is not enough.',Cloud:'The Splunk service is provider-hosted and its underlying infrastructure provider-managed. Local data sources or customer-created searches do not change that hosting model.'};
+function checkDeploy(){let score=0,blocks='';translatorDeployOrder.forEach(c=>{const selected=document.getElementById('td'+c.id).value,clue=document.getElementById('tc'+c.id).value,right=selected===c.answer&&clue===c.clue;if(right)score++;const alternatives=translatorModels.filter(m=>m!==c.answer).map(m=>`<li><b>${m}:</b> ${deploymentTeaching[m]} That defining characteristic is not established by this scenario.</li>`).join('');const clueOptions=translatorClues.filter(x=>x!==c.clue).map(x=>`<li>${tEscape(x)} — This does not establish the defining hosting or instance arrangement of this environment.</li>`).join('');blocks+=`<div class="artifact" style="margin:12px 0"><h3>${right?'Correct':'Review'} — ${c.name}</h3><p><b>Your model:</b> ${tEscape(selected||'Not selected')} · <b>Correct model:</b> ${c.answer}</p><p><b>Why it is correct:</b> ${c.why}</p><p><b>Why your selected model ${selected===c.answer?'fits':'does not fit'}:</b> ${selected?deploymentTeaching[selected]:'No model was selected.'}</p><p><b>Why the other deployment models are wrong:</b></p><ul>${alternatives}</ul><p><b>Your selected evidence:</b> ${tEscape(clue||'Not selected')}</p><p><b>Decisive evidence:</b> ${tEscape(c.clue)}</p><p><b>Why other clues are not decisive:</b></p><ul>${clueOptions}</ul><p><b>Workplace application:</b> When documenting an environment, verify which systems actually run Splunk components and who operates the Splunk infrastructure. Do not classify deployment by unrelated hosted tools or by where source logs originate.</p><p><b>Remember:</b> Count Splunk instances and identify the Splunk hosting/management arrangement.</p></div>`});deployPassed=score===3;const f=document.getElementById('dfeed');f.classList.add('show');f.innerHTML=`<b>Deployment briefing: ${score} of 3 fully supported.</b><p>Review each model, its evidence, and why alternatives do not apply. Revise and resubmit as needed.</p>`+blocks}
+
+renderTranslatorDeploy();
+function updateTranslator(){}
+
+function saveText(){sessionStorage.setItem("splunk_ref1",document.getElementById("ref1").value);sessionStorage.setItem("splunk_ref2",document.getElementById("ref2").value);sessionStorage.setItem("splunk_ref3",document.getElementById("ref3").value)}
+function finishReflection(){saveText();reflectionDone=[ref1,ref2,ref3].every(x=>x.value.trim().length>=15);if(!reflectionDone){alert("Please add a brief response to all three reflection prompts before continuing.");return}go(8)}
+function renderChecklist(){
+ const items=[
+ ["Reviewed all Essential Vocabulary cards",reviewed.size===10],
+ ["Completed Reporter machine-data recognition",recordPassed],
+ ["Completed Reporter architecture reconstruction",compPassed],
+ ["Completed Translator five-function mental model",funcPassed],
+ ["Completed Translator deployment comparison",deployPassed],
+ ["Completed the Final Reflection",reflectionDone],
+ ["Identified a concept or question to discuss in class",(document.getElementById("ref3").value.trim().length>=15)]
+ ];
+ document.getElementById("checklist").innerHTML=items.map(x=>`<label class="check"><input type="checkbox" ${x[1]?'checked':''} disabled><span>${x[0]}</span></label>`).join("")+`<div class="btnrow"><button class="btn" onclick="go(9)">Continue to Bridge →</button></div><p class="small">Activities are optional. The checklist shows what you completed, but it does not prevent you from continuing.</p>`;
+}
+function renderSummary(){document.getElementById("summary").textContent="Prework complete: vocabulary reviewed, Reporter and Translator activities completed, and reflection saved for this browser session."}
+window.addEventListener("load",()=>{["ref1","ref2","ref3"].forEach(id=>{document.getElementById(id).value=sessionStorage.getItem("splunk_"+id)||""});renderNav()});
+
+// Reporter field lab: all choices are held until mission submission.
+const labData=[
+{title:'Authentication relay',raw:'2026-10-22T07:12:04Z host=nt-auth-01 source=WinEventLog:Security EventID=4625 account=dispatch_ops logon_type=3 status=0xC000006D',answer:'Server logs',reason:'The Windows Event Log, host name, and EventID identify an operating-system authentication record.'},
+{title:'Branch uplink',raw:'Oct 22 07:13:11 edge-rtr-03 flow src=10.24.8.17 dst=172.16.40.12 proto=TCP dpt=443 bytes=12943 action=allow',answer:'Network logs',reason:'The router records source and destination IP addresses, protocol, destination port, and traffic volume.'},
+{title:'Equipment room reading',raw:'2026-10-22 07:13:20 device=room-probe-17 metric.temperature_f=78 metric.humidity_pct=42 sample_interval=300s',answer:'Sensor data',reason:'The device measures physical conditions such as temperature and humidity.'},
+{title:'Schedule portal event',raw:'2026-10-22T07:14:08Z service=schedule-web action=GET /weekly-schedule latency_ms=4800 db_error=connection_timeout request_id=ab29',answer:'Application logs',reason:'The record describes an application request, response latency, and a database timeout.'},
+{title:'Endpoint protection notice',raw:'2026-10-22T07:15:44Z product=endpoint-protect severity=high rule=SuspiciousExecutable device=ops-ws-04 verdict=quarantined',answer:'Security data',reason:'An endpoint protection product generated a threat-detection and quarantine record.'},
+{title:'Vehicle health beacon',raw:'2026-10-22T07:16:00Z device_id=bus-telem-044 connected=true battery_v=25.1 engine_temp_c=89 state=active publish_interval=60s',answer:'IoT data',reason:'A connected vehicle device automatically publishes device identity and operating telemetry.'}
+];
+const labCategories=['Application logs','IoT data','Server logs','Security data','Sensor data','Network logs'];
+let labActive=0;let labAnswers=labData.map(()=>({category:'',clue:''}));let labAssignments=['','',''];
+const labJobs=[['Collect and send','A component near the source gathers incoming records and forwards them toward Splunk.'],['Process and store','A component receives the incoming records, indexes them, and keeps them searchable.'],['Search and display','The analyst-facing component dispatches searches and presents returned results.']];
+function labRender(){
+ document.getElementById('labQueue').innerHTML=labData.map((d,i)=>`<button class="${i===labActive?'active':''}" onclick="labOpen(${i})"><b>${String(i+1).padStart(2,'0')} · ${d.title}</b><small>${labAnswers[i].category?'● Filed':'○ Awaiting classification'}</small></button>`).join('');
+ document.getElementById('labTicket').textContent=`INCOMING RECORD ${String(labActive+1).padStart(2,'0')} / 06`;
+ document.getElementById('labName').textContent=labData[labActive].title;document.getElementById('labRaw').textContent=labData[labActive].raw;
+ document.getElementById('labCategory').innerHTML='<option value="">Select the best category…</option>'+labCategories.map(c=>`<option value="${c}">${c}</option>`).join('');
+ document.getElementById('labCategory').value=labAnswers[labActive].category;document.getElementById('labClue').value=labAnswers[labActive].clue;
+ labStats();
+}
+function labPersist(){labAnswers[labActive]={category:document.getElementById('labCategory').value,clue:document.getElementById('labClue').value.trim()}}
+function labOpen(i){labPersist();labActive=i;labRender()}
+function labNext(delta){labPersist();labActive=(labActive+delta+labData.length)%labData.length;labRender()}
+function labSave(){labNext(1)}
+function labStats(){document.getElementById('labCount').textContent=`${labAnswers.filter(a=>a.category&&a.clue).length} / 6`;document.getElementById('labRoute').textContent=`${labAssignments.filter(Boolean).length} / 3`}
+function labResetIntake(){labAnswers=labData.map(()=>({category:'',clue:''}));labActive=0;recordPassed=false;document.getElementById('labIntakeFeedback').classList.remove('show');labRender()}
+const labExpert={
+'Server logs':{why:'Windows Security EventID 4625 is a failed logon event. The WinEventLog:Security source and nt-auth-01 host identify the originating Windows system. status=0xC000006D is a logon failure status; logon_type=3 describes a network logon.',nuance:'Authentication events are security-relevant, but the classification in this exercise is based on the originating Windows server event log, not merely the subject of the event.',remember:'Identify the generating source and log channel before deciding the category.'},
+'Network logs':{why:'edge-rtr-03 is a router; src and dst are communicating IP addresses, proto=TCP is the transport protocol, dpt=443 is the destination port, bytes counts traffic, and action=allow records the network decision.',nuance:'Port 443 does not automatically make this an application log. A router flow record describes network communication, not an application request or response.',remember:'Network flow records usually describe who communicated with whom, over which protocol and port.'},
+'Sensor data':{why:'room-probe-17 reports measured physical environmental conditions: temperature in Fahrenheit and relative humidity percentage, sampled every 300 seconds.',nuance:'A sensor may be connected to a network, but this record is chiefly a physical measurement rather than a device-health or connected-fleet report.',remember:'Look for physical measurements and sampling intervals.'},
+'Application logs':{why:'schedule-web recorded an HTTP GET request to /weekly-schedule, a 4,800 ms response time, a database connection timeout, and a request identifier. These describe the behavior and performance of software.',nuance:'The database timeout may involve another system, but the log is an application-side account of a request and its failure.',remember:'Application logs explain what software did, what failed, and how long an operation took.'},
+'Security data':{why:'endpoint-protect is a protection product that applied a SuspiciousExecutable detection rule, assigned high severity, and quarantined the file on ops-ws-04.',nuance:'The record comes from a security detection tool, not a general operating-system service log. Its purpose is to describe a protective verdict and action.',remember:'Security-tool detections often include rule names, severity, verdicts, and response actions.'},
+'IoT data':{why:'bus-telem-044 is a connected vehicle-monitoring device. It publishes a device ID, connected state, battery voltage, engine temperature, and operating status every 60 seconds.',nuance:'IoT telemetry can contain sensor readings. Here the best category is IoT because the source and context describe a connected vehicle device publishing operational status as a unit.',remember:'Identify the connected device and the operational telemetry it publishes.'}
+};
+const labAlternatives={
+'Server logs':'A server-generated OS or authentication event; distinguish it from a security product alert, application request, or network-device flow.',
+'Network logs':'A network-device communication record with addresses, protocols, ports, or traffic actions; not automatically an application log just because a port is present.',
+'Sensor data':'A measurement of physical conditions; a connected device can produce sensor readings, so use the source context to distinguish sensor data from IoT telemetry.',
+'Application logs':'A software-generated event about requests, errors, transactions, or performance; not a router flow or OS security event.',
+'Security data':'An alert or action generated by a security system; an authentication log can be security-relevant without originating from a security detection product.',
+'IoT data':'Operational telemetry from an identifiable connected device; may include measurements but is classified by its device context.'
+};
+function labVerifyIntake(){
+ labPersist();const f=document.getElementById('labIntakeFeedback');f.classList.add('show');
+ if(labAnswers.some(a=>!a.category||!a.clue)){f.innerHTML='<b>Intake report incomplete.</b> File a category and supporting evidence clue for all six records before the review can begin.';labRender();return}
+ const n=labAnswers.filter((a,i)=>a.category===labData[i].answer).length;recordPassed=n===6;
+ f.innerHTML=`<h3>Expert Intake Review — ${n} of 6 classifications correct</h3><p>Review the technical evidence and the distinction between the selected category and the correct one. Evidence clues are recorded but not automatically graded for factual accuracy.</p>`+labData.map((d,i)=>{
+ const selected=labAnswers[i].category,ok=selected===d.answer,expert=labExpert[d.answer];
+ return `<div class="artifact" style="margin:16px 0"><h4>${i+1}. ${d.title} — ${ok?'Correct classification':'Incorrect classification'}</h4><p><b>Your answer:</b> ${labEscape(selected)} &nbsp; <b>Correct answer:</b> ${d.answer}</p><p><b>Why the correct answer is right:</b> ${expert.why}</p><p><b>${ok?'Why this distinction matters':'Why your selected answer does not fit best'}:</b> ${ok?expert.nuance:labAlternatives[selected]+' In this record, '+expert.nuance}</p><p><b>Why the other categories are less appropriate:</b></p><ul>${labCategories.filter(c=>c!==d.answer).map(c=>`<li><b>${c}:</b> ${labAlternatives[c]}</li>`).join('')}</ul><p><b>Real Splunk connection:</b> A forwarder or other supported input can send this source into Splunk, where an indexer makes events searchable and a search head lets analysts inspect them. The source and fields help analysts choose the right searches and interpretations.</p><p><b>Remember:</b> ${expert.remember}</p><p class="small"><b>Your submitted evidence:</b> ${labEscape(labAnswers[i].clue)}</p></div>`;
+ }).join('')+`<p><b>${recordPassed?'All six categories verified.':'Revise your classifications and resubmit to demonstrate mastery.'}</b></p>`;
+ labRender();
+}
+function labEscape(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function labRenderRoute(){document.getElementById('labRouteBoard').innerHTML=labJobs.map((j,i)=>`<div><div class="stepno">0${i+1}</div><h4>${j[0]}</h4><p>${j[1]}</p><select aria-label="Component for ${j[0]}" onchange="labAssignments[${i}]=this.value;labStats()"><option value="">Assign component…</option>${['Search Head','Forwarder','Indexer'].map(c=>`<option value="${c}" ${labAssignments[i]===c?'selected':''}>${c}</option>`).join('')}</select></div>`).join('')}
+function labResetRoute(){labAssignments=['','',''];compPassed=false;labRenderRoute();labStats();document.getElementById('labRouteFeedback').classList.remove('show')}
+function labVerifyRoute(){
+ const f=document.getElementById('labRouteFeedback');f.classList.add('show');
+ if(labAssignments.some(x=>!x)||new Set(labAssignments).size!==3){f.innerHTML='<b>Route incomplete.</b> Assign each component exactly once before testing.';return}
+ const expected=['Forwarder','Indexer','Search Head'];const n=labAssignments.filter((x,i)=>x===expected[i]).length;compPassed=n===3;
+ const detail=[
+ {name:'Forwarder',why:'Collects machine data at or near the originating system and sends it toward Splunk for indexing. It does not provide the primary searchable event store or the analyst search interface.',real:'For example, a forwarder on the Windows authentication server can collect event logs and forward them to an indexer.'},
+ {name:'Indexer',why:'Receives and processes incoming events, builds searchable indexes, and stores indexed data. It is not simply a forwarding agent or the primary user interface.',real:'For example, an indexer makes authentication and application records available for subsequent searches.'},
+ {name:'Search Head',why:'Provides the analyst-facing search interface, coordinates search requests with indexers, and presents results. It does not replace the indexer’s storage responsibilities.',real:'For example, an operations analyst uses the search head to examine events across the collected sources.'}
+ ];
+ f.innerHTML=`<h3>Expert Architecture Review — ${n} of 3 stations correct</h3><p>${compPassed?'The component responsibilities are correctly assigned.':'Review each station below, revise the route, and test again.'}</p>`+detail.map((d,i)=>{
+ const chosen=labAssignments[i],ok=chosen===d.name;
+ return `<div class="artifact" style="margin:14px 0"><h4>Station ${i+1}: ${labJobs[i][0]} — ${ok?'Correct':'Review'}</h4><p><b>Your assignment:</b> ${chosen}. <b>Required:</b> ${d.name}.</p><p><b>Why ${d.name} is correct:</b> ${d.why}</p><p><b>Why ${chosen} ${ok?'fits':'does not fit'}:</b> ${ok?'Its responsibility matches the station’s stated job.':chosen==='Forwarder'?'A forwarder moves data from a source; it does not perform this station’s primary indexing/storage or user-facing search role.':chosen==='Indexer'?'An indexer processes and stores searchable events; it does not perform this station’s primary collection/forwarding or user-facing search role.':'A search head coordinates analyst searches; it does not perform this station’s primary collection/forwarding or indexing/storage role.'}</p><p><b>Workplace example:</b> ${d.real}</p><p><b>Remember:</b> Forwarder moves data → Indexer makes it searchable → Search Head lets people search it. This is a simplified conceptual architecture; real deployments can have additional inputs and configurations.</p></div>`;
+ }).join('');
+ document.getElementById('labStatus').textContent=compPassed&&recordPassed?'READY':'REVIEW';
+}
+
+labRender();labRenderRoute();
+</script>
+</body>
+</html>
