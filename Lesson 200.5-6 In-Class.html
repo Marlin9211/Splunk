@@ -1,0 +1,1022 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Helios Horizon | Complete Interactive Splunk Launch Control</title><style>
+:root{--nav:#102942;--blue:#1767b4;--ink:#193147;--bg:#edf3f9;--border:#cddce9}*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px/1.55 'Segoe UI',Arial,sans-serif;color:var(--ink)}button,select,input,textarea{font:inherit}button{cursor:pointer;border:0;background:#dce8f4;color:#14375b;border-radius:8px;padding:10px 14px;font-weight:650}button.primary{background:var(--blue);color:white}button:disabled{opacity:.5;cursor:not-allowed}.shell{display:grid;grid-template-columns:278px minmax(0,1fr);min-height:100vh}aside{background:var(--nav);color:#fff;padding:20px;overflow:auto;max-height:100vh;position:sticky;top:0}aside h2{font-size:19px;margin:0}aside p{color:#b5cee5;font-size:12px}aside button{display:block;text-align:left;width:100%;margin:4px 0;background:transparent;color:#d8e7f4;font-size:13px;padding:8px}aside button.active{background:#246298;color:white}aside button.done{color:#91f3d3}.main{min-width:0}.bar{background:white;border-bottom:1px solid var(--border);padding:13px 25px;display:flex;justify-content:space-between;gap:8px;align-items:center}.wrap{max-width:1280px;padding:22px;margin:auto}.hero{background:linear-gradient(110deg,#143f72,#227fa7);color:white;border-radius:15px;padding:24px;margin-bottom:16px}.hero h1{margin:0;font-size:27px}.hero p{max-width:950px;margin-bottom:0}.card{background:white;border:1px solid var(--border);border-radius:13px;padding:20px;margin:14px 0;box-shadow:0 5px 14px #14395c0c}.card h3{margin:0 0 10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.ticket{border-left:4px solid #e5a73e;background:#fff7e8;padding:14px;border-radius:8px}.muted{color:#58748c}.tiny{font-size:12px}.terminal{background:#0e2032;color:#d9f5f3;padding:18px;border-radius:12px}.terminal textarea{width:100%;min-height:98px;resize:vertical;background:#071420;color:#a7ffde;border:1px solid #527184;border-radius:8px;padding:12px;font:14px/1.5 Consolas,monospace}.terminal button{background:#26ad9c;color:#062f33}.results{overflow:auto;max-height:340px}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:8px;border-bottom:1px solid #dce7f1;white-space:nowrap}th{background:#e8f1fa;position:sticky;top:0}.terminal th{background:#24435d;color:white}.terminal td{border-color:#39566d}label{display:block;font-weight:650;margin:12px 0 5px}input,select{width:100%;padding:10px;border:1px solid #b9cad9;border-radius:8px;background:white}.status{background:#e9f1fa;border-radius:9px;padding:12px;margin:12px 0}.good{background:#dff5e9;color:#135c40}.warn{background:#fff0d3;color:#785000}.bad{background:#fbe6e3;color:#8d2727}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.row.space{justify-content:space-between}.pill{background:#e7f1fb;border-radius:20px;padding:3px 9px;font-size:12px}.scroll{overflow:auto;max-height:400px;border:1px solid var(--border);border-radius:9px}.stage{display:none}.stage.active{display:block}.guide{border:1px dashed #a4bdd5;border-radius:10px;padding:13px;background:#f6faff}.nav{display:flex;justify-content:space-between;margin:20px 0}code{background:#e6eef8;padding:2px 4px;border-radius:4px}.terminal code{background:#18384c}.smallbtn{font-size:12px;padding:7px}.checklist label{font-weight:400}.checklist input{width:auto}.debrief{background:#eef8f3;border-left:4px solid #239c71;padding:14px;border-radius:9px;margin-top:10px}.meter{height:8px;background:#35536c;border-radius:10px;overflow:hidden}.meter div{height:100%;background:#42cba5;width:0}@media(max-width:850px){.shell{display:block}aside{position:relative;max-height:270px}.grid{grid-template-columns:1fr}.wrap{padding:12px}.bar{padding:10px;flex-wrap:wrap}}@media print{aside,.bar,button{display:none!important}.shell{display:block}.stage{display:block!important}}
+
+/* Accessibility: readable text in light feedback and hint panels inside the dark console */
+.terminal .status{color:#183247;background:#e9f1fa;line-height:1.65}
+.terminal .status b,.terminal .status strong,.terminal .status small,
+.terminal .status p,.terminal .status li{color:#183247}
+.terminal .status code{color:#f4fbff;background:#18384c;padding:3px 6px;border-radius:4px;overflow-wrap:anywhere;white-space:normal}
+.terminal .status.good{color:#135c40;background:#dff5e9}
+.terminal .status.warn{color:#785000;background:#fff0d3}
+.terminal .status.bad{color:#8d2727;background:#fbe6e3}
+.terminal .status[hidden]{display:none}
+
+.report-hero{border-left:5px solid #2077a9}.report-empty{background:#edf3fa;border:1px dashed #9bb4ca;border-radius:10px;padding:22px;margin:14px 0;color:#34516a}
+#s5 .checklist label{display:block;padding:8px 0;font-weight:400}#s5 .checklist input{width:auto;margin-right:9px}
+#s5 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}#s5 input,#s5 select{max-width:100%}
+
+.schedule-banner{border-left:5px solid #1685a7}.schedule-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.schedule-summary>div{background:#edf3f9;border:1px solid #d1deea;border-radius:10px;padding:13px}
+.schedule-summary span,.schedule-summary b{display:block}.schedule-code{background:#142c42;color:#e9f7ff;padding:16px;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere}
+#s6 .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}#s6 .ticket{background:#fff6e6;border-left:4px solid #d99938;padding:14px;border-radius:8px}
+#s6 details{margin-top:12px}#s6 summary{cursor:pointer;font-weight:700}#s6 .status{color:#19334a}
+@media(max-width:700px){.schedule-summary{grid-template-columns:1fr}}
+
+.qa-header{border-left:5px solid #b87325}.qa-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:15px 0}
+.qa-pane{background:#f0f5fa;border:1px solid #ccdaea;border-radius:10px;padding:16px}
+.qa-pane>b{display:block;margin-bottom:8px}.qa-code{white-space:pre-wrap;overflow-wrap:anywhere;background:#142b41;color:#e5f7ff;padding:13px;border-radius:8px;font-size:13px}
+#s7 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}#s7 .qa-check{display:block;font-weight:400;margin:13px 0}
+#s7 .qa-check input{width:auto;margin-right:8px}#s7 .qa-notes{width:100%;min-height:120px;resize:vertical;padding:12px;border:1px solid #a9c2d9;border-radius:9px}
+#s7 .status{color:#19334a}#s7 .terminal .status{color:#19334a;background:#eaf1f9}
+@media(max-width:700px){.qa-cols{grid-template-columns:1fr}}
+
+.viz-header{border-left:5px solid #8057b4}
+#s8 .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#s8 .viz-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+#s8 .viz-choices label{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;background:#edf3fa;border:1px solid #c6d7e8;border-radius:10px;padding:14px 8px;text-align:center;font-weight:600}
+#s8 .viz-choices label span{font-size:26px;color:#265c87}
+#s8 .viz-choices input{width:auto}
+#s8 .viz-preview{background:#fff;border:1px solid #b8cce0;border-radius:12px;padding:22px;margin:14px 0;overflow:auto;min-height:150px;color:#19354d}
+#s8 .viz-chart-title{font-size:19px;font-weight:750;margin-bottom:20px}
+#s8 .viz-bars{display:grid;gap:14px}
+#s8 .viz-bar-row{display:grid;grid-template-columns:90px minmax(0,1fr) 95px;align-items:center;gap:10px}
+#s8 .viz-bar-track{height:27px;border-radius:6px;background:#e7eff7;overflow:hidden}
+#s8 .viz-bar-fill{height:100%;border-radius:6px;min-width:2px}
+#s8 .viz-big{font-size:48px;font-weight:750;text-align:center;color:#216eae}
+#s8 .viz-pie-wrap{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+#s8 .viz-pie{width:190px;height:190px;border-radius:50%;flex-shrink:0}
+#s8 .viz-key{display:inline-block;width:13px;height:13px;border-radius:3px;margin-right:6px}
+#s8 .viz-line{width:100%;max-width:700px;height:auto}
+#s8 .viz-notes{width:100%;min-height:130px;resize:vertical;padding:12px;border:1px solid #b4c7da;border-radius:9px}
+#s8 .status{color:#19354d}
+@media(max-width:750px){#s8 .viz-choices{grid-template-columns:repeat(2,minmax(0,1fr))}#s8 .viz-bar-row{grid-template-columns:65px minmax(0,1fr) 80px;font-size:13px}}
+
+.pw-header{border-left:5px solid #19857c}
+#s10 .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#s10 .pw-blueprint{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+#s10 .pw-blueprint>div{background:#edf5f8;border:1px solid #cadce7;border-radius:10px;padding:15px}
+#s10 .pw-blueprint p{font-size:14px;margin:6px 0}
+#s10 .pw-wiring{background:#f0f6fb;border:1px solid #bfd4e6;border-radius:12px;padding:16px;margin:14px 0}
+#s10 .pw-source{display:flex;align-items:center;justify-content:space-between;padding:13px;background:#dbeaf5;border-radius:9px;margin-bottom:12px}
+#s10 .pw-wire{display:grid;grid-template-columns:110px minmax(0,1fr) 155px;align-items:center;gap:8px;margin:7px 0;padding:12px;background:white;border:1px solid #cbdde9;border-left:5px solid #168d79;border-radius:8px}
+#s10 .pw-disconnected{border-left-color:#c66a42}
+#s10 .pw-canvas{border:1px solid #bbd2e2;background:#f8fbfe;border-radius:12px;padding:18px;margin:14px 0;min-height:130px}
+#s10 .pw-canvas-heading{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+#s10 .pw-panel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px}
+#s10 .pw-panel{background:white;border:1px solid #cad9e6;border-radius:10px;padding:14px}
+#s10 .pw-meter{display:grid;grid-template-columns:58px minmax(0,1fr) 62px;gap:7px;align-items:center;margin:10px 0;font-size:12px}
+#s10 .pw-meter>div{height:17px;background:#e8f1f6;border-radius:4px;overflow:hidden}
+#s10 .pw-meter i{display:block;height:100%;background:#217da5;border-radius:4px}
+#s10 .pw-notes{width:100%;min-height:115px;padding:12px;border:1px solid #adc7db;border-radius:9px;resize:vertical}
+#s10 .status{color:#19354d}
+@media(max-width:720px){#s10 .pw-blueprint{grid-template-columns:1fr}#s10 .pw-wire{grid-template-columns:1fr}}
+
+.ops-header{border-left:5px solid #4377b5}
+#s11 .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#s11 .ops-health,#s11 .ops-panel-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0}
+#s11 .ops-health>div,#s11 .ops-panel{padding:15px;background:#eef5fb;border:1px solid #c7d9e8;border-radius:10px}
+#s11 .ops-health b,#s11 .ops-health span{display:block;margin-bottom:8px}
+#s11 .ops-dashboard{padding:16px;background:#f6fafd;border:1px solid #bdd2e5;border-radius:12px;margin:14px 0;min-height:110px}
+#s11 .ops-panel{background:white}#s11 .ops-failed{border-color:#cb775a;background:#fff3ee}
+#s11 .ops-number{font-size:34px;font-weight:750;margin:12px 0;color:#1d618c}
+#s11 .ops-failed .ops-number{color:#a34532}
+#s11 .ops-panel p{font-size:13px}
+#s11 .ops-log{white-space:pre-wrap;overflow-wrap:anywhere;background:#132c41;color:#f0f8ff;padding:14px;border-radius:9px;font-size:13px}
+#s11 .ops-notes{width:100%;min-height:120px;padding:12px;border:1px solid #b0c8dc;border-radius:9px;resize:vertical}
+#s11 .status{color:#19354d}
+@media(max-width:740px){#s11 .ops-health,#s11 .ops-panel-grid{grid-template-columns:1fr}}
+
+.kpi-header{border-left:5px solid #8d6bc3}
+#s12 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#s12 .kpi-inventory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}
+#s12 .kpi-inventory>div{background:#edf4fa;border:1px solid #cadbea;border-radius:10px;padding:15px}
+#s12 .kpi-inventory b,#s12 .kpi-inventory span{display:block;margin-bottom:7px}
+#s12 .kpi-tile-placeholder{background:#f6f9fd;border:1px solid #bed1e3;border-radius:12px;padding:20px;min-height:170px;margin:15px 0;color:#17334c}
+#s12 .kpi-display{text-align:center;background:white;border:1px solid #c9d7e4;border-radius:12px;padding:25px;max-width:520px;margin:auto}
+#s12 .kpi-warning{border-top:7px solid #d78b32}#s12 .kpi-normal{border-top:7px solid #178b78}
+#s12 .kpi-label{font-weight:750;font-size:19px}
+#s12 .kpi-value{font-size:64px;line-height:1.2;font-weight:800;color:#1c5f8e;margin:14px 0}
+#s12 .kpi-state{font-weight:700}#s12 .kpi-warning .kpi-state{color:#95530c}#s12 .kpi-normal .kpi-state{color:#146c5d}
+#s12 .kpi-sub{color:#435c70;margin:10px 0}
+#s12 .kpi-notes{width:100%;min-height:120px;padding:12px;border:1px solid #b6c9da;border-radius:9px;resize:vertical}
+#s12 .status{color:#19354d}
+@media(max-width:740px){#s12 .kpi-inventory{grid-template-columns:1fr}}
+
+.lc-header{border-left:5px solid #9a6b38}
+#s13 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#s13 .lc-issues{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:15px 0}
+#s13 .lc-issue,#s13 .lc-action{background:#f0f5fa;border:1px solid #c9dbe9;border-radius:10px;padding:15px}
+#s13 .lc-issue-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+#s13 .lc-issue-head span{font-size:11px;font-weight:750;background:#e7d9ce;color:#663e22;border-radius:6px;padding:5px 8px}
+#s13 .lc-actions{display:grid;gap:12px;margin:14px 0}
+#s13 .lc-action label{font-weight:700}
+#s13 .lc-notes{width:100%;min-height:165px;padding:12px;border:1px solid #adc5d9;border-radius:9px;resize:vertical}
+#s13 .status{color:#19354d}
+@media(max-width:720px){#s13 .lc-issues{grid-template-columns:1fr}}
+
+/* Visible vertical scrolling across the complete application */
+html{height:100%;overflow-y:scroll;overflow-x:hidden;scrollbar-gutter:stable;scrollbar-width:auto;scrollbar-color:#6286a7 #e6eef6}
+body{min-height:100%;height:auto;overflow-x:hidden;overflow-y:visible}
+.shell{min-height:100vh;height:auto;align-items:start}
+.main{min-width:0;min-height:100vh;overflow:visible}
+.wrap{height:auto;max-height:none;overflow:visible}
+.stage.active{height:auto;max-height:none;overflow:visible}
+aside{overflow-y:scroll;scrollbar-width:auto;scrollbar-color:#7ea6c8 #102942}
+html::-webkit-scrollbar,aside::-webkit-scrollbar{width:14px}
+html::-webkit-scrollbar-track{background:#e6eef6}
+html::-webkit-scrollbar-thumb{background:#6286a7;border-radius:9px;border:3px solid #e6eef6}
+aside::-webkit-scrollbar-track{background:#102942}
+aside::-webkit-scrollbar-thumb{background:#7ea6c8;border-radius:9px;border:3px solid #102942}
+@media(max-width:850px){aside{max-height:270px;overflow-y:scroll}}
+
+/* Always-visible in-application vertical scroll control */
+#heliosScrollRail{position:fixed;right:5px;top:96px;bottom:18px;width:23px;z-index:9999;display:flex;flex-direction:column;align-items:center;gap:5px;background:#d7e6f3;border:1px solid #83a6c5;border-radius:15px;padding:4px 2px;box-shadow:0 2px 9px #16354c38}
+#heliosScrollRail button{width:19px;height:27px;min-height:27px;border-radius:8px;padding:0;background:#1e658e;color:white;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center}
+#heliosScrollTrack{position:relative;flex:1;width:13px;border-radius:10px;background:#b4cee2;cursor:pointer;touch-action:none}
+#heliosScrollThumb{position:absolute;left:0;top:0;width:13px;min-height:34px;background:#17618d;border:1px solid #0d466b;border-radius:9px;cursor:grab;touch-action:none}
+#heliosScrollThumb:active{cursor:grabbing}
+.main{padding-right:23px}
+@media(max-width:850px){#heliosScrollRail{top:75px;bottom:10px}.main{padding-right:23px}}
+@media print{#heliosScrollRail{display:none!important}.main{padding-right:0}}
+/* Collapsible content navigation */
+.shell.menu-collapsed{grid-template-columns:minmax(0,1fr)}
+.shell.menu-collapsed .main{grid-column:1;min-width:0;width:100%}
+.bar{flex-wrap:wrap}
+.bar > .row{min-width:0;flex-wrap:wrap}
+.bar strong{overflow-wrap:anywhere}
+@media(max-width:600px){.bar{padding:12px;align-items:flex-start}.bar > .row{width:100%}}
+.shell.menu-collapsed aside{display:none}
+#contentMenuToggle{background:#1767b4;color:#fff;white-space:nowrap}
+@media(max-width:850px){.shell.menu-collapsed{display:block}.shell.menu-collapsed aside{display:none}}
+@media print{#contentMenuToggle{display:none!important}}
+</style></head><body><div class="shell"><aside id="contentMenu"><h2>HELIOS // HORIZON</h2><p>Splunk Launch Control · Lesson 200.5–6</p><p>14-STAGE ANALYST SIMULATION</p><div class="meter"><div id="meter"></div></div><p id="progress">0 of 14 stages validated</p><div id="menu"></div><hr><button onclick="resetAll()">↻ Reset all progress</button></aside><main class="main"><header class="bar"><span class="row"><button id="contentMenuToggle" type="button" onclick="toggleContentMenu()" aria-controls="contentMenu" aria-expanded="true">☰ Hide Content Menu</button><strong>Launch Control · Analyst Workstation</strong></span><span class="row"><button onclick="toggleGuide()" class="smallbtn">Show / hide guide</button><button onclick="window.print()" class="smallbtn">Print</button></span></header><div class="wrap"><div class="hero"><small>OPERATOR → DETECTIVE → JUDGE</small><h1>Helios Horizon: Launch Control</h1><p>Hands-on Splunk-style investigation, reporting, visualization and dashboard operations. Complete each work order, inspect simulated evidence, and validate an analyst decision.</p></div><div id="stageContainer"></div></div></main></div><script>const stages=[{"title": "Transforming Command Triage", "phase": "Operator", "team": "Traffic Operations", "task": "Find the three most frequent client IP addresses across the launch web fleet.", "query": "index=helios sourcetype=web_access | top limit=3 clientip", "mode": "top", "goal": "clientip", "lesson": "Frequency is evidence of activity, not proof of compromise."}, {"title": "Top Investigation", "phase": "Operator", "team": "Web Reliability", "task": "Find the most frequent HTTP status codes to identify the dominant response pattern.", "query": "index=helios sourcetype=web_access | top limit=4 status", "mode": "top", "goal": "status", "lesson": "High-frequency 200 responses may be normal; review the distribution and failures."}, {"title": "Rare Investigation", "phase": "Operator", "team": "Fraud Monitoring", "task": "Identify the least frequent action values before reviewing exceptional transactions.", "query": "index=helios sourcetype=web_access | rare limit=4 action", "mode": "rare", "goal": "action", "lesson": "A rare refund is a lead to investigate, not automatic evidence of fraud."}, {"title": "Stats Function Laboratory", "phase": "Operator", "team": "Launch Analytics", "task": "Count events and distinct clients by region.", "query": "index=helios sourcetype=web_access | stats count AS Events dc(clientip) AS Unique_Clients BY region", "mode": "stats", "goal": "countdc", "lesson": "Count measures events; dc measures distinct client addresses."}, {"title": "Search Optimization", "phase": "Operator", "team": "Search Performance", "task": "Narrow the dataset to errors before aggregating them by host.", "query": "index=helios sourcetype=web_access status>=400 | stats count AS Errors BY host", "mode": "stats", "goal": "errors", "lesson": "Filter before aggregation to reduce unnecessary work."}, {"title": "Report Commissioning", "phase": "Detective", "team": "Reporting Operations", "task": "Create a saved report that totals transferred bytes by region.", "query": "index=helios sourcetype=web_access | stats sum(bytes) AS Total_Bytes BY region", "mode": "stats", "goal": "bytes", "lesson": "A saved report must include a clear name and reproducible search."}, {"title": "Report Access & Scheduling", "phase": "Detective", "team": "SOC Reporting", "task": "Configure a daily scheduled report with team visibility and a defined owner.", "query": "", "mode": "config", "goal": "schedule", "lesson": "Choose least-privilege access and an appropriate recurring schedule."}, {"title": "Report Repair & Statistics", "phase": "Detective", "team": "Quality Assurance", "task": "Repair a report that uses count(bytes) when the request requires total bandwidth.", "query": "index=helios sourcetype=web_access | stats sum(bytes) AS Total_Bytes BY region", "mode": "stats", "goal": "bytes", "lesson": "count(bytes) counts populated events; sum(bytes) adds transferred volume."}, {"title": "Visualization Story", "phase": "Detective", "team": "Executive Analytics", "task": "Choose an appropriate chart for comparing total bandwidth across regions.", "query": "index=helios sourcetype=web_access | stats sum(bytes) AS Total_Bytes BY region", "mode": "viz", "goal": "bar", "lesson": "Bar charts support comparisons between discrete regions."}, {"title": "Dashboard Commissioning", "phase": "Judge", "team": "Launch Command", "task": "Create a dashboard containing regional traffic, errors, and client diversity.", "query": "", "mode": "config", "goal": "dashboard", "lesson": "Dashboards should answer an operational question, not merely display charts."}, {"title": "Panel Construction & Relationships", "phase": "Judge", "team": "SOC Command", "task": "Add an error panel and connect it to a region selector.", "query": "index=helios sourcetype=web_access status>=400 | stats count AS Errors BY region", "mode": "panel", "goal": "token", "lesson": "Use a shared region token to connect filtering across panels."}, {"title": "Dashboard Operations", "phase": "Judge", "team": "Operations Support", "task": "Diagnose a dashboard panel that is stale because its search window is too narrow.", "query": "", "mode": "config", "goal": "window", "lesson": "A panel may be technically valid yet misleading if its time range excludes events."}, {"title": "Dashboard Editing & Single Value", "phase": "Judge", "team": "Executive Command", "task": "Configure a single-value indicator for the total number of error events.", "query": "index=helios sourcetype=web_access status>=400 | stats count AS Errors", "mode": "single", "goal": "errors", "lesson": "A single-value panel should show one meaningful aggregate and a clear label."}, {"title": "GO / NO-GO Briefing", "phase": "Judge", "team": "Launch Director", "task": "Evaluate the evidence, document residual risk, and issue a conditional launch decision.", "query": "", "mode": "decision", "goal": "launch", "lesson": "A launch decision must account for service errors, anomalies, and monitoring coverage."}];
+const events=[];let regions=['east','central','west'],actions=['view','view','purchase','login','view','refund','view','purchase'];for(let i=0;i<120;i++){let region=regions[i%3],status=i%17===0?500:i%9===0?403:i%13===0?404:200;events.push({_time:`2026-11-02 14:${String(Math.floor(i/2)%60).padStart(2,'0')}:${String((i*13)%60).padStart(2,'0')}`,host:'web-0'+(1+i%3),region,clientip:`10.44.${[8,19,31][i%3]}.${[21,21,21,7,18,31,9,44][i%8]}`,action:actions[(i*7+Math.floor(i/11))%8],status,bytes:1000+(i*811)%13000})}
+const stored=(()=>{try{return JSON.parse(localStorage.getItem('helios14lab'))||{}}catch{return {}}})();let completed=Array.isArray(stored.completed)?stored.completed:Array(14).fill(false),notes=stored.notes||{},current=0,guide=true,ran={};const $=id=>document.getElementById(id);const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));function save(){localStorage.setItem('helios14lab',JSON.stringify({completed,notes}))}function table(rows){if(!rows.length)return '<p>No matching events.</p>';let keys=Object.keys(rows[0]);return '<div class="results"><table><thead><tr>'+keys.map(k=>'<th>'+esc(k)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+keys.map(k=>'<td>'+esc(r[k])+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>'}
+const decisionChoices=[["The leading client IPs transferred the greatest total volume of data.", "The leading client IPs generated the highest proportion of failed requests.", "The leading client IPs account for the greatest event counts in the selected dataset.", "The leading client IPs contacted the widest range of application hosts."], ["HTTP 200 responses dominate the sample, but failure rates require separate inspection.", "HTTP 200 responses dominate the sample, so all requests completed without errors.", "The highest status code indicates which client made the greatest number of requests.", "The status distribution identifies the host responsible for the largest byte total."], ["The least common action values identify transactions with the highest monetary impact.", "The least common action values establish which users violated access policies.", "The least common action values represent actions with the fewest transferred bytes.", "The least common action values are candidates for follow-up using supporting context."], ["Event counts and distinct client counts measure the same regional activity patterns.", "Event counts and distinct client counts measure different regional activity patterns.", "Distinct client counts measure the number of unique events within each region.", "Event counts measure the number of different client addresses within each region."], ["Filtering for errors after aggregation produces identical results for every host.", "Grouping by host first removes all non-error events from the source dataset.", "Filtering for errors before aggregation isolates relevant records for host comparisons.", "Counting all events by host identifies the host with the highest error rate."], ["The report summarizes the number of events containing a bytes field in each region.", "The report summarizes transferred byte totals for each region in a repeatable search.", "The report identifies the most frequently observed byte value in each region.", "The report identifies the number of distinct clients that transferred data."], ["Global edit access and a daily schedule support recurring review with shared ownership.", "Team edit access and manual execution support recurring review with defined ownership.", "Private read access and hourly execution support recurring review with defined ownership.", "Team read access and a daily schedule support recurring review with defined ownership."], ["Using sum(bytes) corrects the bandwidth total because count(bytes) counts populated events.", "Using count(bytes) corrects bandwidth totals because sum(bytes) counts populated events.", "Using dc(bytes) corrects bandwidth totals because it includes repeated byte values.", "Using top bytes corrects bandwidth totals because it ranks transferred volume."], ["A pie chart compares individual event timestamps on a continuous time scale.", "A line chart displays a sequence of regions as if they were time intervals.", "A bar chart compares region-level byte totals on a common quantitative scale.", "A single-value panel displays all regional totals as separate comparable categories."], ["A single bandwidth panel covers error volume and unique-client trends automatically.", "A single error panel covers regional bandwidth and client diversity automatically.", "Three identical bandwidth panels cover all requested launch metrics without changes.", "Separate bandwidth, error, and unique-client panels cover the requested launch metrics."], ["A separate token per panel ensures every panel follows the same regional selection.", "A shared region token lets the selector apply the same regional scope to linked panels.", "A fixed region value in each search allows the selector to switch all regions.", "A shared host token makes region selection independent of dashboard filters."], ["A 24-hour window with a 15-minute refresh balances context and timely updates.", "A 15-minute window with a 24-hour refresh balances context and timely updates.", "A 24-hour window with no refresh guarantees the newest events are always displayed.", "An all-time window with a one-second refresh is necessary for every dashboard."], ["A labeled table panel displays one aggregate error count as a time-series trend.", "A labeled bar panel automatically compares the error count across every region.", "A labeled Single Value panel displays one aggregate error count for rapid monitoring.", "A labeled map panel locates the aggregate error count by source IP address."], ["Proceed without conditions because the available statistics prove full system health.", "Proceed conditionally with monitoring ownership and documented follow-up checks.", "Suspend all launch activity because unusual event counts establish compromise.", "Proceed with monitoring disabled because reporting is sufficient for incident response."]];
+const correctPositions=[2, 0, 3, 1, 2, 1, 3, 0, 2, 3, 1, 0, 2, 1];
+function decisionOptions(i){return decisionChoices[i].map((label,j)=>`<option value="${j===correctPositions[i]?"correct":"choice"+j}">${esc(label)}</option>`).join("");}
+
+/* Distinct Stage 06: guided report commissioning console rather than the generic analyst workbench. */
+let reportDraft={preview:false,saved:false,configured:false};
+function makeReportCommissioning(s,i){
+return `<section class="stage" id="s5">
+<div class="card report-hero"><span class="pill">STAGE 06 · DETECTIVE / REPORT BUILDER</span><h2>Report Commissioning · Regional Capacity Review</h2><p>You are the reporting analyst. Operations needs a reusable report showing how much web traffic each region transferred during the launch-readiness sample.</p>
+<div class="ticket"><b>Service request RC-206:</b> Produce a report grouped by region, using the total of the <code>bytes</code> field. Give the report a descriptive title, verify the preview, and save the report artifact. A list of frequent byte values will not meet the request.</div>
+<p class="tiny">This stage uses a simulated Splunk report-building workflow. Report scheduling and permissions are handled in Stage 07.</p></div>
+<div class="card" id="reportStep1"><h3>1 · Configure the report</h3><p><b>Your task:</b> Use the service request to choose the measurement, the field used to organize the results, and a descriptive report name. You are designing the report here; you are <b>not saving it yet</b>.</p><p class="muted">After selecting your settings, click <b>Generate Preview</b> below. This runs the simulated calculation so you can check whether it answers Operations’ request.</p>
+<div class="grid">
+<div><label for="rMetric">Measure to report</label><select id="rMetric" onchange="reportChanged()"><option value="">Choose measure…</option><option value="count">Number of events</option><option value="sum">Total bytes transferred</option><option value="dc">Distinct client addresses</option><option value="max">Largest single event</option></select></div>
+<div><label for="rGroup">Breakdown field</label><select id="rGroup" onchange="reportChanged()"><option value="">Choose grouping…</option><option value="host">Web host</option><option value="region">Region</option><option value="action">Request action</option><option value="status">HTTP status</option></select></div></div>
+<label for="rName">Saved report title</label><input id="rName" oninput="reportChanged()" placeholder="Enter a descriptive report name">
+<div class="row"><button class="primary" onclick="reportPreview()">Generate preview</button><button onclick="reportReset()">Clear draft</button></div><div id="rMessage" class="status">Configure the measure and breakdown, then generate a preview.</div></div>
+<div class="card" id="reportStep2"><h3>2 · Check the preview and save</h3><p><b>Your task:</b> Review the calculated statistics. The service request requires <b>one row per region</b> and a numeric total representing the transferred bytes. If the preview does not match, return to Step 1 and adjust the settings.</p><p><b>Why is Save Report disabled?</b> Saving is only available after you generate a preview with the current settings. Changing the measure, grouping, or title invalidates the old preview so that you do not save an outdated report.</p><div id="rPreview" class="report-empty" role="status" aria-live="polite">No preview yet. Complete Step 1, then click Generate Preview to see the report results.</div>
+<div class="row"><button id="rSave" disabled onclick="reportSave()">Save report</button><span id="rSaved" class="muted small">Not saved — preview required</span></div><p id="rSaveHelp" class="muted small">Next action: Configure the report in Step 1 and select Generate Preview. After the results appear, select Save Report.</p></div>
+<div class="card" id="reportStep3"><h3>3 · Verify and commission the report</h3><p><b>Your task:</b> Confirm that the saved report meets the service request. Use the checklist to verify the calculation, grouping, and saved title. In your handoff notes, explain what the report measures and how Operations should use it.</p><p><b>Finish:</b> Click <b>Commission Report</b> only after the report is saved and your handoff is complete. This records Stage 06 as finished; Stage 07 covers scheduling and sharing.</p>
+<div class="checklist"><label><input id="rVerify1" type="checkbox"> The output groups events by the requested dimension.</label><label><input id="rVerify2" type="checkbox"> The selected statistic measures transferred volume.</label><label><input id="rVerify3" type="checkbox"> The report has a meaningful title and saved preview.</label></div>
+<label for="notes5">Report handoff notes</label><textarea id="notes5" style="width:100%;min-height:110px;padding:12px;border:1px solid #b9cad9;border-radius:8px" placeholder="Explain what the report shows, why the aggregation fits the request, and who should review it."></textarea>
+<div id="feedback5" class="status">Complete the report and the checklist to submit your work.</div>
+<button class="primary" onclick="reportSubmit()">Commission report</button>
+<div id="debrief5" class="debrief" style="display:none"><h3>Expert debrief</h3><p>In Splunk, <code>stats sum(bytes) AS Total_Bytes BY region</code> calculates the transferred-byte total separately for each region. <code>count(bytes)</code> counts events containing the field; <code>top bytes</code> ranks frequent byte values. Neither substitutes for a sum.</p><p>The next stage addresses report sharing and scheduling. A saved report is not automatically scheduled or shared.</p></div></div>
+<div class="nav"><button onclick="go(4)">← Previous stage</button><button onclick="go(6)">Next stage →</button></div></section>`;
+}
+function reportChanged(){
+ reportDraft.preview=false;reportDraft.saved=false;reportDraft.configured=false;
+ const p=$('rPreview');if(p)p.innerHTML='<b>Preview required:</b> Your report configuration has changed. Return to <b>Step 1 — Configure the report</b> and select <b>Generate Preview</b>. Review the new results before saving.';
+ $('rSave').disabled=true;$('rSaved').textContent='Not saved — preview required';
+ $('rSaveHelp').textContent='Save Report is disabled because the current settings have not been previewed. Generate a new preview in Step 1.';
+ $('rMessage').className='status warn';$('rMessage').textContent='Configuration changed. Select Generate Preview to calculate results using your current settings.';
+}
+function reportPreview(){
+const m=$('rMetric').value,g=$('rGroup').value,name=$('rName').value.trim(),msg=$('rMessage');
+if(!m||!g||name.length<8){msg.className='status warn';msg.textContent='Step 1 is incomplete: choose a measure, a breakdown field, and a report title of at least eight characters, then click Generate Preview again.';return}
+const groups={};events.forEach(e=>{(groups[e[g]]??=[]).push(e)});
+const rows=Object.entries(groups).map(([key,arr])=>({[g]:key,[m==='sum'?'Total_Bytes':m==='count'?'Event_Count':m==='dc'?'Distinct_Clients':'Max_Bytes']:m==='sum'?arr.reduce((a,e)=>a+e.bytes,0):m==='count'?arr.length:m==='dc'?new Set(arr.map(e=>e.clientip)).size:Math.max(...arr.map(e=>e.bytes))}));
+$('rPreview').innerHTML=table(rows)+'<p class="tiny muted">Preview computed from '+events.length+' fictional web events.</p>';
+reportDraft.preview=true;reportDraft.configured=m==='sum'&&g==='region';
+$('rSave').disabled=false;
+$('rSaved').textContent='Preview ready — not saved';
+$('rSaveHelp').textContent='Preview generated. Check the results above against the service request, then click Save Report.';
+msg.className='status '+(reportDraft.configured?'good':'warn');
+msg.textContent=reportDraft.configured?'Preview generated: verify the region totals, then click Save Report in Step 2.':'Preview generated. Compare the measure and grouping with the service request; correct the settings in Step 1 if needed.';
+}
+function reportSave(){
+if(!reportDraft.preview)return;
+reportDraft.saved=true;$('rSaved').textContent='Saved: '+$('rName').value.trim();$('rSaveHelp').textContent='Report saved. Continue to Step 3: complete the checklist and handoff notes, then select Commission Report.';
+$('rMessage').className='status good';$('rMessage').textContent='Report saved locally in this simulated lab. Complete the checklist and handoff notes.';
+}
+function reportReset(){['rMetric','rGroup','rName'].forEach(id=>$(id).value='');['rVerify1','rVerify2','rVerify3'].forEach(id=>$(id).checked=false);reportChanged()}
+function reportSubmit(){
+let problems=[];
+if(!reportDraft.configured)problems.push('The report does not yet match the requested measure and breakdown.');
+if(!reportDraft.saved)problems.push('In Step 1 generate a preview, then in Step 2 save the verified report.');
+if(!['rVerify1','rVerify2','rVerify3'].every(id=>$(id).checked))problems.push('Complete the commissioning checklist.');
+if($('notes5').value.trim().length<25)problems.push('Write at least 25 characters of handoff notes.');
+const f=$('feedback5');
+if(problems.length){f.className='status warn';f.innerHTML='<b>Review the report:</b><ul>'+problems.map(p=>'<li>'+esc(p)+'</li>').join('')+'</ul>';return}
+completed[5]=true;notes[5]=$('notes5').value.trim();save();update();
+f.className='status good';f.textContent='Report commissioned successfully. Continue to access and scheduling.';
+$('debrief5').style.display='block';
+}
+
+
+/* Stage 07 — SOC report administration lab, distinct from search investigations */
+let scheduleState={previewed:false,saved:false,verified:false};
+function makeScheduleLab(st,i){
+return `<section class="stage" id="s6">
+<div class="card schedule-banner"><div class="row space"><span class="pill">STAGE 07 · DETECTIVE</span><span class="pill">SOC REPORTING</span></div>
+<h2>Report Access &amp; Scheduling — Operations Handoff</h2>
+<p><b>Your role:</b> SOC Reporting Administrator. Stage 06 produced a regional traffic report. Now you must make it available to the SOC team and schedule its delivery.</p>
+<div class="ticket"><b>Service request SOC-RPT-207</b><p>The SOC team must be able to <b>view</b> the report, but not change its definition. A designated reporting account must own it. The report should run <b>once per day at 06:00</b>, and the SOC team must be able to review the latest completed run.</p></div>
+<p class="tiny">This is a simulated Splunk administration workspace. Changes do not affect a real Splunk deployment.</p></div>
+<div class="card"><h3>1 · Inspect the existing report</h3><p>Before changing access, review what has been handed over. The report already exists; you are not rebuilding its search.</p>
+<div class="schedule-summary"><div><span class="muted small">Report</span><b>Regional Web Traffic Summary</b></div><div><span class="muted small">Search purpose</span><b>Total bytes by region</b></div><div><span class="muted small">Current visibility</span><b>Private</b></div><div><span class="muted small">Current schedule</span><b>Not scheduled</b></div></div>
+<details><summary>Inspect saved SPL definition</summary><pre class="schedule-code">index=helios sourcetype=web_access
+| stats sum(bytes) AS Total_Bytes BY region</pre><p class="small muted">The saved SPL is supplied for context. This stage focuses on access, ownership, and scheduled execution.</p></details></div>
+<div class="card"><h3>2 · Configure access and ownership</h3><p>Choose who can view the report and who can change it. Follow the request rather than selecting the broadest access.</p>
+<div class="grid"><div><label for="schedScope">Who can see the report?</label><select id="schedScope" onchange="scheduleChanged()"><option value="">Choose visibility…</option><option value="private">Only the creator</option><option value="soc">SOC reporting team</option><option value="everyone">Everyone in the organization</option></select></div>
+<div><label for="schedPermission">SOC team's permission</label><select id="schedPermission" onchange="scheduleChanged()"><option value="">Choose permission…</option><option value="read">Read / view only</option><option value="edit">Edit the report definition</option><option value="admin">Full administration</option></select></div></div>
+<label for="schedOwner">Report owner</label><select id="schedOwner" onchange="scheduleChanged()"><option value="">Choose an account…</option><option value="analyst">Individual analyst account</option><option value="service">SOC reporting service account</option><option value="guest">Guest / shared account</option></select>
+<div class="status"><b>Access preview:</b> <span id="schedAccessPreview">Choose the visibility, permission, and owner to see the effective access.</span></div></div>
+<div class="card"><h3>3 · Configure the execution schedule</h3><p>Set the cadence and time. Scheduling controls when the report runs, not how long the search takes.</p>
+<div class="grid"><div><label for="schedCadence">Run frequency</label><select id="schedCadence" onchange="scheduleChanged()"><option value="">Choose frequency…</option><option value="hourly">Every hour</option><option value="daily">Every day</option><option value="weekly">Every Monday</option></select></div>
+<div><label for="schedTime">Scheduled start time</label><select id="schedTime" onchange="scheduleChanged()"><option value="">Choose time…</option><option value="00:00">12:00 AM</option><option value="06:00">06:00 AM</option><option value="12:00">12:00 PM</option><option value="18:00">06:00 PM</option></select></div></div>
+<button class="primary" type="button" onclick="schedulePreview()">Preview configuration &amp; next runs</button>
+<div id="schedPreview" class="report-empty" aria-live="polite">No schedule preview yet. Configure access and timing, then select <b>Preview configuration &amp; next runs</b>.</div>
+<div class="row"><button id="schedSave" disabled type="button" onclick="scheduleSave()">Save &amp; enable schedule</button><span id="schedSaveState" class="muted small">Not enabled</span></div></div>
+<div class="card"><h3>4 · Verify the scheduled report</h3><p>After saving, run a simulated administrative check to confirm the report is visible to the right team and scheduled correctly.</p>
+<button type="button" id="schedTest" disabled onclick="scheduleTest()">Run verification check</button>
+<div id="schedTestOutput" class="status" aria-live="polite">Verification is available after saving the schedule.</div></div>
+<div class="card"><h3>5 · Handoff to SOC operations</h3><p>Explain how the team will access the report and what you would check if the next scheduled execution fails.</p>
+<label for="schedNotes">Analyst handoff notes</label><textarea id="schedNotes" style="width:100%;min-height:110px;padding:12px;border:1px solid #b9cad9;border-radius:8px" placeholder="Document the permissions, owner, run schedule, and a troubleshooting check."></textarea>
+<div id="schedFeedback" class="status">Complete configuration, save the schedule, verify it, and record your handoff.</div>
+<button class="primary" type="button" onclick="scheduleSubmit()">Complete Stage 07</button>
+<div id="debrief6" class="debrief" style="display:none"><h3>Expert debrief</h3><p><b>Access:</b> Grant the SOC team read-only access because the request requires viewing, not editing. Broad edit privileges would introduce unnecessary change risk.</p><p><b>Ownership:</b> A designated service account avoids depending on an individual analyst's account for a recurring operational report.</p><p><b>Scheduling:</b> A daily 06:00 execution satisfies the requested cadence. Verify the schedule's timezone and permissions in a real Splunk environment.</p><p><b>Operational checks:</b> If a run fails, examine the report's job history, owner permissions, search errors, and scheduling status.</p></div></div>
+<div class="nav"><button onclick="go(5)">← Previous stage</button><button onclick="go(7)">Next stage →</button></div></section>`;
+}
+function scheduleConfig(){return {scope:$('schedScope').value,permission:$('schedPermission').value,owner:$('schedOwner').value,cadence:$('schedCadence').value,time:$('schedTime').value}}
+function scheduleChanged(){
+scheduleState={previewed:false,saved:false,verified:false};
+if(!$('schedPreview'))return;
+const c=scheduleConfig();
+$('schedAccessPreview').textContent=`Visibility: ${c.scope||'not selected'} · Permission: ${c.permission||'not selected'} · Owner: ${c.owner||'not selected'}`;
+$('schedPreview').innerHTML='Settings have changed. Select <b>Preview configuration &amp; next runs</b> again before saving.';
+$('schedSave').disabled=true;$('schedTest').disabled=true;$('schedSaveState').textContent='Not enabled';$('schedTestOutput').textContent='Verification is available after saving the schedule.';
+}
+function schedulePreview(){
+const c=scheduleConfig(),el=$('schedPreview');
+if(Object.values(c).some(x=>!x)){el.innerHTML='<b>Configuration incomplete:</b> Select visibility, permission, owner, frequency, and time before previewing.';return}
+scheduleState.previewed=true;
+const acceptable=c.scope==='soc'&&c.permission==='read'&&c.owner==='service'&&c.cadence==='daily'&&c.time==='06:00';
+scheduleState.acceptable=acceptable;
+el.innerHTML='<div class="schedule-summary"><div><span class="muted small">Access scope</span><b>'+esc(c.scope)+'</b></div><div><span class="muted small">Team permission</span><b>'+esc(c.permission)+'</b></div><div><span class="muted small">Owner</span><b>'+esc(c.owner)+'</b></div><div><span class="muted small">Recurring execution</span><b>'+esc(c.cadence)+' · '+esc(c.time)+'</b></div></div><p><b>Run pattern:</b> '+(c.cadence==='daily'?'Every day':c.cadence==='hourly'?'Every hour':'Every Monday')+' at '+esc(c.time)+' (simulated local schedule).</p><p class="small muted">Preview is not the same as activation. Review the request before saving.</p>';
+$('schedSave').disabled=false;
+}
+function scheduleSave(){
+if(!scheduleState.previewed)return;
+scheduleState.saved=true;scheduleState.verified=false;
+$('schedSaveState').textContent='Schedule enabled in simulator';$('schedTest').disabled=false;
+$('schedTestOutput').textContent='Schedule saved. Run verification to confirm access and timing.';
+}
+function scheduleTest(){
+if(!scheduleState.saved)return;
+const c=scheduleConfig(),tests=[
+['SOC team can view report',c.scope==='soc'&&c.permission==='read'],
+['Designated service account owns report',c.owner==='service'],
+['Report runs daily at 06:00',c.cadence==='daily'&&c.time==='06:00']
+];
+scheduleState.verified=tests.every(t=>t[1]);
+$('schedTestOutput').className='status '+(scheduleState.verified?'good':'warn');
+$('schedTestOutput').innerHTML='<b>Verification results</b><ul>'+tests.map(([label,pass])=>'<li>'+(pass?'PASS':'REVIEW')+' — '+label+'</li>').join('')+'</ul>'+(scheduleState.verified?'The configuration meets the service request.':'Review the failed checks, adjust settings, preview, and save again.');
+}
+function scheduleSubmit(){
+const f=$('schedFeedback'),n=$('schedNotes').value.trim(),problems=[];
+if(!scheduleState.saved)problems.push('Save and enable the schedule.');
+if(!scheduleState.verified)problems.push('Pass the verification checks.');
+if(n.length<35)problems.push('Write at least 35 characters of handoff notes.');
+if(problems.length){f.className='status warn';f.innerHTML='<b>Before commissioning:</b><ul>'+problems.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';return}
+completed[6]=true;notes[6]=n;save();update();f.className='status good';f.textContent='Stage 07 complete. The report is available to the SOC team on the requested schedule.';$('debrief6').style.display='block';
+}
+
+
+/* Stage 08: hands-on quality assurance and report repair workbench */
+const qaState={ran:false,correct:false,reviewed:false,approved:false};
+function makeReportRepair(st,i){
+return `<section class="stage" id="s7">
+<div class="card qa-header"><div class="row space"><span class="pill">STAGE 08 · DETECTIVE</span><span class="pill">QUALITY ASSURANCE</span></div>
+<h2>Report Repair &amp; Statistics — QA Incident RPT-308</h2>
+<p><b>Your assignment:</b> A scheduled regional bandwidth report was flagged during launch-readiness review. Operations expects total transferred bytes by region, but the saved report shows suspiciously small numbers.</p>
+<div class="ticket"><b>QA ticket:</b> Diagnose the existing report, correct its SPL, compare the repaired output with the baseline, and approve or reject the report for SOC distribution.</div>
+<p class="small muted">Work through the panels in order. This stage uses the same simulated 120-event dataset as the other investigations.</p></div>
+<div class="card"><h3>1 · Inspect the reported defect</h3><p>Read the expected result and the report's current configuration. Decide what to investigate before changing anything.</p>
+<div class="qa-cols"><div class="qa-pane"><b>Expected behavior</b><p>For each region, show the sum of the <code>bytes</code> values across all matching web events.</p><p class="small muted">Example: if three events contain 500, 800, and 900 bytes, their total is 2,200 bytes.</p></div><div class="qa-pane"><b>Current report</b><p>Title: Regional Web Traffic Summary<br>Owner: SOC Reporting<br>Status: QA review required</p><pre class="qa-code">index=helios sourcetype=web_access
+| stats count(bytes) AS Total_Bytes BY region</pre></div></div>
+<div class="row"><button onclick="qaInspect()">Inspect existing report output</button><button onclick="qaViewEvents()">Review raw events</button></div>
+<div id="qaOriginal" class="report-empty" aria-live="polite">The current report has not been inspected yet.</div>
+<div id="qaEvents" class="hidden"></div></div>
+<div class="card"><h3>2 · Diagnose the statistical problem</h3><p>Based on the request and the current SPL, identify what the existing statistic actually measures. You may inspect the output before choosing.</p>
+<label for="qaDiagnosis">What is the likely cause of the discrepancy?</label>
+<select id="qaDiagnosis"><option value="">Select a diagnosis…</option><option value="group">Grouping by region removes events from the report.</option><option value="count">The statistic counts populated byte fields instead of adding byte values.</option><option value="rename">The output alias changes the numeric values returned by the search.</option><option value="index">The index name forces the statistics command to count hosts.</option></select>
+<p class="small muted">This diagnosis is recorded during final validation; it does not reveal whether your selection is correct.</p></div>
+<div class="card"><h3>3 · Repair and test the SPL</h3><p>Edit the report definition. Keep the correct dataset and regional grouping, but replace the operation that does not meet the request.</p>
+<div class="terminal"><h3>Report SPL editor</h3><textarea id="qaQuery" spellcheck="false" aria-label="Repair the report SPL">index=helios sourcetype=web_access
+| stats count(bytes) AS Total_Bytes BY region</textarea>
+<div class="row"><button type="button" onclick="qaRun()">▶ Run repaired search</button><button type="button" onclick="qaHint()">Get a hint</button><button type="button" onclick="qaResetQuery()">Restore faulty search</button></div>
+<div id="qaHintBox" class="status hidden" aria-live="polite"></div></div>
+<div id="qaResults" class="report-empty" aria-live="polite">Run your edited search to generate a candidate report.</div></div>
+<div class="card"><h3>4 · Verify the repair</h3><p>Compare the original report with the repaired result. Check whether the report now measures transferred volume, not event frequency.</p>
+<button id="qaCompareBtn" type="button" onclick="qaCompare()" disabled>Compare original and repaired totals</button>
+<div id="qaComparison" class="report-empty" aria-live="polite">Comparison is available after a valid repaired search.</div>
+<label class="qa-check"><input type="checkbox" id="qaVerify1"> I reviewed the original report output.</label>
+<label class="qa-check"><input type="checkbox" id="qaVerify2"> I tested the revised search and reviewed its result.</label>
+<label class="qa-check"><input type="checkbox" id="qaVerify3"> I compared the revised output against the reporting requirement.</label></div>
+<div class="card"><h3>5 · QA disposition</h3><p>Decide whether this report can be released. A correct diagnosis without a tested repair is not sufficient.</p>
+<label for="qaDisposition">Report release decision</label><select id="qaDisposition"><option value="">Select disposition…</option><option value="approve">Approve repaired report for distribution</option><option value="hold">Hold report for further correction</option><option value="ignore">Release the original report without changes</option></select>
+<label for="qaNotes">QA investigation notes</label><textarea id="qaNotes" class="qa-notes" placeholder="Describe the defect, the correction, what the test results demonstrated, and the release decision."></textarea>
+<div id="qaFeedback" class="status" aria-live="polite">Complete the investigation and validation checks before submitting.</div>
+<button class="primary" onclick="qaSubmit()">Submit QA disposition</button>
+<div id="debrief7" class="debrief" style="display:none"><h3>Expert debrief — count versus sum</h3>
+<p><code>count(bytes)</code> counts events with a non-null bytes field. It does not add the byte amounts. <code>sum(bytes)</code> adds the numeric field values. Both may produce reasonable-looking tables, which is why a QA analyst must compare the calculation with the business requirement.</p>
+<p><b>Corrected SPL:</b> <code>index=helios sourcetype=web_access | stats sum(bytes) AS Total_Bytes BY region</code></p>
+<p><b>Release control:</b> Inspect the original output, test the correction, compare the results, and document the reason for approval. In a real Splunk deployment, also verify the time range, field extraction, permissions, and scheduled job history.</p></div></div>
+<div class="nav"><button onclick="go(6)">← Previous stage</button><button onclick="go(8)">Next stage →</button></div></section>`;
+}
+function qaTotals(){
+const by={};events.forEach(e=>{if(!by[e.region])by[e.region]={region:e.region,Events:0,Total_Bytes:0};by[e.region].Events++;by[e.region].Total_Bytes+=Number(e.bytes)||0});
+return Object.values(by).sort((a,b)=>a.region.localeCompare(b.region));
+}
+function qaInspect(){
+const r=qaTotals();qaState.reviewed=true;
+$('qaOriginal').innerHTML='<p><b>Current saved report results</b> — The report labels the values Total_Bytes, but it uses <code>count(bytes)</code>.</p>'+table(r.map(x=>({region:x.region,Total_Bytes:x.Events})))+'<p class="small muted">Does the numeric result represent bytes transferred or the number of events?</p>';
+}
+function qaViewEvents(){
+$('qaEvents').classList.remove('hidden');$('qaEvents').innerHTML='<h4>Raw event sample</h4>'+table(events.slice(0,12).map(e=>({region:e.region,clientip:e.clientip,bytes:e.bytes,status:e.status})))+'<p class="small muted">Only 12 of 120 events are displayed. The report calculations use all 120.</p>';
+}
+let qaHintLevel=0;
+function qaHint(){qaHintLevel=Math.min(qaHintLevel+1,3);const hints=[
+'Hint 1: Compare the requested measure with the values in the original output. Are the numbers event counts or transferred bytes?',
+'Hint 2: The report needs an aggregation that adds numeric values, rather than counting the number of records.',
+'Hint 3: Review the difference between <code>count(field)</code> and <code>sum(field)</code>. Keep the original regional grouping.'
+];$('qaHintBox').classList.remove('hidden');$('qaHintBox').innerHTML='<b>Hint '+qaHintLevel+' of 3</b><p>'+hints[qaHintLevel-1]+'</p>'}
+function qaResetQuery(){$('qaQuery').value='index=helios sourcetype=web_access\n| stats count(bytes) AS Total_Bytes BY region';qaState.ran=false;qaState.correct=false;qaState.approved=false;$('qaCompareBtn').disabled=true;$('qaResults').textContent='Faulty report restored. Edit and run a corrected search.';$('qaComparison').textContent='Comparison is available after a valid repaired search.'}
+function qaRun(){
+const q=$('qaQuery').value.trim().replace(/\s+/g,' '),out=$('qaResults');
+qaState.ran=false;qaState.correct=false;qaState.approved=false;$('qaCompareBtn').disabled=true;
+if(!/^index\s*=\s*helios\s+sourcetype\s*=\s*web_access\s*\|\s*stats\s+/i.test(q)){out.innerHTML='<b>Search error:</b> Use the assigned index and sourcetype, followed by a <code>stats</code> command.';return}
+const m=q.match(/\|\s*stats\s+(sum|count)\s*\(\s*(bytes)\s*\)\s+AS\s+Total_Bytes\s+BY\s+(region|host)\s*$/i);
+if(!m){out.innerHTML='<b>Search error:</b> Supported QA syntax: <code>stats &lt;aggregation&gt;(bytes) AS Total_Bytes BY &lt;group&gt;</code>. Use the report fields from the work order.';return}
+const agg=m[1].toLowerCase(),group=m[3].toLowerCase(),groups={};
+events.forEach(e=>{const key=e[group];if(!groups[key])groups[key]=0;groups[key]+=agg==='sum'?Number(e.bytes)||0:1});
+const rows=Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>({[group]:k,Total_Bytes:v}));
+qaState.ran=true;qaState.correct=agg==='sum'&&group==='region';
+out.innerHTML='<b>Search completed:</b> '+events.length+' events scanned; '+rows.length+' statistics rows.'+table(rows)+'<p class="small muted">Verify that the chosen statistic and grouping answer the work order. A successful search is not necessarily a correct report.</p>';
+if(qaState.correct)$('qaCompareBtn').disabled=false;
+}
+function qaCompare(){
+if(!qaState.ran||!qaState.correct)return;
+const rows=qaTotals().map(r=>({region:r.region,Original_Count:r.Events,Repaired_Bytes:r.Total_Bytes,Difference:r.Total_Bytes-r.Events}));
+$('qaComparison').innerHTML='<b>Before / after QA comparison</b>'+table(rows)+'<p>These columns use different units. The original counts events; the repaired report sums bytes. The difference is not a growth percentage.</p>';
+qaState.approved=true;
+}
+function qaSubmit(){
+const errors=[],f=$('qaFeedback');
+if(!qaState.reviewed)errors.push('Inspect the current saved report results.');
+if($('qaDiagnosis').value!=='count')errors.push('Revisit the difference between counting events and summing bytes.');
+if(!qaState.ran||!qaState.correct)errors.push('Run a corrected search that totals bytes by region.');
+if(!qaState.approved)errors.push('Compare the original and repaired report results.');
+if(!['qaVerify1','qaVerify2','qaVerify3'].every(id=>$(id).checked))errors.push('Complete the three QA verification checks.');
+if($('qaDisposition').value!=='approve')errors.push('Choose the disposition supported by the validated repair.');
+if($('qaNotes').value.trim().length<40)errors.push('Provide at least 40 characters of QA investigation notes.');
+if(errors.length){f.className='status warn';f.innerHTML='<b>QA review incomplete:</b><ul>'+errors.map(e=>'<li>'+esc(e)+'</li>').join('')+'</ul>';return}
+completed[7]=true;notes[7]=$('qaNotes').value.trim();save();update();
+f.className='status good';f.textContent='Stage 08 validated. Repaired report approved for SOC distribution.';$('debrief7').style.display='block';
+}
+
+
+/* Stage 09 — Executive Analytics: independent visualization studio */
+const vizState={previewed:false,valid:false,compared:false,chart:"",data:[]};
+function makeVisualizationStudio(st,i){
+return `<section class="stage" id="s8">
+<div class="card viz-header"><div class="row space"><span class="pill">STAGE 09 · DETECTIVE</span><span class="pill">EXECUTIVE ANALYTICS</span></div>
+<h2>Visualization Story — Executive Briefing Studio</h2>
+<p><b>Your role:</b> SOC Analytics Specialist. The launch director needs to compare traffic volume across operating regions. A report table exists, but executives need a visual they can interpret quickly and accurately.</p>
+<div class="ticket"><b>Briefing request EX-409:</b> “Show the total number of bytes transferred in each region, make the regional differences easy to compare, and provide a short evidence-based interpretation.”</div>
+<p class="small muted">Your deliverable is a configured visualization and a defensible briefing note, not another multiple-choice search exercise.</p></div>
+<div class="card"><h3>1 · Review the evidence</h3><p>Begin with the underlying report data. The raw events are summarized below, but you must decide which measure and grouping match the briefing request.</p>
+<button type="button" onclick="vizInspect()">Inspect source report table</button>
+<div id="vizSource" class="report-empty">The source report has not been inspected.</div>
+<details><summary>Which fields are available?</summary><p><code>region</code> identifies east, central or west; <code>bytes</code> records the volume in each event; <code>host</code> identifies the web server; <code>clientip</code> identifies a client address.</p></details></div>
+<div class="card"><h3>2 · Build the executive visualization</h3><p>Choose a measure, a grouping field, and a chart type. Then select <b>Render Preview</b> to see the chart produced by your choices. You may experiment with different settings.</p>
+<div class="grid"><div><label for="vizMeasure">Measure</label><select id="vizMeasure" onchange="vizChanged()"><option value="">Select measure…</option><option value="count">Number of web events</option><option value="sum">Total bytes transferred</option><option value="dc">Unique client addresses</option></select></div>
+<div><label for="vizGroup">Group results by</label><select id="vizGroup" onchange="vizChanged()"><option value="">Select grouping…</option><option value="host">Web server</option><option value="region">Region</option><option value="action">Request action</option></select></div></div>
+<label for="vizChart">Visualization format</label>
+<div class="viz-choices" role="group" aria-label="Chart format">
+<label><input type="radio" name="vizChart" value="bar" onchange="vizChanged()"> <span>▥</span> Bar chart</label>
+<label><input type="radio" name="vizChart" value="line" onchange="vizChanged()"> <span>⌁</span> Line chart</label>
+<label><input type="radio" name="vizChart" value="pie" onchange="vizChanged()"> <span>◕</span> Pie chart</label>
+<label><input type="radio" name="vizChart" value="single" onchange="vizChanged()"> <span>▣</span> Single value</label>
+</div>
+<label for="vizTitle">Chart title</label><input id="vizTitle" placeholder="Enter a meaningful executive-facing title" oninput="vizChanged()">
+<div class="row"><button class="primary" type="button" onclick="vizRender()">Render Preview</button><button type="button" onclick="vizClear()">Reset design</button></div>
+<div id="vizBuildMessage" class="status" aria-live="polite">Select the configuration and render the visualization.</div></div>
+<div class="card"><h3>3 · Examine the visualization</h3><p>Check whether the chart answers the question. The preview is calculated from the simulated events, not a static illustration.</p>
+<div id="vizPreview" class="viz-preview">No visualization yet. Return to Step 2 and select <b>Render Preview</b>.</div>
+<div class="row"><button id="vizCompare" type="button" disabled onclick="vizCompare()">Compare chart against source data</button></div>
+<div id="vizComparison" class="report-empty">The comparison becomes available after a suitable visualization is rendered.</div></div>
+<div class="card"><h3>4 · Prepare the executive briefing</h3><p>Choose a conclusion supported by your chart. Avoid claiming that traffic volume alone proves a security incident.</p>
+<label for="vizDecision">What can the director reasonably conclude?</label><select id="vizDecision"><option value="">Select a conclusion…</option>
+<option value="errors">The highest-volume region also has the highest error rate.</option>
+<option value="comparison">The visualization supports a comparison of transferred bytes between regions.</option>
+<option value="incident">The region with the largest total is confirmed to be compromised.</option>
+<option value="users">The chart proves which region has the most unique customers.</option></select>
+<label for="vizNotes">Executive briefing note</label><textarea id="vizNotes" class="viz-notes" placeholder="Identify the leading region, cite its total, describe what the chart shows, and explain one limitation of this evidence."></textarea>
+<div id="vizFeedback" class="status" aria-live="polite">Render and verify a chart, then submit the executive briefing.</div>
+<button class="primary" type="button" onclick="vizSubmit()">Submit Visualization Story</button>
+<div id="debrief8" class="debrief" style="display:none"><h3>Expert debrief — Matching the chart to the question</h3>
+<p>For a comparison of total transferred bytes by region, use <code>stats sum(bytes) AS Total_Bytes BY region</code> and a bar chart. Its common scale makes differences between discrete categories easier to compare. A pie chart can represent proportions but is less effective for precise comparisons; a line chart can misleadingly imply a time sequence when its x-axis contains regions; a single value hides the regional breakdown.</p>
+<p>Event counts, unique-client counts, and transferred bytes are different measures. A high byte total does not by itself establish malicious behavior, high error rates, or unique-user counts.</p></div></div>
+<div class="nav"><button onclick="go(7)">← Previous stage</button><button onclick="go(9)">Next stage →</button></div></section>`;
+}
+function vizAggregate(measure,group){
+const groups={};events.forEach(e=>{const k=e[group];(groups[k]??=[]).push(e)});
+return Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).map(([name,arr])=>({name,value:measure==='sum'?arr.reduce((n,e)=>n+(Number(e.bytes)||0),0):measure==='dc'?new Set(arr.map(e=>e.clientip)).size:arr.length}));
+}
+function vizInspect(){
+const rows=vizAggregate('sum','region');
+$('vizSource').innerHTML='<b>Saved report: Regional Web Traffic Summary</b><p>Simulated results calculated from all '+events.length+' web events.</p>'+table(rows.map(r=>({region:r.name,Total_Bytes:r.value})))+'<p class="small muted">These totals are a reference for validating your chart. The chart settings must still be configured independently.</p>';
+}
+function vizChanged(){
+vizState.previewed=false;vizState.valid=false;vizState.compared=false;vizState.data=[];
+if(!$('vizPreview'))return;
+$('vizPreview').innerHTML='Configuration changed. Select <b>Render Preview</b> to refresh the chart.';
+$('vizComparison').textContent='Re-render and verify the updated chart before submission.';
+$('vizCompare').disabled=true;$('vizBuildMessage').className='status';$('vizBuildMessage').textContent='Configuration changed; preview is no longer current.';
+}
+function vizClear(){
+$('vizMeasure').value='';$('vizGroup').value='';$('vizTitle').value='';document.querySelectorAll('input[name=vizChart]').forEach(e=>e.checked=false);vizChanged();
+}
+function vizChartMarkup(rows,kind,title,measure){
+const max=Math.max(...rows.map(r=>r.value),1),palette=['#216eae','#1f9d86','#df9a39','#9366be','#c86b72','#598ab1'];
+const metric=measure==='sum'?'bytes':measure==='dc'?'unique clients':'events';
+const heading='<div class="viz-chart-title">'+esc(title)+'</div>';
+if(kind==='bar')return heading+'<div class="viz-bars" role="img" aria-label="Bar chart of '+esc(metric)+' by category">'+rows.map((r,i)=>'<div class="viz-bar-row"><span>'+esc(r.name)+'</span><div class="viz-bar-track"><div class="viz-bar-fill" style="width:'+Math.max(1,100*r.value/max)+'%;background:'+palette[i%palette.length]+'"></div></div><b>'+r.value.toLocaleString()+'</b></div>').join('')+'</div><p class="small muted">Measure: '+esc(metric)+'</p>';
+if(kind==='single')return heading+'<div class="viz-big">'+rows.reduce((n,r)=>n+r.value,0).toLocaleString()+'</div><p class="muted">Combined '+esc(metric)+' across all '+rows.length+' categories. Category differences are not visible.</p>';
+if(kind==='pie'){
+const total=rows.reduce((n,r)=>n+r.value,0)||1;let start=0;const segments=rows.map((r,i)=>{const end=start+r.value/total*100;const part=palette[i%palette.length]+' '+start.toFixed(2)+'% '+end.toFixed(2)+'%';start=end;return part}).join(', ');
+return heading+'<div class="viz-pie-wrap"><div class="viz-pie" style="background:conic-gradient('+segments+')" role="img" aria-label="Pie chart showing category proportions"></div><div>'+rows.map((r,i)=>'<p><span class="viz-key" style="background:'+palette[i%palette.length]+'"></span> '+esc(r.name)+' — '+(r.value/total*100).toFixed(1)+'%</p>').join('')+'</div></div>';
+}
+const width=700,height=260,pad=42,dx=(width-2*pad)/Math.max(1,rows.length-1),points=rows.map((r,i)=>({x:pad+i*dx,y:height-pad-r.value/max*(height-2*pad),...r}));
+return heading+'<svg class="viz-line" viewBox="0 0 700 260" role="img" aria-label="Line chart of values in category order"><line x1="42" y1="218" x2="658" y2="218" stroke="#7890a6" stroke-width="2"/><polyline fill="none" stroke="#216eae" stroke-width="4" points="'+points.map(p=>p.x+','+p.y).join(' ')+'"/>'+points.map(p=>'<circle cx="'+p.x+'" cy="'+p.y+'" r="6" fill="#216eae"/><text x="'+p.x+'" y="244" text-anchor="middle" font-size="14" fill="#29445b">'+esc(p.name)+'</text><text x="'+p.x+'" y="'+(p.y-13)+'" text-anchor="middle" font-size="13" fill="#29445b">'+p.value.toLocaleString()+'</text>').join('')+'</svg><p class="small muted">Categories are connected in display order; the x-axis is not a time sequence.</p>';
+}
+function vizRender(){
+const measure=$('vizMeasure').value,group=$('vizGroup').value,chart=document.querySelector('input[name=vizChart]:checked')?.value||'',title=$('vizTitle').value.trim(),msg=$('vizBuildMessage');
+if(!measure||!group||!chart||title.length<8){msg.className='status warn';msg.textContent='Select a measure, grouping, chart format, and title of at least eight characters.';return}
+const rows=vizAggregate(measure,group);
+vizState.previewed=true;vizState.valid=measure==='sum'&&group==='region'&&chart==='bar';vizState.compared=false;vizState.data=rows;vizState.chart=chart;
+$('vizPreview').innerHTML=vizChartMarkup(rows,chart,title,measure);
+$('vizCompare').disabled=false;$('vizComparison').textContent='Preview generated. Select Compare chart against source data to check the result.';
+msg.className='status good';msg.textContent='Preview generated successfully. Verify that the measure, grouping, and chart answer the director’s request.';
+}
+function vizCompare(){
+if(!vizState.previewed)return;
+const measure=$('vizMeasure').value,group=$('vizGroup').value,chart=vizState.chart,reference=vizAggregate('sum','region');
+vizState.compared=true;
+$('vizComparison').innerHTML='<b>Reference report: total bytes by region</b>'+table(reference.map(r=>({region:r.name,Total_Bytes:r.value})))+
+'<p><b>Comparison:</b> Your chart uses <b>'+esc(measure==='sum'?'total bytes':measure==='count'?'event count':'distinct clients')+'</b>, grouped by <b>'+esc(group)+'</b>, displayed as a <b>'+esc(chart)+'</b>. Compare these settings with the service request.</p>';
+}
+function vizSubmit(){
+const issues=[],f=$('vizFeedback');
+if(!vizState.previewed)issues.push('Render a visualization.');
+if(!vizState.valid)issues.push('Reconsider the measure, grouping, or chart type for comparing total bytes across regions.');
+if(!vizState.compared)issues.push('Compare the chart against the source report.');
+if($('vizDecision').value!=='comparison')issues.push('Choose a conclusion directly supported by the chart.');
+const note=$('vizNotes').value.trim(),leader=vizState.data.slice().sort((a,b)=>b.value-a.value)[0];
+if(note.length<45)issues.push('Write at least 45 characters of executive briefing notes.');
+if(issues.length){f.className='status warn';f.innerHTML='<b>Briefing requires revision:</b><ul>'+issues.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';return}
+completed[8]=true;notes[8]=note;save();update();f.className='status good';
+f.textContent='Visualization accepted. Your chart and executive briefing have been recorded.';$('debrief8').style.display='block';
+}
+
+
+/* Stage 11 — SOC dashboard panel engineering and token wiring */
+const panelState={panels:[],selected:null,previewed:false,verified:false,errors:[]};
+const panelCatalog=[
+{id:'traffic',name:'Regional bandwidth',purpose:'Compare transferred volume by region',metric:'sum',group:'region'},
+{id:'errors',name:'HTTP error activity',purpose:'Compare HTTP errors by region',metric:'errors',group:'region'},
+{id:'clients',name:'Unique clients',purpose:'Compare distinct client addresses by region',metric:'dc',group:'region'}
+];
+function makePanelWorkshop(st,i){
+return `<section class="stage" id="s10">
+<div class="card pw-header"><div class="row space"><span class="pill">STAGE 11 · JUDGE</span><span class="pill">SOC COMMAND</span></div>
+<h2>Panel Construction &amp; Relationships — SOC Command Dashboard</h2>
+<p><b>Assignment:</b> The launch dashboard must let the incident commander compare three operational measures and filter them together by region. Build the panels, connect the region selector, and verify that all panels respond consistently.</p>
+<div class="ticket"><b>Work order CMD-511:</b> Deliver panels for regional bandwidth, HTTP errors, and unique clients. A shared region selector must update <b>all three</b> panels. A panel that ignores the selector fails acceptance testing.</div>
+<p class="small muted">This is a simulated dashboard builder. Panel results are calculated from the lab's event dataset.</p></div>
+<div class="card"><h3>1 · Review the dashboard blueprint</h3><p>Each panel answers a different question. The shared filter should let the commander focus on one region without changing the underlying report definitions.</p>
+<div class="pw-blueprint"><div><b>Bandwidth panel</b><p>How much traffic moved?</p></div><div><b>Error panel</b><p>How many HTTP errors occurred?</p></div><div><b>Unique clients panel</b><p>How many distinct client addresses appeared?</p></div></div>
+<details><summary>View available fields and token guidance</summary><p>Available event fields include <code>region</code>, <code>bytes</code>, <code>status</code>, and <code>clientip</code>. A dashboard input sets a token such as <code>region</code>; a panel search must reference that token to respond to the input.</p></details></div>
+<div class="card"><h3>2 · Construct the dashboard panels</h3><p>Select a panel type, choose its measurement, and decide whether it should follow the shared region selector. Add each panel to the canvas.</p>
+<div class="grid"><div><label for="pwKind">Panel to build</label><select id="pwKind" onchange="pwShowDescription()"><option value="">Select panel…</option><option value="traffic">Regional bandwidth</option><option value="errors">HTTP error activity</option><option value="clients">Unique clients</option></select></div>
+<div><label for="pwMetric">Statistic</label><select id="pwMetric"><option value="">Select calculation…</option><option value="sum">Sum of bytes</option><option value="count">Count of events</option><option value="errors">Count HTTP 4xx/5xx</option><option value="dc">Distinct client addresses</option></select></div></div>
+<label for="pwBinding">Region selector relationship</label><select id="pwBinding"><option value="">Select binding…</option><option value="token">Use shared $region$ token</option><option value="static">Always show all regions (ignore selector)</option><option value="fixed">Hard-code the east region</option></select>
+<div id="pwDescription" class="status">Choose a panel to see its reporting objective.</div>
+<div class="row"><button class="primary" type="button" onclick="pwAdd()">Add / update panel</button><button type="button" onclick="pwReset()">Clear dashboard</button></div>
+<div id="pwBuilderFeedback" class="status" aria-live="polite">No panels have been added.</div></div>
+<div class="card"><h3>3 · Inspect panel relationships</h3><p>The shared input must connect to every panel. Use the wiring view to find disconnected or incorrectly configured panels.</p>
+<div id="pwWiring" class="pw-wiring">No panel relationships to inspect.</div>
+<button type="button" onclick="pwInspect()">Inspect dashboard wiring</button></div>
+<div class="card"><h3>4 · Test the live dashboard</h3><p>Change the selected region and refresh. A properly connected panel will recalculate using the chosen region. Compare the results before approving the dashboard.</p>
+<label for="pwRegion">Dashboard region selector</label><select id="pwRegion" onchange="pwChanged()"><option value="all">All regions</option><option value="east">East</option><option value="central">Central</option><option value="west">West</option></select>
+<div class="row"><button class="primary" type="button" onclick="pwPreview()">Refresh dashboard preview</button><button type="button" onclick="pwTest()">Run relationship tests</button></div>
+<div id="pwPreview" class="pw-canvas">Add panels in Step 2, then refresh the dashboard.</div>
+<div id="pwTests" class="status" aria-live="polite">No acceptance tests have been run.</div></div>
+<div class="card"><h3>5 · SOC command acceptance</h3><p>Document the dashboard's purpose and explain why the three panels must use the same region filter.</p>
+<label for="pwNotes">Command handoff notes</label><textarea id="pwNotes" class="pw-notes" placeholder="Explain the three measures, the shared filter, and how you confirmed all panels update consistently."></textarea>
+<div id="pwFeedback" class="status" aria-live="polite">Construct three panels and pass the relationship tests before submission.</div>
+<button class="primary" type="button" onclick="pwSubmit()">Approve Dashboard Panels</button>
+<div id="debrief10" class="debrief" style="display:none"><h3>Expert debrief — Panel relationships</h3><p>Dashboard inputs set tokens; panel searches must reference the same token to respond to filtering. If one panel ignores the token, its figures can disagree with other panels even when the underlying searches are individually valid.</p><p>Three different statistics answer three different questions: <code>sum(bytes)</code> measures traffic volume, counting 4xx/5xx responses measures HTTP errors, and <code>dc(clientip)</code> measures unique clients. Consistent filtering allows the commander to compare the same region across all panels.</p><p>In a production Splunk dashboard, verify token names, defaults, search time ranges, user permissions, and whether the underlying panels use equivalent filters.</p></div></div>
+<div class="nav"><button onclick="go(9)">← Previous stage</button><button onclick="go(11)">Next stage →</button></div></section>`;
+}
+function pwShowDescription(){
+const c=panelCatalog.find(x=>x.id===$('pwKind').value);
+$('pwDescription').textContent=c?c.purpose:'Choose a panel to see its reporting objective.';
+}
+function pwAdd(){
+const id=$('pwKind').value,metric=$('pwMetric').value,binding=$('pwBinding').value;
+const f=$('pwBuilderFeedback');
+if(!id||!metric||!binding){f.className='status warn';f.textContent='Select the panel, statistic, and region relationship before adding it.';return}
+const p={id,metric,binding};const index=panelState.panels.findIndex(x=>x.id===id);
+if(index>=0)panelState.panels[index]=p;else panelState.panels.push(p);
+panelState.previewed=false;panelState.verified=false;
+f.className='status good';f.textContent='Panel saved to the simulated dashboard canvas. '+panelState.panels.length+' of 3 panels configured.';
+pwRenderWiring();$('pwPreview').textContent='Panel configuration changed. Refresh the dashboard to see updated results.';
+}
+function pwReset(){panelState.panels=[];panelState.previewed=false;panelState.verified=false;pwRenderWiring();$('pwPreview').textContent='Dashboard cleared. Add panels to begin.';$('pwBuilderFeedback').textContent='No panels have been added.';$('pwTests').textContent='No acceptance tests have been run.'}
+function pwRenderWiring(){
+$('pwWiring').innerHTML=panelState.panels.length?'<div class="pw-source"><b>Region selector</b><code>$region$</code></div>'+panelState.panels.map(p=>{
+const c=panelCatalog.find(x=>x.id===p.id);return '<div class="pw-wire '+(p.binding==='token'?'pw-connected':'pw-disconnected')+'"><span>'+(p.binding==='token'?'↳ linked':'↳ not linked')+'</span><b>'+esc(c.name)+'</b><small>'+esc(p.binding==='token'?'Reads shared $region$':p.binding==='fixed'?'Fixed to east':'Ignores region selector')+'</small></div>'}).join(''):'No panel relationships to inspect.';
+}
+function pwInspect(){pwRenderWiring();$('pwBuilderFeedback').textContent='Inspect the relationship labels. Every panel should read the shared region token.'}
+function pwChanged(){panelState.previewed=false;panelState.verified=false;$('pwTests').textContent='Selector changed. Refresh the dashboard and run relationship tests again.'}
+function pwPanelRows(p,region){
+const filtered=events.filter(e=>region==='all'||e.region===region);
+const group={};
+filtered.forEach(e=>{const key=e.region;if(!group[key])group[key]=[];group[key].push(e)});
+return Object.entries(group).sort((a,b)=>a[0].localeCompare(b[0])).map(([name,arr])=>({
+region:name,value:p.metric==='sum'?arr.reduce((n,e)=>n+(Number(e.bytes)||0),0):p.metric==='dc'?new Set(arr.map(e=>e.clientip)).size:p.metric==='errors'?arr.filter(e=>Number(e.status)>=400).length:arr.length
+}));
+}
+function pwPreview(){
+const f=$('pwPreview'),selected=$('pwRegion').value;
+if(!panelState.panels.length){f.textContent='Add at least one panel before refreshing.';return}
+panelState.previewed=true;panelState.verified=false;
+f.innerHTML='<div class="pw-canvas-heading"><b>SOC Command — Regional Operations</b><span>Selected region: '+esc(selected)+'</span></div><div class="pw-panel-grid">'+panelState.panels.map(p=>{
+const c=panelCatalog.find(x=>x.id===p.id),effective=p.binding==='token'?selected:p.binding==='fixed'?'east':'all',rows=pwPanelRows(p,effective),max=Math.max(1,...rows.map(x=>x.value));
+return '<div class="pw-panel"><b>'+esc(c.name)+'</b><p class="small muted">Data scope: '+esc(effective)+'</p>'+rows.map(r=>'<div class="pw-meter"><span>'+esc(r.region)+'</span><div><i style="width:'+(r.value/max*100).toFixed(1)+'%"></i></div><strong>'+r.value.toLocaleString()+'</strong></div>').join('')+'<p class="small muted">Measure: '+esc(p.metric)+'</p></div>'}).join('')+'</div>';
+$('pwTests').textContent='Dashboard preview updated. Run relationship tests to validate the configuration.';
+}
+function pwTest(){
+const errors=[],required=['traffic','errors','clients'];
+required.forEach(id=>{const p=panelState.panels.find(x=>x.id===id),c=panelCatalog.find(x=>x.id===id);
+if(!p){errors.push('Missing panel: '+c.name);return}
+if(p.metric!==c.metric)errors.push(c.name+' uses the wrong statistic.');
+if(p.binding!=='token')errors.push(c.name+' does not use the shared region token.');
+});
+if(!panelState.previewed)errors.push('Refresh the dashboard preview before testing.');
+panelState.errors=errors;panelState.verified=errors.length===0;
+const f=$('pwTests');f.className='status '+(errors.length?'warn':'good');
+f.innerHTML=errors.length?'<b>Acceptance test findings</b><ul>'+errors.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<b>All acceptance checks passed.</b> All three panels use the correct statistic and the shared region token.';
+}
+function pwSubmit(){
+const f=$('pwFeedback'),errors=[];
+if(!panelState.verified)errors.push('Pass all relationship acceptance tests.');
+if($('pwNotes').value.trim().length<50)errors.push('Document at least 50 characters of SOC command handoff notes.');
+if(errors.length){f.className='status warn';f.innerHTML='<b>Not ready for approval:</b><ul>'+errors.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';return}
+completed[10]=true;notes[10]=$('pwNotes').value.trim();save();update();f.className='status good';f.textContent='Stage 11 approved. Three correctly connected SOC dashboard panels are ready for handoff.';$('debrief10').style.display='block';
+}
+
+
+/* Stage 12: interactive dashboard operations and troubleshooting */
+const opsState={baseline:false,configured:false,run:false,diagnosed:false,recovered:false,verified:false,checks:[]};
+function makeDashboardOperations(st,i){
+return `<section class="stage" id="s11">
+<div class="card ops-header"><div class="row space"><span class="pill">STAGE 12 · JUDGE</span><span class="pill">OPERATIONS SUPPORT</span></div>
+<h2>Dashboard Operations — SOC Watch Desk</h2>
+<p><b>Your role:</b> SOC Dashboard Operator. The three-panel command dashboard is built, but it must remain reliable during a shift. Configure its time range and refresh behavior, respond to an operational fault, and verify recovery.</p>
+<div class="ticket"><b>Shift ticket OPS-612:</b> Operations needs a rolling <b>24-hour</b> view, a <b>15-minute</b> refresh interval, and consistent regional filtering. During the handoff, the HTTP Error Activity panel stops updating. Restore it without disabling the other panels.</div>
+<p class="small muted">All events, status checks, and failures are simulated; no live Splunk environment is contacted.</p></div>
+<div class="card"><h3>1 · Inspect the current dashboard</h3><p>Begin with a baseline. The dashboard has three panels and a shared region filter. Inspect their initial operational status before making changes.</p>
+<button type="button" onclick="opsBaseline()">Inspect dashboard health</button>
+<div id="opsBaseline" class="report-empty">Health inspection has not been performed.</div></div>
+<div class="card"><h3>2 · Set operating controls</h3><p>The time range determines which events a panel searches. The refresh interval determines how often the search is repeated. These are different controls.</p>
+<div class="grid"><div><label for="opsWindow">Dashboard time range</label><select id="opsWindow" onchange="opsChanged()"><option value="">Choose time range…</option><option value="5m">Last 5 minutes</option><option value="24h">Last 24 hours</option><option value="7d">Last 7 days</option><option value="future">Next 24 hours</option></select></div>
+<div><label for="opsRefresh">Automatic refresh</label><select id="opsRefresh" onchange="opsChanged()"><option value="">Choose refresh…</option><option value="1s">Every second</option><option value="15m">Every 15 minutes</option><option value="1h">Every hour</option><option value="off">Disabled</option></select></div></div>
+<label for="opsRegion">Region filter</label><select id="opsRegion" onchange="opsChanged()"><option value="all">All regions</option><option value="east">East</option><option value="central">Central</option><option value="west">West</option></select>
+<button class="primary" type="button" onclick="opsApply()">Apply operating controls</button>
+<div id="opsConfigFeedback" class="status">Configure the controls and apply them before running the dashboard.</div></div>
+<div class="card"><h3>3 · Run the dashboard and inspect a fault</h3><p>Simulate a dashboard refresh. Observe which panels return results and which panel requires attention.</p>
+<button type="button" onclick="opsRun()">▶ Run dashboard refresh</button>
+<div id="opsDashboard" class="ops-dashboard">No dashboard refresh has run.</div>
+<div id="opsRunFeedback" class="status">Run the dashboard to collect operational evidence.</div></div>
+<div class="card"><h3>4 · Troubleshoot the failed panel</h3><p>Review the panel's job details, identify the cause, and select an operational repair. The other panels should remain available.</p>
+<button type="button" onclick="opsInspectFailure()">Inspect failed panel job</button>
+<div id="opsJob" class="report-empty">Job details have not been inspected.</div>
+<label for="opsCause">Most likely cause</label><select id="opsCause"><option value="">Select diagnosis…</option><option value="token">The panel uses a different region token than the dashboard input.</option><option value="range">The panel's time range has no matching events.</option><option value="schedule">The refresh interval is longer than the time range.</option><option value="permissions">The panel's saved search is not readable by the dashboard owner.</option></select>
+<label for="opsRepair">Recovery action</label><select id="opsRepair"><option value="">Choose action…</option><option value="remove">Remove the failed panel from the dashboard.</option><option value="permissions">Restore the dashboard service account's read permission to the saved search.</option><option value="disable">Disable refresh on every dashboard panel.</option><option value="broaden">Remove all regional filters from the dashboard.</option></select>
+<button type="button" onclick="opsRecover()">Apply panel repair</button>
+<div id="opsRecovery" class="status">No repair has been applied.</div></div>
+<div class="card"><h3>5 · Verify recovery and hand off</h3><p>Re-run the dashboard after the repair. Confirm that all three panels return data for the same selected region and that the operating controls meet the ticket.</p>
+<button class="primary" type="button" onclick="opsVerify()">Run post-repair acceptance tests</button>
+<div id="opsTests" class="status">Acceptance tests have not run.</div>
+<label for="opsNotes">Operations handoff notes</label><textarea id="opsNotes" class="ops-notes" placeholder="Document the initial symptom, evidence, root cause, corrective action, time window, refresh interval, and verification."></textarea>
+<div id="opsFeedback" class="status">Complete the baseline, configuration, incident response, and verification before approval.</div>
+<button class="primary" type="button" onclick="opsSubmit()">Complete Operations Handoff</button>
+<div id="debrief11" class="debrief" style="display:none"><h3>Expert debrief — Keeping dashboards operational</h3><p>A 24-hour time range and a 15-minute refresh interval serve different purposes: the former controls the search window, while the latter controls how frequently results are updated. Very short refresh intervals can create unnecessary search load.</p><p>A panel may fail because its saved search is inaccessible even when other panels are healthy. Investigate the job error, restore the minimum required permission, and re-run all panels. In production Splunk, also check job inspector output, scheduled search quotas, search-head health, token wiring, and time-zone alignment.</p></div></div>
+<div class="nav"><button onclick="go(10)">← Previous stage</button><button onclick="go(12)">Next stage →</button></div></section>`;
+}
+function opsBaseline(){
+opsState.baseline=true;
+$('opsBaseline').innerHTML='<div class="ops-health"><div><b>Regional bandwidth</b><span>READY · last run successful</span></div><div><b>HTTP error activity</b><span>DEGRADED · search job failed</span></div><div><b>Unique clients</b><span>READY · last run successful</span></div></div><p class="small muted">The panel error is simulated and must be investigated in Step 4. The baseline does not identify the root cause.</p>';
+}
+function opsChanged(){opsState.configured=false;opsState.run=false;opsState.verified=false;$('opsConfigFeedback').textContent='Settings changed. Apply operating controls before running the dashboard.';$('opsTests').textContent='Re-run acceptance tests after changing dashboard controls.'}
+function opsApply(){
+const w=$('opsWindow').value,r=$('opsRefresh').value,f=$('opsConfigFeedback');
+if(!w||!r){f.className='status warn';f.textContent='Select both the time range and the refresh interval.';return}
+opsState.configured=true;opsState.run=false;opsState.verified=false;
+f.className='status good';f.textContent='Operating controls applied: '+$('opsWindow').selectedOptions[0].text+' · '+$('opsRefresh').selectedOptions[0].text+' · '+$('opsRegion').selectedOptions[0].text+'.';
+}
+function opsPanelRows(region){
+const filtered=events.filter(e=>region==='all'||e.region===region);
+const total=filtered.reduce((n,e)=>n+(Number(e.bytes)||0),0),errors=filtered.filter(e=>Number(e.status)>=400).length,clients=new Set(filtered.map(e=>e.clientip)).size;
+return [{name:'Regional bandwidth',value:total,unit:'bytes',ok:true},{name:'HTTP error activity',value:errors,unit:'errors',ok:opsState.recovered},{name:'Unique clients',value:clients,unit:'clients',ok:true}];
+}
+function opsRun(){
+const f=$('opsRunFeedback');
+if(!opsState.baseline||!opsState.configured){f.className='status warn';f.textContent='Inspect dashboard health and apply operating controls first.';return}
+opsState.run=true;opsState.verified=false;
+const data=opsPanelRows($('opsRegion').value);
+$('opsDashboard').innerHTML='<div class="ops-panel-grid">'+data.map(p=>'<div class="ops-panel '+(p.ok?'':'ops-failed')+'"><b>'+esc(p.name)+'</b><div class="ops-number">'+(p.ok?p.value.toLocaleString():'—')+'</div><span>'+esc(p.ok?p.unit:'JOB FAILED')+'</span><p>'+(p.ok?'Last refresh: successful':'Error: search authorization denied')+'</p></div>').join('')+'</div>';
+f.className='status '+(opsState.recovered?'good':'warn');f.textContent=opsState.recovered?'All three panels returned simulated results. Run acceptance tests.':'Two panels returned results; HTTP Error Activity failed. Inspect its job details.';
+}
+function opsInspectFailure(){
+if(!opsState.run){$('opsJob').textContent='Run the dashboard refresh first to capture the failed job.';return}
+opsState.diagnosed=true;
+$('opsJob').innerHTML='<b>Job inspector · HTTP Error Activity</b><pre class="ops-log">2026-11-02 06:00:02  savedsearch="soc_http_errors" owner="soc-dashboard"\n2026-11-02 06:00:02  action=dispatch status=FAILED\n2026-11-02 06:00:02  error="Authorization failed: saved search is not readable by current owner"\n2026-11-02 06:00:02  panels="bandwidth,unique_clients" status=SUCCESS</pre><p>Use this evidence to choose the cause and a targeted recovery action.</p>';
+}
+function opsRecover(){
+const f=$('opsRecovery');
+if(!opsState.diagnosed){f.className='status warn';f.textContent='Inspect the failed job before applying a repair.';return}
+if($('opsCause').value!=='permissions'||$('opsRepair').value!=='permissions'){f.className='status warn';f.textContent='The selected action does not address the authorization error shown in the job inspector. Review the job evidence and try again.';return}
+opsState.recovered=true;opsState.run=false;opsState.verified=false;
+f.className='status good';f.textContent='Simulated repair applied: SOC dashboard service account now has read permission to the HTTP error saved search. Refresh the dashboard and verify recovery.';
+}
+function opsVerify(){
+const checks=[
+['Dashboard health baseline inspected',opsState.baseline],
+['Operating controls applied',opsState.configured],
+['Rolling 24-hour search window selected',$('opsWindow').value==='24h'],
+['15-minute refresh selected',$('opsRefresh').value==='15m'],
+['Failed search job inspected',opsState.diagnosed],
+['Targeted permission repair applied',opsState.recovered],
+['Dashboard refreshed after recovery',opsState.run&&opsState.recovered]
+];
+opsState.checks=checks;opsState.verified=checks.every(c=>c[1]);
+const f=$('opsTests');f.className='status '+(opsState.verified?'good':'warn');
+f.innerHTML='<b>Operations acceptance tests</b><ul>'+checks.map(([label,pass])=>'<li>'+(pass?'PASS':'REVIEW')+' — '+esc(label)+'</li>').join('')+'</ul>';
+}
+function opsSubmit(){
+const f=$('opsFeedback'),issues=[];
+if(!opsState.verified)issues.push('Pass all operations acceptance tests.');
+if($('opsNotes').value.trim().length<55)issues.push('Provide at least 55 characters of operations handoff notes.');
+if(issues.length){f.className='status warn';f.innerHTML='<b>Handoff not yet approved:</b><ul>'+issues.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';return}
+completed[11]=true;notes[11]=$('opsNotes').value.trim();save();update();f.className='status good';f.textContent='Stage 12 completed. The dashboard is operational and the incident response is documented.';$('debrief11').style.display='block';
+}
+
+
+/* Stage 13 — executive single-value dashboard editor */
+const kpiState={inspected:false,preview:false,tested:false,passed:false,baseline:0,metric:''};
+function makeExecutiveKPI(st,i){
+return `<section class="stage" id="s12">
+<div class="card kpi-header"><div class="row space"><span class="pill">STAGE 13 · JUDGE</span><span class="pill">EXECUTIVE COMMAND</span></div>
+<h2>Dashboard Editing &amp; Single Value — Executive Status Tile</h2>
+<p><b>Mission:</b> The executive dashboard already includes three analytical panels. Leadership now requests one prominent status tile that summarizes the <b>number of HTTP error events</b> and provides a direct path to the supporting events.</p>
+<div class="ticket"><b>Change request EXEC-713:</b> Add a single-value panel named <b>HTTP Error Events</b>. Count HTTP responses with status <b>400 or greater</b>, show the total for the selected region, display a warning when the count reaches <b>10</b>, and provide a working drilldown to matching events. Verify the panel before approving the change.</div>
+<p class="small muted">This is a local Splunk-style simulation using the lab's event dataset. No real dashboard is changed.</p></div>
+<div class="card"><h3>1 · Inspect the existing executive dashboard</h3><p>Identify the current panels and confirm what the requested tile must add. A single-value panel summarizes one metric; it does not replace the detailed investigation panels.</p>
+<button type="button" onclick="kpiInspect()">Inspect dashboard inventory</button>
+<div id="kpiInventory" class="report-empty">Dashboard inventory not yet inspected.</div></div>
+<div class="card"><h3>2 · Edit the single-value panel</h3><p>Configure the metric, its filter, and the warning threshold. These settings determine what the number means and when it draws attention.</p>
+<label for="kpiTitle">Panel title</label><input id="kpiTitle" value="" placeholder="Enter a clear title" oninput="kpiChanged()">
+<div class="grid"><div><label for="kpiMetric">What should the tile measure?</label><select id="kpiMetric" onchange="kpiChanged()"><option value="">Select metric…</option><option value="all">All web requests</option><option value="errors">HTTP error events (4xx/5xx)</option><option value="bytes">Total bytes transferred</option><option value="clients">Distinct client addresses</option></select></div>
+<div><label for="kpiScope">Which region should it show?</label><select id="kpiScope" onchange="kpiChanged()"><option value="">Select scope…</option><option value="token">Follow dashboard region selector</option><option value="all">Always show all regions</option><option value="east">Always show East</option></select></div></div>
+<div class="grid"><div><label for="kpiThreshold">Warning threshold</label><input id="kpiThreshold" type="number" min="1" step="1" placeholder="Number of errors" oninput="kpiChanged()"></div><div><label for="kpiDrill">Click action</label><select id="kpiDrill" onchange="kpiChanged()"><option value="">Choose click behavior…</option><option value="none">No action</option><option value="details">Open matching HTTP error events</option><option value="home">Return to dashboard home</option></select></div></div>
+<button class="primary" type="button" onclick="kpiPreview()">Render single-value preview</button>
+<div id="kpiEditorFeedback" class="status">Configure the panel and render a preview.</div></div>
+<div class="card"><h3>3 · Preview and test the panel</h3><p>Change the dashboard region and refresh the tile. The number should be recalculated for the selected region when the panel is correctly connected.</p>
+<label for="kpiRegion">Executive dashboard region</label><select id="kpiRegion" onchange="kpiRegionChanged()"><option value="all">All regions</option><option value="east">East</option><option value="central">Central</option><option value="west">West</option></select>
+<div class="row"><button type="button" onclick="kpiRefresh()">Refresh KPI</button><button type="button" onclick="kpiDrilldown()">Test tile drilldown</button></div>
+<div id="kpiTile" class="kpi-tile-placeholder">No single-value tile has been rendered.</div>
+<div id="kpiDrillResults" class="report-empty">Drilldown results will appear here after you test the tile.</div></div>
+<div class="card"><h3>4 · Run change acceptance tests</h3><p>The change is ready only if its calculation, region relationship, threshold, and drilldown all meet the executive request.</p>
+<button class="primary" type="button" onclick="kpiTest()">Run acceptance tests</button>
+<div id="kpiTestResults" class="status">No acceptance tests have been run.</div></div>
+<div class="card"><h3>5 · Approve and document the change</h3><p>Explain what the tile measures, what the warning means, and why an executive should open the underlying events before drawing conclusions.</p>
+<label for="kpiNotes">Executive change handoff</label><textarea id="kpiNotes" class="kpi-notes" placeholder="Document the metric, region filter, warning threshold, drilldown, and validation results."></textarea>
+<div id="kpiFeedback" class="status">Complete the preview, drilldown, and acceptance tests before approving.</div>
+<button class="primary" type="button" onclick="kpiSubmit()">Approve Dashboard Change</button>
+<div id="debrief12" class="debrief" style="display:none"><h3>Expert debrief — Single-value design</h3><p>A single-value panel highlights one operational measurement. The metric must be explicit: HTTP error events are responses with status 400 or higher, not all requests, unique clients, or bytes. A threshold is an attention cue, not proof of compromise.</p><p>A shared region token keeps the tile consistent with the dashboard's other panels. Drilldown allows analysts to move from the headline number to the supporting events. In production Splunk, validate the search time range, token handling, visualization color settings, access rights, and drilldown destination.</p></div></div>
+<div class="nav"><button onclick="go(11)">← Previous stage</button><button onclick="go(13)">Next stage →</button></div></section>`;
+}
+function kpiCount(region,metric){
+const rows=events.filter(e=>region==='all'||e.region===region);
+if(metric==='errors')return rows.filter(e=>Number(e.status)>=400).length;
+if(metric==='bytes')return rows.reduce((n,e)=>n+(Number(e.bytes)||0),0);
+if(metric==='clients')return new Set(rows.map(e=>e.clientip)).size;
+return rows.length;
+}
+function kpiInspect(){
+kpiState.inspected=true;
+$('kpiInventory').innerHTML='<div class="kpi-inventory"><div><b>Regional Bandwidth</b><span>Compares total bytes by region</span></div><div><b>HTTP Error Activity</b><span>Breakdown of error responses</span></div><div><b>Unique Clients</b><span>Distinct client addresses</span></div></div><p><b>Gap:</b> No executive-facing single-value indicator exists yet. Your change should add a concise status tile while retaining the detailed panels.</p>';
+}
+function kpiChanged(){
+kpiState.preview=false;kpiState.tested=false;kpiState.passed=false;kpiState.drilled=false;
+if($('kpiEditorFeedback'))$('kpiEditorFeedback').textContent='Configuration changed. Render a new preview and rerun acceptance tests.';
+}
+function kpiRegionChanged(){
+kpiState.tested=false;kpiState.passed=false;kpiState.drilled=false;
+$('kpiTestResults').textContent='Region changed. Refresh the KPI and rerun the acceptance tests.';
+}
+function kpiConfig(){return {title:$('kpiTitle').value.trim(),metric:$('kpiMetric').value,scope:$('kpiScope').value,threshold:Number($('kpiThreshold').value),drill:$('kpiDrill').value}}
+function kpiPreview(){
+const c=kpiConfig(),f=$('kpiEditorFeedback');
+if(!c.title||!c.metric||!c.scope||!c.drill||!Number.isInteger(c.threshold)||c.threshold<1){
+f.className='status warn';f.textContent='Provide a title, metric, region scope, positive whole-number threshold, and click action.';return}
+kpiState.preview=true;kpiState.tested=false;kpiState.passed=false;
+f.className='status good';f.textContent='Preview ready. Test different regions and use the drilldown before approval.';
+kpiRefresh();
+}
+function kpiEffectiveRegion(){const scope=$('kpiScope').value;return scope==='token'?$('kpiRegion').value:scope==='east'?'east':'all'}
+function kpiRefresh(){
+if(!kpiState.preview){$('kpiTile').textContent='Render a valid panel configuration first.';return}
+const c=kpiConfig(),region=kpiEffectiveRegion(),value=kpiCount(region,c.metric);
+kpiState.baseline=value;kpiState.metric=c.metric;
+const warning=value>=c.threshold;
+$('kpiTile').innerHTML='<div class="kpi-display '+(warning?'kpi-warning':'kpi-normal')+'"><div class="kpi-label">'+esc(c.title)+'</div><div class="kpi-value">'+value.toLocaleString()+'</div><div class="kpi-state">'+(warning?'WARNING · threshold reached':'NORMAL · below threshold')+'</div><div class="kpi-sub">Scope: '+esc(region)+' · Warning at '+c.threshold.toLocaleString()+'</div><p class="small">Select <b>Test tile drilldown</b> to inspect the supporting evidence.</p></div>';
+$('kpiDrillResults').textContent='Tile refreshed. Drilldown has not been tested for this selection.';
+kpiState.tested=false;kpiState.passed=false;kpiState.drilled=false;
+}
+function kpiDrilldown(){
+if(!kpiState.preview){$('kpiDrillResults').textContent='Render the tile before testing its drilldown.';return}
+const c=kpiConfig(),out=$('kpiDrillResults');
+if(c.drill!=='details'){out.innerHTML='<b>Drilldown unavailable:</b> The configured click action does not open supporting error events.';return}
+const region=kpiEffectiveRegion(),rows=events.filter(e=>(region==='all'||e.region===region)&&Number(e.status)>=400);
+out.innerHTML='<b>Drilldown — matching HTTP error events</b><p>'+rows.length+' simulated matching events for '+esc(region)+'. Displaying up to 12.</p>'+table(rows.slice(0,12).map(e=>({region:e.region,host:e.host,status:e.status,clientip:e.clientip,bytes:e.bytes})));
+kpiState.drilled=true;
+}
+function kpiTest(){
+const c=kpiConfig(),checks=[
+['Dashboard inventory inspected',kpiState.inspected],
+['Single-value preview generated',kpiState.preview],
+['Title matches requested indicator',c.title.toLowerCase()==='http error events'],
+['Metric counts HTTP error events',c.metric==='errors'],
+['Tile follows the shared region selector',c.scope==='token'],
+['Warning threshold set to 10',c.threshold===10],
+['Click action opens matching error events',c.drill==='details'&&kpiState.drilled===true],
+['Selected region matches the displayed total',kpiState.preview&&kpiState.baseline===kpiCount(kpiEffectiveRegion(),c.metric)]
+];
+kpiState.tested=true;kpiState.passed=checks.every(x=>x[1]);
+const f=$('kpiTestResults');f.className='status '+(kpiState.passed?'good':'warn');
+f.innerHTML='<b>Executive dashboard change checks</b><ul>'+checks.map(([name,pass])=>'<li>'+(pass?'PASS':'REVIEW')+' — '+esc(name)+'</li>').join('')+'</ul>';
+}
+function kpiSubmit(){
+const f=$('kpiFeedback'),issues=[];
+if(!kpiState.tested||!kpiState.passed)issues.push('Pass all dashboard change acceptance tests.');
+if($('kpiNotes').value.trim().length<55)issues.push('Write at least 55 characters of change handoff notes.');
+if(issues.length){f.className='status warn';f.innerHTML='<b>Change not yet approved:</b><ul>'+issues.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';return}
+completed[12]=true;notes[12]=$('kpiNotes').value.trim();save();update();
+f.className='status good';f.textContent='Stage 13 approved. The executive single-value panel meets the change request.';$('debrief12').style.display='block';
+}
+
+
+/* Stage 14 — launch decision command room */
+const launchState={reviewed:false,triaged:false,actions:[],tested:false,decision:'',briefed:false};
+const launchIssues=[
+{id:'access',name:'Executive report access',severity:'critical',evidence:'Executive reviewer cannot open the saved regional report. The report is shared only with the SOC analyst role.',fix:'share',choices:[['share','Grant executive reviewer read access to the approved report'],['ignore','Proceed; SOC analysts can open the report'],['public','Grant anonymous access to all saved reports']]},
+{id:'schedule',name:'Report delivery schedule',severity:'high',evidence:'The report refreshes weekly, but the launch request requires a daily update before the 07:00 briefing.',fix:'daily',choices:[['weekly','Keep weekly schedule and email the report manually'],['daily','Set daily 06:00 schedule and verify a successful run'],['hourly','Schedule every minute to ensure freshness']]},
+{id:'panel',name:'Dashboard panel consistency',severity:'critical',evidence:'The HTTP error panel ignores the shared region selector. West-region selection still shows all regions.',fix:'token',choices:[['token','Bind the panel search to the shared region token'],['hide','Hide the error panel until after launch'],['all','Remove the region selector from every panel']]},
+{id:'kpi',name:'Executive KPI drilldown',severity:'medium',evidence:'The HTTP Error Events KPI displays a value, but selecting it does not open supporting events.',fix:'drill',choices:[['drill','Configure drilldown to matching HTTP error events'],['none','Keep the KPI as a display-only number'],['remove','Remove the executive KPI entirely']]}
+];
+function makeLaunchCommand(st,i){
+return `<section class="stage" id="s13">
+<div class="card lc-header"><div class="row space"><span class="pill">STAGE 14 · JUDGE</span><span class="pill">LAUNCH DIRECTOR</span></div>
+<h2>GO / NO-GO Briefing — Launch Decision Command Room</h2>
+<p><b>Your role:</b> Launch Director. You are accountable for deciding whether the SOC reporting and dashboard environment is ready for executive use. A visually complete dashboard is not automatically ready for release.</p>
+<div class="ticket"><b>Launch directive LD-714:</b> Review readiness evidence, prioritize defects, authorize targeted repairs, verify acceptance tests, and deliver a justified <b>GO</b> or <b>NO-GO</b> recommendation. Do not approve a launch while critical defects remain.</div>
+<p class="small muted">This is a self-contained launch exercise with simulated evidence. The status of earlier stages is shown as training progress, not treated as proof that production systems are ready.</p></div>
+<div class="card"><h3>1 · Open the launch readiness packet</h3><p>Review the operational requirements and reported exceptions before issuing instructions to the team.</p>
+<button type="button" onclick="lcInspect()">Open readiness packet</button>
+<div id="lcPacket" class="report-empty">Readiness packet not yet opened.</div>
+<div id="lcProgress" class="status"></div></div>
+<div class="card"><h3>2 · Triage the launch exceptions</h3><p>Inspect each exception and select the most defensible launch disposition. Several options may sound operationally reasonable, but only one satisfies the stated acceptance requirements without relying on unverified workarounds.</p>
+<div id="lcIssues" class="lc-issues"></div>
+<button type="button" onclick="lcTriage()">Record risk triage</button>
+<div id="lcTriageFeedback" class="status">Review all four exceptions and select a defensible disposition for each.</div></div>
+<div class="card"><h3>3 · Direct the remediation</h3><p>Choose one action for each exception. Your choices will be applied to the simulated environment and checked during acceptance testing.</p>
+<div id="lcActions" class="lc-actions"></div>
+<button class="primary" type="button" onclick="lcApply()">Apply launch recovery plan</button>
+<div id="lcActionFeedback" class="status">No recovery plan has been applied.</div></div>
+<div class="card"><h3>4 · Run launch acceptance tests</h3><p>Verify access, scheduling, token relationships, and drilldown. An approved launch requires evidence that each requirement has been met.</p>
+<button class="primary" type="button" onclick="lcTests()">Run readiness verification</button>
+<div id="lcTests" class="status">Launch acceptance tests have not been run.</div></div>
+<div class="card"><h3>5 · Present the launch decision</h3><p>Select the decision justified by your latest verification results. A <b>NO-GO</b> is appropriate while blocking defects remain; a <b>GO</b> requires passing the required controls.</p>
+<label for="lcDecision">Launch director recommendation</label><select id="lcDecision"><option value="">Choose decision…</option><option value="go">GO — approve executive launch</option><option value="no-go">NO-GO — hold launch pending remediation</option></select>
+<label for="lcBrief">Executive briefing and rationale</label><textarea id="lcBrief" class="lc-notes" placeholder="Summarize the original risks, remediation decisions, test evidence, remaining risk, and the basis for your GO / NO-GO decision."></textarea>
+<div class="row"><button type="button" onclick="lcBriefPreview()">Preview briefing</button><button class="primary" type="button" onclick="lcSubmit()">Issue final launch decision</button></div>
+<div id="lcBriefPreview" class="report-empty">Your briefing preview will appear here.</div>
+<div id="lcFinal" class="status" aria-live="polite">Final launch decision has not been issued.</div>
+<div id="debrief13" class="debrief" style="display:none"><h3>Expert debrief — Defensible GO / NO-GO</h3><p>A launch decision must reflect verified controls, not confidence or dashboard appearance. Access failures and incorrect region filtering undermine the reliability of executive information. Schedule and drilldown defects also require documented correction and verification against the launch directive.</p><p>A strong director's briefing identifies the original defects, assigns remediation, confirms objective test results, and distinguishes verified readiness from assumptions. When critical defects remain, the appropriate decision is to hold the launch until they are corrected and retested.</p></div></div>
+<div class="nav"><button onclick="go(12)">← Previous stage</button><button onclick="go(0)">Return to Stage 01 ↺</button></div></section>`;
+}
+const launchRiskChoices=[
+ [
+ ['follow','Proceed with the SOC team presenting the report on behalf of executives; revise access after launch.'],
+ ['block','Hold executive release until the authorized reviewer can open the approved report directly.'],
+ ['none','Publish a static export for launch and leave the report permissions unchanged.'],
+ ['follow2','Limit the first briefing to users who already have access, then expand the audience.']
+ ],
+ [
+ ['block','Hold the scheduled launch until a daily pre-briefing report run is configured and verified.'],
+ ['follow','Proceed with the weekly schedule and request a manual refresh for each morning briefing.'],
+ ['none','Use the previous weekly report with a clear timestamp until the next scheduled run.'],
+ ['follow2','Release the dashboard while the reporting team monitors the schedule during the first week.']
+ ],
+ [
+ ['follow','Launch with a note that the error panel reflects all regions, regardless of the filter.'],
+ ['none','Keep the panel visible but exclude it from region-specific briefing conclusions.'],
+ ['follow2','Restrict the launch presentation to the all-regions view until token behavior is updated.'],
+ ['block','Hold the regional dashboard release until the error panel honors the same region filter.']
+ ],
+ [
+ ['none','Use the detailed error panel for investigation and leave the executive tile unchanged.'],
+ ['follow','Release the tile with an analyst-run search documented as a temporary investigation path.'],
+ ['block','Hold the requested executive release until the tile opens the matching supporting events.'],
+ ['follow2','Provide a separate evidence export for the briefing while leaving tile navigation disabled.']
+ ]
+];
+function lcBuild(){
+$('lcIssues').innerHTML=launchIssues.map((x,i)=>'<div class="lc-issue"><div class="lc-issue-head"><b>'+esc(x.name)+'</b><span>EXCEPTION '+String(i+1).padStart(2,'0')+'</span></div><p>'+esc(x.evidence)+'</p><label for="lcRisk'+i+'">Recommended launch disposition</label><select id="lcRisk'+i+'"><option value="">Select the most defensible response…</option>'+launchRiskChoices[i].map(([value,label])=>'<option value="'+value+'">'+esc(label)+'</option>').join('')+'</select></div>').join('');
+$('lcActions').innerHTML=launchIssues.map((x,i)=>'<div class="lc-action"><label for="lcFix'+i+'">'+esc(x.name)+'</label><select id="lcFix'+i+'"><option value="">Choose an operational action…</option>'+x.choices.map(c=>'<option value="'+c[0]+'">'+esc(c[1])+'</option>').join('')+'</select></div>').join('');
+}
+function lcInspect(){
+launchState.reviewed=true;
+const done=completed.slice(0,13).filter(Boolean).length;
+$('lcPacket').innerHTML='<b>Launch acceptance criteria</b><ol><li>Authorized executives can read the approved regional report.</li><li>The report refreshes daily at 06:00 before the executive briefing.</li><li>All dashboard panels respond to the same region selector.</li><li>The HTTP error KPI opens matching evidence through drilldown.</li></ol><p><b>Exception summary:</b> Four launch requirements have reported exceptions. Determine their operational impact from the acceptance criteria and available evidence.</p>';
+$('lcProgress').textContent='Training progress: '+done+' of 13 prior stages marked complete. This is instructional progress, not a live operational health assessment.';
+}
+function lcTriage(){
+const selections=launchIssues.map((x,i)=>$('lcRisk'+i).value),f=$('lcTriageFeedback');
+if(!launchState.reviewed){f.className='status warn';f.textContent='Open the readiness packet before classifying exceptions.';return}
+if(selections.some(x=>!x)){f.className='status warn';f.textContent='Classify the impact of all four exceptions.';return}
+launchState.triaged=true;
+const incorrect=selections.filter(x=>x!=='block').length;
+f.className='status '+(incorrect?'warn':'good');
+f.textContent=incorrect?'Triage recorded. Revisit the launch criteria and consider whether the proposed workarounds actually satisfy the executive acceptance requirements.':'Triage recorded. Your recommendations align with the mandatory launch acceptance criteria.';
+}
+function lcApply(){
+const f=$('lcActionFeedback');
+if(!launchState.triaged){f.className='status warn';f.textContent='Complete risk triage before authorizing remediation.';return}
+const selections=launchIssues.map((x,i)=>$('lcFix'+i).value);
+if(selections.some(x=>!x)){f.className='status warn';f.textContent='Choose a recovery action for every exception.';return}
+launchState.actions=selections;launchState.tested=false;
+f.className='status good';f.textContent='Recovery plan applied to the simulation. Run acceptance tests to determine whether the selected actions resolved all four defects.';
+$('lcTests').textContent='Recovery plan changed. Readiness tests must be run again.';
+}
+function lcTests(){
+const f=$('lcTests');
+if(launchState.actions.length!==4){f.className='status warn';f.textContent='Apply a complete recovery plan before testing.';return}
+const checks=launchIssues.map((x,i)=>({name:x.name,pass:launchState.actions[i]===x.fix}));
+launchState.tested=true;launchState.checks=checks;
+const all=checks.every(x=>x.pass);
+f.className='status '+(all?'good':'warn');
+f.innerHTML='<b>Launch acceptance results</b><ul>'+checks.map(c=>'<li>'+(c.pass?'PASS':'FAIL')+' — '+esc(c.name)+'</li>').join('')+'</ul><p><b>Readiness:</b> '+(all?'All mandatory checks passed.':'Launch hold: one or more mandatory checks failed.')+'</p>';
+}
+function lcBriefPreview(){
+const decision=$('lcDecision').value,brief=$('lcBrief').value.trim(),f=$('lcBriefPreview');
+if(!decision||!brief){f.textContent='Select a decision and write the executive briefing first.';return}
+f.innerHTML='<b>Launch Director Briefing — '+esc(decision.toUpperCase())+'</b><p>'+esc(brief).replace(/\n/g,'<br>')+'</p><p>Verified checks: '+(launchState.tested?launchState.checks.filter(x=>x.pass).length+' of 4':'not yet run')+'</p>';
+}
+function lcSubmit(){
+const f=$('lcFinal'),issues=[],passed=launchState.tested&&launchState.checks.every(x=>x.pass),decision=$('lcDecision').value;
+if(!launchState.reviewed)issues.push('Open the readiness packet.');
+if(!launchState.triaged)issues.push('Complete exception triage.');
+if(!launchState.tested)issues.push('Run launch acceptance tests.');
+if(!decision)issues.push('Select GO or NO-GO.');
+if(decision&&decision!==(passed?'go':'no-go'))issues.push('The decision must match the latest acceptance results.');
+if($('lcBrief').value.trim().length<100)issues.push('Provide at least 100 characters of evidence-based executive briefing notes.');
+if(issues.length){f.className='status warn';f.innerHTML='<b>Briefing not accepted:</b><ul>'+issues.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';return}
+completed[13]=true;notes[13]=$('lcBrief').value.trim();save();update();
+f.className='status good';f.textContent=decision==='go'?'GO decision issued. All four mandatory controls passed simulated verification.':'NO-GO decision issued. Launch is held until the remaining mandatory controls pass.';
+$('debrief13').style.display='block';lcBriefPreview();
+}
+
+function makeStage(s,i){if(i===5)return makeReportCommissioning(s,i);if(i===6)return makeScheduleLab(s,i);if(i===7)return makeReportRepair(s,i);if(i===8)return makeVisualizationStudio(s,i);if(i===10)return makePanelWorkshop(s,i);if(i===11)return makeDashboardOperations(s,i);if(i===12)return makeExecutiveKPI(s,i);if(i===13)return makeLaunchCommand(s,i);let command=s.query;let config=['schedule','dashboard','window','launch'].includes(s.goal);let sel= i===6?`<label>Report visibility</label><select id="c${i}a"><option value="">Select access</option><option value="private">Private to creator</option><option value="team">SOC team read access</option><option value="public">All users edit access</option></select><label>Execution schedule</label><select id="c${i}b"><option value="">Select cadence</option><option value="daily">Daily at 06:00</option><option value="never">Never</option><option value="minute">Every minute</option></select><label>Report owner</label><input id="owner${i}" placeholder="e.g. soc-reports">`:i===9?`<label>Dashboard title</label><input id="c${i}a" placeholder="e.g. Launch Readiness Overview"><label>Panels to include</label><div class="checklist"><label><input type="checkbox" id="p${i}a"> Regional bandwidth</label><label><input type="checkbox" id="p${i}b"> HTTP errors</label><label><input type="checkbox" id="p${i}c"> Unique clients</label></div>`:i===11?`<label>Dashboard time window</label><select id="c${i}a"><option value="">Select window</option><option value="5m">Last 5 minutes</option><option value="24h">Last 24 hours</option><option value="future">Next 24 hours</option></select><label>Refresh interval</label><select id="c${i}b"><option value="">Select refresh</option><option value="15m">Every 15 minutes</option><option value="never">Disabled</option><option value="1s">Every second</option></select>`:`<label>Launch disposition</label><select id="c${i}a"><option value="">Select decision</option><option value="go">GO without follow-up</option><option value="conditional">CONDITIONAL GO with monitored remediation</option><option value="ignore">Ignore anomalies</option></select><label>Required follow-up</label><select id="c${i}b"><option value="">Select response</option><option value="monitor">Track errors and unusual activity with assigned owners</option><option value="close">Close all alerts</option><option value="none">No further action</option></select>`;
+let custom=i===8?`<label>Visualization type</label><select id="c${i}a"><option value="">Select chart</option><option value="bar">Bar chart</option><option value="pie">Pie chart</option><option value="single">Single value</option></select>`:i===10?`<label>Region filter token</label><input id="c${i}a" placeholder="e.g. $region$"><label>Panel search references token</label><select id="c${i}b"><option value="">Select binding</option><option value="yes">Yes — both use the same region token</option><option value="no">No — static results</option></select>`:i===12?`<label>Single-value label</label><input id="c${i}a" placeholder="e.g. Total HTTP Errors"><label>Visualization</label><select id="c${i}b"><option value="">Select panel type</option><option value="single">Single Value</option><option value="pie">Pie Chart</option></select>`:i===5?`<label>Saved report name</label><input id="c${i}a" placeholder="e.g. Regional Bandwidth Summary">`:'';
+let queryUI=command||['bar','token','errors'].includes(s.goal);let queryBox=queryUI?`<div class="terminal"><h3>Search console</h3><p class="tiny">Supported simulated SPL: <code>top</code>, <code>rare</code>, <code>stats</code>, <code>BY</code>, and <code>status>=400</code>. Search the embedded 120 events.</p><textarea spellcheck="false" id="q${i}" placeholder="index=helios sourcetype=web_access | ...">index=helios sourcetype=web_access | </textarea><div class="row"><button onclick="runSearch(${i})">▶ Run Search</button><button onclick="hint(${i})">Get progressive hint</button></div><div id="result${i}" class="status">Run a search to inspect results.</div></div>`:'';
+return `<section class="stage" id="s${i}"><div class="card"><div class="row space"><span class="pill">STAGE ${String(i+1).padStart(2,'0')} · ${s.phase.toUpperCase()}</span><span class="pill">${s.team}</span></div><h2>${s.title}</h2><div class="ticket"><b>Work order:</b> ${s.task}</div><p><b>Environment:</b> <code>index=helios</code> · <code>sourcetype=web_access</code> · 120 simulated events</p><div class="guide"><b>Investigation approach</b><p>Review the available data, execute or configure the requested operation, inspect the outcome, then document the evidence-based finding. Correct answers are explained after validation.</p></div><div class="grid"><div class="card"><h3>Event explorer</h3><label>Filter events by region</label><select id="f${i}" onchange="showEvents(${i})"><option value="all">All regions</option><option>east</option><option>central</option><option>west</option></select><div id="ev${i}" class="scroll"></div></div><div class="card"><h3>Field reference & case context</h3><p>Inspect <code>_time</code>, <code>host</code>, <code>region</code>, <code>clientip</code>, <code>action</code>, <code>status</code> and <code>bytes</code>.</p><p>HTTP 4xx and 5xx events warrant operational review. Unusual activity requires corroboration before declaring a security incident.</p><div class="status">All data is fictional and processed locally. Search execution is a training simulation, not full Splunk SPL.</div></div></div>${queryBox}<div class="card"><h3>Analyst workbench</h3>${config?sel:custom}<label>Evidence-based interpretation</label><select id="decision${i}"><option value="">Select the supported conclusion</option>${decisionOptions(i)}</select><label>Analyst notes (required)</label><textarea id="notes${i}" style="width:100%;min-height:90px;padding:10px;border:1px solid #b9cad9;border-radius:8px" placeholder="Summarize the observed evidence and recommended next action."></textarea><div id="feedback${i}" class="status">Submit a supported finding after completing the required investigation.</div><button class="primary" onclick="validate(${i})">Validate & record finding</button><div id="debrief${i}" class="debrief" style="display:none"><b>Expert debrief</b><p>${s.lesson}</p><p>Review alternative choices: declaring compromise from frequency alone is unsupported; assuming there is no risk without reviewing errors and anomalies is also unsupported.</p></div></div><div class="nav"><button onclick="go(${Math.max(0,i-1)})">← Previous stage</button><button onclick="go(${Math.min(13,i+1)})">Next stage →</button></div></div></section>`}
+function toggleContentMenu(){const shell=document.querySelector('.shell');const collapsed=shell.classList.toggle('menu-collapsed');const btn=document.getElementById('contentMenuToggle');btn.textContent=collapsed?'☰ Show Content Menu':'☰ Hide Content Menu';btn.setAttribute('aria-expanded',String(!collapsed));try{localStorage.setItem('heliosMenuCollapsed',String(collapsed))}catch(e){}}
+try{if(localStorage.getItem('heliosMenuCollapsed')==='true'){document.querySelector('.shell').classList.add('menu-collapsed');const btn=document.getElementById('contentMenuToggle');btn.textContent='☰ Show Content Menu';btn.setAttribute('aria-expanded','false')}}catch(e){}
+function go(i){current=i;document.querySelectorAll('.stage').forEach((e,n)=>e.classList.toggle('active',i===n));document.querySelectorAll('aside button[data-stage]').forEach(b=>b.classList.toggle('active',+b.dataset.stage===i));window.scrollTo(0,0)}function toggleGuide(){guide=!guide;document.querySelectorAll('.guide').forEach(e=>e.style.display=guide?'':'none')}
+function showEvents(i){let region=$('f'+i).value,arr=events.filter(e=>region==='all'||e.region===region);$('ev'+i).innerHTML=table(arr.slice(0,30))+'<p class="tiny muted">Showing first '+Math.min(30,arr.length)+' of '+arr.length+' matching events.</p>'}
+const hintLevels=Array(stages.length).fill(0);
+function hint(i){
+ const stage=stages[i], level=Math.min(++hintLevels[i],3);
+ const field=stage.goal==='clientip'?'clientip':stage.goal==='status'?'status':stage.goal==='action'?'action':stage.goal==='countdc'?'clientip and region':stage.goal==='bytes'||stage.goal==='bar'?'bytes and region':stage.goal==='errors'||stage.goal==='token'?'status and region/host':'the fields in the ticket';
+ const kind=stage.mode==='top'?'top':stage.mode==='rare'?'rare':'stats';
+ const first='Hint 1 of 3 — Identify the evidence: Inspect '+field+' in the Event Explorer. Determine whether the request asks for frequency, uncommon values, or an aggregate.';
+ const second='Hint 2 of 3 — Choose a command: Consider <code>'+kind+'</code>. Check whether the request needs a filter, a calculated field, or grouping.';
+ const templates={top:'index=helios sourcetype=web_access | top limit=&lt;number&gt; &lt;field&gt;',rare:'index=helios sourcetype=web_access | rare limit=&lt;number&gt; &lt;field&gt;',stats:'index=helios sourcetype=web_access [optional filter] | stats &lt;function&gt; AS &lt;label&gt; BY &lt;group field&gt;'};
+ const third='Hint 3 of 3 — Syntax structure (not the answer): <code>'+templates[kind]+'</code>. Replace each placeholder with the fields and values justified by the work order. For a single overall count, omit BY.';
+ const output=document.getElementById('hints'+i);
+ if(output){output.hidden=false;output.innerHTML='<b>Progressive guidance</b><p>'+[first,second,third][level-1]+'</p><small>Hint '+level+' of 3. The search editor has not been changed.</small>';}
+ const button=document.getElementById('hintbtn'+i);if(button)button.textContent=level===3?'Review final hint':'Get next hint ('+(level+1)+'/3)';
+}
+function runSearch(i){let q=$('q'+i).value.trim(),s=stages[i],pipe=q.split('|');if(pipe.length!==2||!/\bindex\s*=\s*helios\b/i.test(pipe[0])||!/\bsourcetype\s*=\s*web_access\b/i.test(pipe[0])){$('result'+i).innerHTML='<b>Search error:</b> Include index=helios, sourcetype=web_access, and a transforming command.';ran[i]=false;return}let filtered=events.filter(e=>!/status\s*>=\s*400/i.test(pipe[0])||e.status>=400),command=pipe[1].trim(),rows=[],ok=false;let m=command.match(/^(top|rare)\s+(?:limit\s*=\s*(\d+)\s+)?(clientip|action|status)(?:\s+BY\s+(host|region))?$/i);if(m){let type=m[1].toLowerCase(),field=m[3].toLowerCase(),groups=m[4]?[...new Set(filtered.map(e=>e[m[4]]))]:['all'];for(let g of groups){let es=m[4]?filtered.filter(e=>e[m[4]]===g):filtered,counts={};es.forEach(e=>counts[e[field]]=(counts[e[field]]||0)+1);Object.entries(counts).sort((a,b)=>(type==='top'?b[1]-a[1]:a[1]-b[1])||String(a[0]).localeCompare(String(b[0]))).slice(0,Math.min(100,Number(m[2]||10))).forEach(([v,n])=>rows.push({...m[4]?{[m[4]]:g}:{},[field]:v,count:n,percent:(n/es.length*100).toFixed(1)+'%'}))}ok=type===s.mode&&field===s.goal}
+else if(/^stats\s+/i.test(command)){let by=command.match(/\s+BY\s+(region|host)\s*$/i),group=by?by[1].toLowerCase():null,part=by?command.slice(5,by.index).trim():command.slice(5).trim(),hasSum=/sum\s*\(\s*bytes\s*\)/i.test(part),hasDc=/dc\s*\(\s*clientip\s*\)/i.test(part),hasCount=/\bcount\b/i.test(part),groups=group?[...new Set(filtered.map(e=>e[group]))]:['all'];if(!hasSum&&!hasDc&&!hasCount){$('result'+i).textContent='Search error: expected count, dc(clientip), or sum(bytes).';ran[i]=false;return}for(let g of groups){let es=group?filtered.filter(e=>e[group]===g):filtered,r={};if(group)r[group]=g;if(hasCount)r[part.match(/count\s+AS\s+(\w+)/i)?.[1]||'count']=es.length;if(hasDc)r[part.match(/dc\s*\(\s*clientip\s*\)\s+AS\s+(\w+)/i)?.[1]||'dc(clientip)']=new Set(es.map(e=>e.clientip)).size;if(hasSum)r[part.match(/sum\s*\(\s*bytes\s*\)\s+AS\s+(\w+)/i)?.[1]||'sum(bytes)']=es.reduce((a,e)=>a+e.bytes,0);rows.push(r)}ok=(s.goal==='countdc'&&hasCount&&hasDc&&group==='region')||(s.goal==='bytes'&&hasSum&&group==='region')||(s.goal==='errors'&&hasCount&&/status\s*>=\s*400/i.test(pipe[0])&&(i===12?!group:group==='host'))||(s.goal==='bar'&&hasSum&&group==='region')||(s.goal==='token'&&hasCount&&group==='region')}
+else{$('result'+i).innerHTML='<b>Search error:</b> Unsupported transforming command. Use top, rare or stats with supported fields.';ran[i]=false;return}
+ran[i]=ok;$('result'+i).innerHTML='<p>'+filtered.length+' matching source events · '+rows.length+' statistics rows</p>'+table(rows)+(ok?'<p>Search addresses the ticket. Record your decision.</p>':'<p>Search ran, but it does not yet answer the assigned ticket. Review command, fields and filters.</p>')}
+function validate(i){let s=stages[i],d=$('decision'+i).value,n=$('notes'+i).value.trim(),err=[],config=['schedule','dashboard','window','launch'].includes(s.goal);if(!config&&!ran[i])err.push('Run a search that matches the work order.');if(d!=='correct')err.push('Re-examine what the search or configuration actually establishes, then compare the alternatives.');if(n.length<25)err.push('Provide at least 25 characters of analyst notes.');let val=id=>$(id)?.value.trim()||'';if(i===5&&!val('c5a'))err.push('Name the saved report.');if(i===6&&(val('c6a')!=='team'||val('c6b')!=='daily'||!val('owner6')))err.push('Configure team read access, a daily schedule and an owner.');if(i===8&&val('c8a')!=='bar')err.push('Use a bar chart for discrete regional comparisons.');if(i===9&&(!val('c9a')||!['a','b','c'].every(k=>$('p9'+k).checked)))err.push('Name the dashboard and include all three required panels.');if(i===10&&(val('c10a')!=='$region$'||val('c10b')!=='yes'))err.push('Use $region$ consistently in the panel and selector.');if(i===11&&(val('c11a')!=='24h'||val('c11b')!=='15m'))err.push('Choose a 24-hour window and a reasonable 15-minute refresh.');if(i===12&&(!val('c12a')||val('c12b')!=='single'))err.push('Name the indicator and select Single Value.');if(i===13&&(val('c13a')!=='conditional'||val('c13b')!=='monitor'))err.push('Select a conditional launch with assigned monitoring follow-up.');let f=$('feedback'+i);if(err.length){f.className='status warn';f.innerHTML='<b>Review required:</b><ul>'+err.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';return}completed[i]=true;notes[i]=n;save();f.className='status good';f.textContent='Validated: investigation and analyst finding recorded.';$('debrief'+i).style.display='block';update()}
+function update(){let n=completed.filter(Boolean).length;$('progress').textContent=n+' of 14 stages validated';$('meter').style.width=n/14*100+'%';document.querySelectorAll('aside button[data-stage]').forEach((b,i)=>{b.classList.toggle('done',!!completed[i]);b.textContent=(completed[i]?'✓ ':'')+String(i+1).padStart(2,'0')+' · '+stages[i].title})}function resetAll(){if(!confirm('Reset all saved progress and reload?'))return;localStorage.removeItem('helios14lab');location.reload()}
+$('stageContainer').innerHTML=stages.map(makeStage).join('');$('menu').innerHTML=stages.map((s,i)=>'<button data-stage="'+i+'" onclick="go('+i+')"></button>').join('');stages.forEach((_,i)=>{if(i!==5&&i!==6&&i!==7&&i!==8&&i!==10&&i!==11&&i!==12&&i!==13)showEvents(i);if(completed[i]){const d=$('debrief'+i),f=$('feedback'+i),n=$('notes'+i);if(d)d.style.display='block';if(f)f.textContent='Previously validated. You may repeat the investigation.';if(n&&notes[i])n.value=notes[i]}});update();go(0);lcBuild();
+
+(function enhanceInstructions(){
+ const details=[["Identify repeated clients", "Inspect clientip in the event table; run a top search; compare counts; explain why frequent traffic is not automatically malicious."], ["Measure common HTTP responses", "Inspect the status field; run top status; identify the dominant status and note the presence of 4xx/5xx responses."], ["Find uncommon actions", "Inspect action values; run rare action; identify the least common activity without assuming it is fraudulent."], ["Count and deduplicate", "Run stats count and dc(clientip) BY region; compare event counts with unique-client counts."], ["Filter errors before aggregating", "Apply status>=400 before the pipe; calculate error counts BY host; identify the host requiring review."], ["Build a reproducible report", "Calculate sum(bytes) BY region; name the report; explain what the totals represent."], ["Configure a scheduled report", "Set SOC team read access, daily 06:00 execution, and a report owner; explain the access and scheduling choice."], ["Repair a misleading statistic", "Distinguish count(bytes) from sum(bytes); execute the corrected total-bandwidth search; document the correction."], ["Choose a comparative chart", "Calculate total bytes by region; select a bar chart; justify why the chart supports comparisons."], ["Commission an operations dashboard", "Name the dashboard and select all three requested panels: bandwidth, errors, and unique clients."], ["Connect a dashboard filter", "Run the regional error search; set the region token to $region$; bind the panel to the same token."], ["Repair stale dashboard data", "Choose a 24-hour time window and a 15-minute refresh; explain why the previous narrow window could hide events."], ["Build a single-value indicator", "Run a total error-count search; give the indicator a meaningful label; select Single Value."], ["Make the launch decision", "Review previous findings; select a conditional launch with monitoring; document the remaining operational risk."]];
+ const special={6:"This stage is configuration-only. There is no Run Search button: complete the access, schedule, and owner controls.",9:"This stage is configuration-only. There is no Run Search button: configure the dashboard and its panels.",11:"This stage is configuration-only. There is no Run Search button: repair the time window and refresh interval.",13:"This stage is decision-only. There is no Run Search button: document your GO / NO-GO recommendation."};
+ stages.forEach((st,i)=>{
+  if(i===5||i===6||i===7||i===8||i===10||i===11||i===12||i===13)return;
+  const sec=document.getElementById('s'+i);
+  const g=sec.querySelector('.guide');
+  if(g)g.innerHTML='<b>What you are doing in this stage</b><p>Investigate the assigned work order using the available evidence. Determine which fields and operations are appropriate before writing your search.</p><ol><li>Read the work order and inspect the relevant event fields.</li><li>'+(special[i]||'Enter an SPL search in the dark Search console and click <b>▶ Run Search</b>. If needed, click <b>Get hint</b> up to three times. Hints guide your reasoning without filling in the command.')+'</li><li>Inspect the results or configuration, select the supported conclusion, and write at least 25 characters of analyst notes.</li><li>Click <b>Validate &amp; record finding</b> to finish the stage and reveal the explanation.</li></ol><p><b>Completion target:</b> '+st.task+'.</p>';
+  const term=sec.querySelector('.terminal');
+  if(term){
+    const hint=term.querySelector('p.tiny');
+    if(hint)hint.innerHTML='<b>How to run:</b> Type a complete search starting with <code>index=helios sourcetype=web_access</code>, followed by <code>|</code> and a transforming command. Press <b>▶ Run Search</b>. <b>Get hint</b> provides up to three clues without entering the answer.';
+    const ta=term.querySelector('textarea');
+    if(ta){ta.setAttribute('aria-label','Splunk search for stage '+(i+1));ta.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();runSearch(i)}})}
+    const runBtn=term.querySelector('button');
+    if(runBtn)runBtn.setAttribute('type','button');
+  }
+ });
+})();
+
+const _originalRunSearch=runSearch;
+runSearch=function(i){
+ const q=document.getElementById('q'+i);
+ const result=document.getElementById('result'+i);
+ if(!q||!result)return;
+ const raw=q.value.trim();
+ if(!raw || !raw.includes('|') || !raw.split('|')[1].trim()){
+   result.className='status warn';
+   result.innerHTML='<b>Search not yet complete.</b> Enter a transforming command after the pipe (|). Use <b>Get hint</b> for clues about the command structure, then write and run your own search.';
+   ran[i]=false;
+   result.scrollIntoView({block:'nearest',behavior:'smooth'});
+   return;
+ }
+ try{
+   _originalRunSearch(i);
+   result.className='status '+(ran[i]?'good':'warn');
+ }catch(e){
+   ran[i]=false;
+   result.className='status bad';
+   result.textContent='Search could not run: '+e.message+'. Review the command and try again.';
+ }
+ result.scrollIntoView({block:'nearest',behavior:'smooth'});
+};
+
+(function setupProgressiveHints(){
+ stages.forEach((stage,i)=>{
+  const section=document.getElementById('s'+i);
+  if(!section)return;
+  const term=section.querySelector('.terminal');if(!term)return;
+  const buttons=[...term.querySelectorAll('button')];
+  const b=buttons.find(x=>x.textContent.includes('Get progressive hint'));
+  if(!b)return;
+  b.id='hintbtn'+i;b.textContent='Get hint (1/3)';
+  const area=document.createElement('div');area.id='hints'+i;area.className='status';area.hidden=true;area.setAttribute('aria-live','polite');
+  b.parentElement.insertAdjacentElement('afterend',area);
+  const debrief=section.querySelector('#debrief'+i);
+  if(debrief){const full=document.createElement('p');full.innerHTML='<b>Validated SPL example:</b> <code>'+esc(stage.query)+'</code>';debrief.appendChild(full)}
+ });
+})();
+</script><div id="heliosScrollRail" aria-label="Page vertical scrolling controls"><button id="heliosScrollUp" type="button" title="Scroll up" aria-label="Scroll up">▲</button><div id="heliosScrollTrack" aria-label="Drag to scroll page"><div id="heliosScrollThumb"></div></div><button id="heliosScrollDown" type="button" title="Scroll down" aria-label="Scroll down">▼</button></div>
+<script>
+(function(){
+ const rail=document.getElementById('heliosScrollRail'),track=document.getElementById('heliosScrollTrack'),thumb=document.getElementById('heliosScrollThumb');
+ const maxScroll=()=>Math.max(0,document.documentElement.scrollHeight-window.innerHeight);
+ function refresh(){const m=maxScroll(),h=track.clientHeight;const th=Math.max(34,Math.min(h,h*(window.innerHeight/Math.max(document.documentElement.scrollHeight,1))));thumb.style.height=th+'px';thumb.style.top=(m?window.scrollY/m*(h-th):0)+'px';rail.style.opacity=m>0?'1':'.65'}
+ function setFromClientY(y){const rect=track.getBoundingClientRect(),th=thumb.offsetHeight,ratio=Math.max(0,Math.min(1,(y-rect.top-th/2)/Math.max(1,rect.height-th)));window.scrollTo({top:ratio*maxScroll(),behavior:'instant'});refresh()}
+ document.getElementById('heliosScrollUp').addEventListener('click',()=>window.scrollBy({top:-Math.max(280,window.innerHeight*.7),behavior:'smooth'}));
+ document.getElementById('heliosScrollDown').addEventListener('click',()=>window.scrollBy({top:Math.max(280,window.innerHeight*.7),behavior:'smooth'}));
+ track.addEventListener('pointerdown',e=>{if(e.target===thumb)return;setFromClientY(e.clientY)});
+ thumb.addEventListener('pointerdown',e=>{e.preventDefault();thumb.setPointerCapture(e.pointerId);const startY=e.clientY,startScroll=window.scrollY;function move(ev){const range=track.clientHeight-thumb.offsetHeight;window.scrollTo({top:startScroll+(ev.clientY-startY)/Math.max(1,range)*maxScroll(),behavior:'instant'});refresh()}function end(){thumb.removeEventListener('pointermove',move);thumb.removeEventListener('pointerup',end);thumb.removeEventListener('pointercancel',end)}thumb.addEventListener('pointermove',move);thumb.addEventListener('pointerup',end);thumb.addEventListener('pointercancel',end)});
+ window.addEventListener('scroll',refresh,{passive:true});window.addEventListener('resize',refresh);new MutationObserver(refresh).observe(document.getElementById('stageContainer')||document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style']});refresh();
+})();
+</script></body></html>
