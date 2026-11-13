@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SignalBridge | Splunk Operations Practicum</title>
+<style>
+:root{
+  --bg:#090a0f;
+  --bg2:#101219;
+  --panel:#161922;
+  --panel2:#1c202b;
+  --panel3:#11141b;
+  --ink:#f4f5f7;
+  --muted:#a4a9b4;
+  --line:#30343e;
+  --line2:#454b58;
+  --accent:#c4b5fd;
+  --accent2:#7dd3fc;
+  --amber:#d6b36a;
+  --green:#6ee7b7;
+  --red:#fb7185;
+  --purple:#c4b5fd;
+  --shadow:0 18px 55px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 82% -8%,rgba(124,58,237,.13),transparent 31%),
+    radial-gradient(circle at 18% 2%,rgba(125,211,252,.06),transparent 25%),
+    linear-gradient(145deg,var(--bg),#10121a 58%,#07080c);
+  color:var(--ink);
+  font:15px/1.58 Inter,"Segoe UI",Arial,sans-serif;
+}
+button,input,select,textarea{font:inherit}
+.app{min-height:100vh;display:grid;grid-template-columns:292px 1fr}
+.side{
+  border-right:1px solid rgba(159,176,194,.14);
+  background:linear-gradient(180deg,#0c0e14 0%,#12151d 55%,#090b10 100%);
+  padding:24px 20px;
+  position:sticky;top:0;height:100vh;overflow:auto;
+  box-shadow:12px 0 40px rgba(0,0,0,.12)
+}
+.brand{
+  font-weight:850;letter-spacing:.11em;font-size:15px;color:#eaf7f6;
+  display:flex;align-items:center;gap:3px
+}
+.brand:before{
+  content:"";width:10px;height:10px;border-radius:3px;
+  background:linear-gradient(135deg,#d8d9df,var(--accent),var(--accent2));
+  box-shadow:0 0 20px rgba(196,181,253,.45);margin-right:7px
+}
+.brand b{color:var(--accent)}
+.sub{color:var(--muted);font-size:12px;margin:6px 0 20px}
+.progress{
+  height:6px;background:#132335;border-radius:99px;overflow:hidden;
+  border:1px solid rgba(159,176,194,.08)
+}
+.bar{
+  height:100%;width:0;
+  background:linear-gradient(90deg,#a78bfa,#7dd3fc);
+  transition:.35s ease;box-shadow:0 0 14px rgba(196,181,253,.3)
+}
+.nav{margin-top:20px;display:grid;gap:7px}
+.nav button{
+  color:#8fa4b8;background:transparent;border:1px solid transparent;
+  text-align:left;padding:11px 12px;border-radius:11px;cursor:pointer;
+  transition:.18s ease
+}
+.nav button:hover{
+  background:rgba(125,211,252,.06);color:#eaf5ff;border-color:#284157
+}
+.nav button.active{
+  background:linear-gradient(90deg,rgba(196,181,253,.12),rgba(125,211,252,.06));
+  color:#fff;border-color:rgba(196,181,253,.28);
+  box-shadow:inset 3px 0 0 var(--accent)
+}
+.nav small{display:block;color:#71879d;margin-top:2px}
+.sidefoot{
+  margin-top:24px;padding:14px;
+  border:1px solid rgba(159,176,194,.16);
+  border-radius:13px;color:#9eb0c2;font-size:12px;
+  background:rgba(255,255,255,.018)
+}
+.sidefoot b{color:#dbe8f4}
+.main{padding:38px 42px 80px;max-width:1280px;width:100%;margin:auto}
+.screen{display:none;animation:fade .22s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
+.eyebrow{
+  color:var(--accent);font-size:11px;font-weight:850;
+  letter-spacing:.16em;text-transform:uppercase
+}
+.hero{
+  padding:38px;
+  border:1px solid rgba(196,181,253,.18);
+  background:
+    radial-gradient(circle at 82% 8%,rgba(124,58,237,.18),transparent 34%),
+    radial-gradient(circle at 70% 80%,rgba(125,211,252,.06),transparent 28%),
+    linear-gradient(145deg,#181b25,#0e1017);
+  border-radius:22px;box-shadow:var(--shadow);overflow:hidden
+}
+h1{
+  font-size:clamp(34px,5vw,60px);line-height:1.02;
+  letter-spacing:-.035em;margin:10px 0 16px;max-width:900px
+}
+h2{font-size:31px;letter-spacing:-.02em;margin:7px 0 13px}
+h3{margin:0 0 8px;font-size:17px}
+.lead{font-size:18px;color:#c7d4e1;max-width:880px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:15px;margin-top:20px}
+.card{
+  grid-column:span 6;
+  background:linear-gradient(160deg,rgba(28,31,41,.97),rgba(17,19,27,.97));
+  border:1px solid rgba(129,158,185,.17);
+  border-radius:16px;padding:19px;
+  box-shadow:0 8px 24px rgba(0,0,0,.10)
+}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.metric{
+  font-size:30px;font-weight:850;color:var(--accent2);
+  letter-spacing:-.03em
+}
+.pill{
+  display:inline-block;padding:5px 9px;
+  border:1px solid rgba(196,181,253,.24);
+  background:rgba(196,181,253,.06);
+  border-radius:999px;color:#ddd6fe;font-size:12px;margin:2px
+}
+.brief{
+  border-left:3px solid var(--amber);padding:14px 17px;
+  background:linear-gradient(90deg,rgba(245,185,66,.075),rgba(245,185,66,.018));
+  border-radius:0 11px 11px 0;margin:18px 0;color:#d8e2ec
+}
+.brief b{color:#ffe0a0}
+.artifact{
+  background:#090b10;border:1px solid #263c51;border-radius:12px;
+  padding:16px;font:13px/1.65 "Cascadia Code",Consolas,monospace;
+  color:#cce2f3;overflow:auto;white-space:pre-wrap;
+  box-shadow:inset 0 1px 12px rgba(0,0,0,.25)
+}
+.hl{color:#ffd071}.good{color:#86efac}.bad{color:#fda4af}
+.task{
+  margin-top:18px;
+  background:linear-gradient(160deg,#181b24,#11131a);
+  border:1px solid rgba(121,151,179,.20);
+  border-radius:16px;padding:21px;
+  box-shadow:0 8px 25px rgba(0,0,0,.09)
+}
+.task h3{font-size:19px;color:#f4f8fc}
+.choices{display:grid;gap:9px;margin-top:13px}
+.choice{
+  border:1px solid #314b63;background:#181b24;color:#e8e9ee;
+  border-radius:11px;padding:13px 14px;text-align:left;cursor:pointer;
+  transition:.16s ease;box-shadow:0 2px 0 rgba(0,0,0,.10)
+}
+.choice:hover{
+  border-color:#4f8196;background:#202431;
+  transform:translateY(-1px);box-shadow:0 7px 18px rgba(0,0,0,.14)
+}
+.choice.selected{outline:2px solid var(--accent2)}
+.choice.correct{
+  border-color:rgba(74,222,128,.62);
+  background:linear-gradient(90deg,rgba(74,222,128,.12),rgba(16,41,31,.85))
+}
+.choice.wrong{
+  border-color:rgba(251,113,133,.62);
+  background:linear-gradient(90deg,rgba(251,113,133,.12),rgba(43,21,28,.85))
+}
+.choice:disabled{cursor:default;opacity:.96}
+.feedback{
+  display:none;margin-top:14px;padding:15px 16px;border-radius:11px;
+  background:#1a1d28;border:1px solid #2d5069;color:#dbe8f3
+}
+.feedback.show{display:block}
+.feedback strong{color:var(--accent)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:19px}
+.btn{
+  border:1px solid transparent;border-radius:10px;padding:11px 16px;
+  font-weight:780;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),#45d8df);
+  color:#17131f;box-shadow:0 8px 20px rgba(196,181,253,.13);
+  transition:.16s ease
+}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.btn.secondary{
+  background:#20232d;color:#e1e3e8;border-color:#35536c;box-shadow:none
+}
+.btn.secondary:hover{border-color:#52748f;background:#292d39}
+.btn.amber{
+  background:linear-gradient(135deg,#f7c45e,#f0ad35);
+  color:#2a1a02;box-shadow:0 8px 20px rgba(245,185,66,.12)
+}
+.hint{
+  display:none;color:#c8d7e4;padding:13px 14px;
+  border:1px dashed #4d6b84;border-radius:10px;margin-top:10px;
+  background:rgba(125,211,252,.035)
+}
+.hint.show{display:block}
+.workflow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.step{
+  padding:9px 12px;background:#1b1f2a;border:1px solid #33536e;
+  border-radius:10px;color:#dbeaf5
+}
+.arrow{color:var(--accent);font-weight:800}
+.split{display:grid;grid-template-columns:1.1fr .9fr;gap:15px}
+.evidence{
+  padding:12px 13px;border:1px solid #304a62;border-radius:11px;
+  margin:8px 0;background:#151820;transition:.15s ease
+}
+.evidence:hover{border-color:#466984;background:#1b1f29}
+.evidence label{display:flex;gap:10px;cursor:pointer}
+input[type=checkbox]{accent-color:#c4b5fd}
+.decision{
+  width:100%;min-height:100px;background:#0d0f15;
+  border:1px solid #36556f;color:#edf5fb;border-radius:10px;
+  padding:13px;outline:none;resize:vertical
+}
+.decision:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(125,211,252,.09)}
+code{
+  color:#ddd6fe;background:rgba(196,181,253,.07);
+  border:1px solid rgba(196,181,253,.10);
+  padding:.08em .3em;border-radius:5px
+}
+.toast{
+  position:fixed;right:22px;bottom:22px;
+  background:#171a22;border:1px solid rgba(196,181,253,.38);
+  border-radius:12px;padding:13px 17px;display:none;z-index:9;
+  box-shadow:var(--shadow)
+}
+.toast.show{display:block}
+@media(max-width:850px){
+  .app{grid-template-columns:1fr}
+  .side{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  .nav{grid-template-columns:repeat(2,1fr)}
+  .main{padding:22px}
+  .hero{padding:25px}
+  .card,.card.third{grid-column:1/-1}
+  .split{grid-template-columns:1fr}
+}
+.opType{min-height:48px;margin-top:10px}.opType.ok{border-color:rgba(110,231,183,.75)}.opType.no{border-color:rgba(251,113,133,.75)}.opPair .choice.selected{outline:2px solid var(--accent);border-color:var(--accent);background:#242337}
+
+.delayed .choice{display:flex;align-items:flex-start;gap:11px;text-align:left}
+.delayed .choice input{margin-top:4px;accent-color:var(--accent);flex:0 0 auto}
+.delayed .choice:has(input:checked){border-color:var(--accent);background:#242337}
+.op-review{margin:14px 0;padding:16px;border:1px solid var(--line);border-radius:14px;background:#151820}
+.op-review.correct{border-color:rgba(110,231,183,.55)}
+.op-review.incorrect{border-color:rgba(251,113,133,.55)}
+.op-review h4{margin:0 0 8px}
+.op-review p{margin:7px 0}
+
+.op2-pick{display:grid;gap:9px;margin-top:12px}
+.op2-pick .choice{display:flex;justify-content:space-between;align-items:center;gap:14px;text-align:left}
+.op2-pick .choice.selected{border-color:var(--accent);background:#242337;outline:2px solid rgba(196,181,253,.22)}
+
+.op3-pool,.op3-token-pool{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.op3-pool .choice{flex:1 1 220px}
+.token{border:1px solid var(--line2);background:#171a22;color:var(--ink);border-radius:10px;padding:11px 13px;cursor:pointer;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;text-align:left}
+.token.selected{border-color:var(--accent);background:#242337;box-shadow:inset 0 0 0 1px rgba(196,181,253,.2)}
+.token:disabled,.op3-pool .choice:disabled{opacity:.48;cursor:not-allowed}
+
+.op3-station01{padding:20px}
+.op3-station-head{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,.8fr);gap:18px;align-items:start;margin-bottom:18px}
+.op3-station-head h3{font-size:30px;margin:3px 0 4px}
+.op3-kicker{font-size:20px;font-weight:800;margin:0 0 10px;color:var(--ink)}
+.op3-scenario,.op3-guide,.op3-actions,.op3-order{border:1px solid var(--line2);background:rgba(15,21,31,.72);border-radius:16px}
+.op3-scenario{padding:17px}.op3-scenario p{margin:7px 0 0}
+.op3-station-grid{display:grid;grid-template-columns:minmax(220px,.78fr) minmax(360px,1.18fr) minmax(260px,.9fr);gap:14px;align-items:stretch}
+.op3-guide,.op3-actions,.op3-order{padding:16px}
+.op3-guide h4,.op3-panel-title h4{margin:0;font-size:17px}
+.guide-step{display:grid;grid-template-columns:38px 1fr;gap:10px;margin:15px 0}
+.guide-step>span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#274f8d,#315fbd);font-weight:900}
+.guide-step p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.op3-important{margin-top:16px;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025)}
+.op3-important p{margin:5px 0 0;font-size:13px;color:var(--muted)}
+.op3-panel-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.op3-panel-title span{font-size:12px;color:var(--muted)}
+#op3Pool{display:grid;gap:10px}
+.op3-action{width:100%;display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:center;padding:14px;border:1px solid var(--line2);border-radius:13px;background:#171c26;color:var(--ink);text-align:left;cursor:pointer}
+.op3-action:hover{border-color:var(--accent)}
+.op3-action b{display:block;margin-bottom:4px}.op3-action small{display:block;color:var(--muted);line-height:1.45}
+.op3-action.committed{opacity:.48;cursor:not-allowed}
+.op3-radio{width:18px;height:18px;border:2px solid #8fa4ff;border-radius:50%}
+.order-slot{min-height:66px;border:1px dashed #3b5879;border-radius:12px;margin:10px 0;padding:10px;display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:center}
+.order-slot>span{width:34px;height:34px;border:1px solid #55789f;border-radius:50%;display:grid;place-items:center;font-weight:800}
+.order-slot em{font-style:normal;color:var(--muted);font-size:13px}
+.order-slot.filled{border-style:solid;border-color:var(--accent);background:rgba(196,181,253,.06)}
+.order-slot.filled em{color:var(--ink);font-weight:700}
+.op3-order .btn{width:100%;margin-top:10px}
+@media(max-width:1050px){.op3-station-grid{grid-template-columns:1fr 1.35fr}.op3-order{grid-column:1/-1}.op3-station-head{grid-template-columns:1fr}}
+@media(max-width:720px){.op3-station-grid{grid-template-columns:1fr}.op3-order{grid-column:auto}.op3-station-head h3{font-size:24px}}
+
+
+#op4Form .choice{line-height:1.55}
+#op4Form .choice input{margin-top:5px}
+.op4-review{margin:14px 0;padding:16px;border:1px solid var(--line);border-radius:14px;background:#151820}
+.op4-review.correct{border-color:rgba(110,231,183,.55)}
+.op4-review.incorrect{border-color:rgba(251,113,133,.55)}
+.op4-review h4{margin:0 0 8px}.op4-review p{margin:7px 0}
+
+
+.op4-config-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px;margin:16px 0}
+.config-box{display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--line2);border-radius:13px;background:#171c26}
+.config-box input,.config-box select{width:100%}
+.op4-slider-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.op4-slider-grid input[type=range]{accent-color:var(--accent)}
+.op4-timeline{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.op4-timeline span{padding:9px 12px;border:1px solid var(--line2);border-radius:999px;background:#171c26;font-family:ui-monospace,monospace}
+.op4-route{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0}
+.route-node{min-width:150px;padding:13px;border:1px solid var(--line2);border-radius:12px;background:#171c26;display:flex;flex-direction:column;gap:4px}
+.route-node span{font-size:13px;color:var(--muted)}
+.route-select{min-width:190px}.route-time{max-width:135px}
+@media(max-width:900px){.op4-config-grid{grid-template-columns:1fr 1fr}.op4-slider-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.op4-config-grid{grid-template-columns:1fr}}
+
+#detCause label{display:block;margin:9px 0;padding:12px 14px;border:1px solid var(--line2);border-radius:11px;background:#171c26;line-height:1.45}
+#detCause input{margin-right:9px;accent-color:var(--accent)}
+#detDesigns .choice,#detRecord .choice,#detView .choice{line-height:1.5;text-align:left}
+
+.judge-proposals{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.judge-card,.judge-scale button{border:1px solid var(--line2);border-radius:14px;background:#171c26;color:var(--ink);padding:16px;text-align:left;cursor:pointer;line-height:1.45}
+.judge-card b{display:block;margin-bottom:8px}.judge-card span{display:block;color:var(--muted);font-size:13px}
+.judge-card:hover,.judge-scale button:hover{border-color:var(--accent)}
+.judge-card.selected,.judge-scale button.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;background:rgba(196,181,253,.08)}
+.judge-criteria{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 16px}
+.judge-criteria label{padding:10px 12px;border:1px solid var(--line2);border-radius:10px;background:#171c26;font-size:13px}
+.judge-scale{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}
+@media(max-width:850px){.judge-proposals,.judge-scale{grid-template-columns:1fr}}
+
+/* Operator 03: release-room workspace, visually distinct from station cards */
+#s3 .d3-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,1fr);gap:16px;margin:18px 0}#s3 .d3-panel{background:linear-gradient(155deg,rgba(11,30,49,.95),rgba(22,31,55,.95));border:1px solid rgba(90,190,210,.35);border-radius:16px;padding:20px;min-width:0}#s3 .d3-pipeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}#s3 .d3-pipeline button{background:#142c42;color:#f0f8ff;border:1px solid #47637a;border-radius:12px;min-height:112px;padding:12px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}#s3 .d3-pipeline button:hover,#s3 .d3-pipeline button.d3-active{outline:2px solid #70d4e5}#s3 .d3-pipeline button.d3-done{border-color:#56cfa4;background:#173c43}#s3 .d3-pipeline small{color:#a9c7d5;font-size:11px}#s3 .d3-number{font-size:22px;font-weight:800;color:#72d9ec}#s3 .d3-drawer{background:#10263a;border:1px solid #395e73;border-radius:12px;padding:18px;min-height:95px}#s3 .d3-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:15px 0}#s3 .d3-fields label{display:grid;gap:6px;font-weight:650}#s3 .d3-fields select,#s3 .d3-fields input{padding:11px;border-radius:8px;border:1px solid #7890a0;background:#0a1d30;color:#fff;width:100%;min-width:0}#s3 .d3-meter{display:flex;align-items:baseline;gap:12px;margin:12px 0 18px}#s3 .d3-meter strong{font-size:34px;color:#86e0f0}#s3 .d3-health{display:grid;gap:7px}#s3 .d3-health>div{display:flex;justify-content:space-between;border-bottom:1px solid #334b5c;padding:6px 0;gap:8px}#s3 .d3-pass{color:#73e3b2}#s3 .d3-wait{color:#efc681}#s3 .d3-log{white-space:pre-wrap;font-family:monospace;font-size:12px;max-height:150px;overflow:auto;background:#0a1c2c;border-radius:8px;padding:12px}#s3 .d3-testcards{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}#s3 .d3-testcards button{background:#1d435b;color:#fff;border:1px solid #5c8a9c;border-radius:9px;padding:10px;cursor:pointer}#s3 .d3-testcards button:hover{background:#2a5a74}#s3 .d3-terminal,#s3 .d3-console{display:block;box-sizing:border-box;width:100%;background:#081724;color:#d8f9f3;border:1px solid #3f7b84;border-radius:10px;padding:14px;font:14px/1.6 monospace;white-space:pre-wrap;overflow:auto}#s3 .d3-console{min-height:140px;max-height:320px}#s3 .d3-decision{margin-top:15px;padding:14px;border-left:3px solid #70d4e5;background:#10263a;border-radius:6px}#s3 .d3-panel p{line-height:1.6}@media(max-width:950px){#s3 .d3-layout{grid-template-columns:1fr}#s3 .d3-pipeline{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){#s3 .d3-pipeline{grid-template-columns:1fr 1fr}#s3 .d3-panel{padding:13px}}
+
+/* Operator 04: dedicated operations desk layout */
+.o4dash{display:grid;grid-template-columns:205px minmax(0,1fr) 215px;gap:14px;align-items:start;margin:20px 0}
+.o4tickets{display:grid;gap:9px;position:sticky;top:12px}
+.o4ticket{display:flex;flex-direction:column;gap:8px;text-align:left;padding:15px 12px;border:1px solid var(--line,#3d4560);background:var(--panel,#141d33);color:inherit;border-radius:12px;cursor:pointer;font:inherit}
+.o4ticket.active{outline:2px solid #5ad1d4;background:rgba(49,190,195,.13)}
+.o4ticket small{opacity:.7;font-size:12px}
+.o4workbench,.o4side{border:1px solid var(--line,#3d4560);border-radius:14px;background:var(--panel,#141d33);padding:18px;min-width:0}
+.o4workhead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.o4workhead h3{margin:6px 0}
+.o4state{border:1px solid #6b7897;padding:5px 10px;border-radius:100px;font-size:11px;white-space:nowrap}
+.o4scenario{border:1px solid #455273;border-radius:10px;padding:12px;margin:16px 0;background:rgba(0,0,0,.14)}
+.o4scenario pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.65}
+.o4controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.o4controls label{display:grid;gap:7px;font-size:13px;font-weight:600}
+.o4controls select,.o4controls input{width:100%;padding:10px;border:1px solid #64708d;border-radius:8px;background:#111a2e;color:#fff;font:inherit}
+.o4results{margin-top:16px;padding:15px;border:1px solid #64708d;border-radius:10px;min-height:115px}
+.o4results p{margin:8px 0}.o4results table{width:100%;border-collapse:collapse;font-size:13px}.o4results td,.o4results th{padding:8px;border-bottom:1px solid #526078;text-align:left}
+.o4big{font-size:35px;font-weight:800;margin:12px 0}.o4shiftlog{font-size:13px;line-height:1.6;max-height:310px;overflow:auto}
+@media(max-width:1050px){.o4dash{grid-template-columns:190px minmax(0,1fr)}.o4side{grid-column:1/-1}}
+@media(max-width:680px){.o4dash{display:block}.o4tickets{position:static;grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:12px}.o4side{margin-top:12px}.o4controls{grid-template-columns:1fr}}
+
+/* Detective evidence reconstruction workspace */
+.d5-layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:16px;margin:20px 0;align-items:start}.d5-locker{position:sticky;top:12px;border:1px solid #52617b;border-radius:14px;padding:15px;background:#151d32}.d5-file{display:flex;flex-direction:column;gap:4px;width:100%;margin:8px 0;padding:12px;text-align:left;background:#1d2941;border:1px solid #4c5972;border-radius:9px;color:#f3f7ff;cursor:pointer;font:inherit}.d5-file.active{border-color:#54d4d3;background:#174252}.d5-file small{opacity:.7}.d5-progress{margin-top:18px;padding:12px;border-top:1px solid #64718b}.d5-main{min-width:0}.d5-pane,.d5-task{border:1px solid #52617b;border-radius:14px;padding:18px;margin-bottom:15px;background:#151d32}.d5-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.d5-pane pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:15px;background:#0b1323;border-radius:9px;line-height:1.7;font-size:13px}.d5-task h3{margin:8px 0}.d5-timeline,.d5-config{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:15px 0}.d5-task label{display:grid;gap:8px;margin:12px 0;font-size:14px}.d5-task select,.d5-task textarea{width:100%;min-width:0;padding:10px;border:1px solid #77839c;border-radius:8px;background:#0d1729;color:#fff;font:inherit}.d5-assess label{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,1fr);align-items:center;gap:12px;border-bottom:1px solid #43506a;padding:8px 0}.d5-feedback{margin:12px 0;padding:12px;border:1px solid #596b85;border-radius:9px;line-height:1.6}.d5-feedback:empty{display:none}#d5ReplayTable table{width:100%;border-collapse:collapse;font-size:13px}#d5ReplayTable td,#d5ReplayTable th{border-bottom:1px solid #52617b;padding:8px;text-align:left}@media(max-width:800px){.d5-layout{display:block}.d5-locker{position:static;margin-bottom:16px}.d5-timeline,.d5-config{grid-template-columns:1fr}}@media(max-width:520px){.d5-assess label{grid-template-columns:1fr}}
+
+/* Judge release authority workstation */
+.j6layout{display:grid;grid-template-columns:255px minmax(0,1fr);gap:16px;margin:20px 0}.j6rail,.j6main{border:1px solid #50617b;border-radius:14px;padding:18px;background:rgba(21,32,54,.75);min-width:0}.j6package{width:100%;display:grid;gap:7px;text-align:left;margin:10px 0;padding:13px;border:1px solid #63718c;border-radius:10px;background:rgba(26,40,65,.85);color:inherit;cursor:pointer;font:inherit}.j6package.active{outline:2px solid #4bd0d5}.j6package small{opacity:.7}.j6log{margin-top:15px;font-size:13px;line-height:1.5;min-height:80px}.j6head{display:flex;justify-content:space-between;gap:12px;align-items:center}.j6status{border:1px solid #6d819c;padding:6px 9px;border-radius:30px;font-size:11px}.j6spec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0 24px}.j6spec>div{border:1px solid #526681;border-radius:8px;padding:11px;font-size:13px}.j6testrow{display:flex;flex-wrap:wrap;gap:8px}.j6console{border:1px solid #4d617c;border-radius:10px;margin:14px 0 22px;padding:16px;min-height:160px;background:#0d1628;font-size:13px;line-height:1.65}.j6console pre{white-space:pre-wrap;overflow-wrap:anywhere}.j6choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.j6choices button{background:rgba(31,48,75,.8);color:inherit;border:1px solid #64738f;border-radius:10px;padding:13px;font:inherit;cursor:pointer}.j6choices button.selected{outline:2px solid #4bd0d5}.j6label{display:grid;gap:9px;margin-top:18px;font-weight:600}.j6label textarea{min-height:130px;width:100%}@media(max-width:850px){.j6layout{grid-template-columns:1fr}.j6spec{grid-template-columns:1fr}}@media(max-width:520px){.j6choices{grid-template-columns:1fr}}
+
+/* Collapsible main navigation: retains every existing lab control. */
+.app{grid-template-columns:292px minmax(0,1fr);transition:grid-template-columns .2s ease}
+.app.menu-collapsed{grid-template-columns:64px minmax(0,1fr)}
+.side{padding:20px 12px;min-width:0;overflow-x:hidden}
+.menu-toggle{display:flex;align-items:center;justify-content:center;width:40px;height:40px;margin:0 0 15px;border:1px solid #45536a;border-radius:10px;background:#202633;color:#fff;cursor:pointer;font-size:22px}
+.menu-toggle:hover{background:#30394b}
+.app.menu-collapsed .side .brand,.app.menu-collapsed .side .sub,.app.menu-collapsed .side .progress,.app.menu-collapsed .side .nav,.app.menu-collapsed .side .sidefoot{display:none}
+.main{min-width:0}
+@media(max-width:850px){.app,.app.menu-collapsed{grid-template-columns:minmax(0,1fr)}.side{height:auto;position:relative}.app.menu-collapsed .side{padding:10px 12px}.app.menu-collapsed .menu-toggle{margin:0}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+ <button class="menu-toggle" id="menuToggle" type="button" aria-label="Collapse navigation menu" aria-expanded="true" aria-controls="nav" title="Collapse navigation">☰</button>
+ <div class="brand"><b>SIGNAL</b>BRIDGE // OPS</div>
+ <div class="sub">Splunk Operations Practicum · 40 min</div>
+ <div class="progress"><div class="bar" id="bar"></div></div>
+ <div class="sub" id="prog">0 of 8 checkpoints completed</div>
+ <div class="nav" id="nav"></div>
+ <div class="sidefoot"><b>Role</b><br>Junior Splunk Operations Analyst<br><br><b>Mission</b><br>Enrich ambiguous telemetry, build defensible monitoring, and brief the operations lead.</div>
+</aside>
+<main class="main">
+<section class="screen active" id="s0">
+ <div class="hero">
+  <div class="eyebrow">Northstar Commerce // Operations Intelligence</div>
+  <h1>Turn raw events into actionable signals.</h1>
+  <p class="lead">A release introduced new web telemetry, but the operations team sees numeric HTTP status codes with little context. Leadership also wants monitoring that catches meaningful failures without flooding responders.</p>
+  <div class="grid">
+   <div class="card third"><div class="metric">12 min</div><b>Operator · Apply</b><p class="sub">Build the enrichment and monitoring foundation.</p></div>
+   <div class="card third"><div class="metric">15 min</div><b>Detective · Analyze</b><p class="sub">Trace evidence, diagnose weak configurations.</p></div>
+   <div class="card third"><div class="metric">10 min</div><b>Judge · Evaluate</b><p class="sub">Defend a production monitoring decision.</p></div>
+  </div>
+  <div class="brief"><b>Mission brief:</b> The web index contains <code>status</code> values, but responders need human-readable meaning. Your work must connect the event field to a lookup, prove the enrichment works, then design alert behavior appropriate to the operational condition.</div>
+  <button class="btn" onclick="go(1)">Enter Operations Console →</button>
+ </div>
+</section>
+
+
+<section class="screen" id="s1">
+<div class="eyebrow">Operator 01 · Guided Lookup Triage</div>
+<h2>Investigate the missing context</h2>
+<p class="lead">You are the on-duty Splunk analyst. A checkout failure is being investigated, but the web event only provides a numeric HTTP code. Follow the evidence through four hands-on stations to enrich the event without changing the original record.</p>
+<div class="brief"><b>Mission:</b> Identify the event's missing context, connect it to the correct reference row, choose enrichment fields, and verify a second event. <b>How to work:</b> Complete each station in order. You may revise selections before submitting; explanations appear after you complete the full investigation.</div>
+<div class="workflow"><span class="step">1 · Examine event</span><span class="arrow">→</span><span class="step">2 · Match reference</span><span class="arrow">→</span><span class="step">3 · Enrich event</span><span class="arrow">→</span><span class="step">4 · Verify</span></div>
+<div class="task">
+<div class="eyebrow">Station 01 · Event inspection</div><h3>What does the event tell you—and what is missing?</h3>
+<div class="split"><div class="card"><b>Incoming Splunk event</b><div class="artifact">2026-09-19 14:22:08
+index=web sourcetype=access_combined
+host=web-03
+clientip=10.20.5.18
+method=GET
+uri=/checkout
+status=404
+bytes=1837</div></div><div class="card"><b>Operations ticket · INC-4102</b><p>“Checkout requests are failing. Analysts need to see what each HTTP status means and which response category it belongs to. Preserve the numeric code for searching and auditing.”</p><p class="sub">Select the field to investigate. This does not alter the event.</p><div id="triageFields" class="op2-pick"><button class="choice" type="button" data-value="host">host · web-03</button><button class="choice" type="button" data-value="uri">uri · /checkout</button><button class="choice" type="button" data-value="status">status · 404</button><button class="choice" type="button" data-value="clientip">clientip · 10.20.5.18</button></div></div></div>
+<div class="btnrow"><button class="btn secondary" type="button" onclick="triageNext(1)">Record field and continue</button></div><div class="feedback" id="triageF1"></div></div>
+<div class="task" id="triageStation2" hidden>
+<div class="eyebrow">Station 02 · Reference investigation</div><h3>Locate the corresponding row</h3><p>The approved lookup <code>http_status.csv</code> contains the following records. Select the row that corresponds to the original event, then choose the common match field.</p>
+<div class="artifact">status,status_description,status_type
+200,OK,Successful
+401,Unauthorized,Client Error
+404,Not Found,Client Error
+500,Internal Server Error,Server Error
+503,Service Unavailable,Server Error</div>
+<div class="grid"><div class="card"><b>Matching reference row</b><div id="triageRows" class="op2-pick"><button class="choice" type="button" data-value="200">200 · OK</button><button class="choice" type="button" data-value="401">401 · Unauthorized</button><button class="choice" type="button" data-value="404">404 · Not Found</button><button class="choice" type="button" data-value="503">503 · Service Unavailable</button></div></div><div class="card"><b>Match field</b><div id="triageKeys" class="op2-pick"><button class="choice" type="button" data-value="clientip">clientip</button><button class="choice" type="button" data-value="status">status</button><button class="choice" type="button" data-value="status_description">status_description</button><button class="choice" type="button" data-value="host">host</button></div></div></div>
+<div class="btnrow"><button class="btn secondary" type="button" onclick="triageNext(2)">Record lookup match and continue</button></div><div class="feedback" id="triageF2"></div></div>
+<div class="task" id="triageStation3" hidden>
+<div class="eyebrow">Station 03 · Enrichment design</div><h3>Choose what Splunk should add</h3><p>Select <b>exactly two</b> fields to return from the matched lookup row. The original event fields must remain unchanged.</p>
+<div id="triageOutputs" class="op2-pick"><button class="choice" type="button" data-value="status">status · HTTP code</button><button class="choice" type="button" data-value="status_description">status_description · readable meaning</button><button class="choice" type="button" data-value="status_type">status_type · response category</button><button class="choice" type="button" data-value="host">host · originating server</button></div>
+<p class="sub" id="triageOutputCount">0 fields selected</p>
+<div class="artifact" id="triagePreview">Enrichment preview will appear when two fields are selected.</div>
+<div class="btnrow"><button class="btn secondary" type="button" onclick="triageNext(3)">Record enrichment and continue</button></div><div class="feedback" id="triageF3"></div></div>
+<div class="task" id="triageStation4" hidden>
+<div class="eyebrow">Station 04 · Transfer verification</div><h3>Apply the same lookup to a new event</h3>
+<div class="artifact">host=web-01 clientip=10.20.8.44
+method=POST uri=/payment status=503</div>
+<p>Choose the expected description and category for this event. The lookup relationship should still work even when the host and URI change.</p>
+<div id="triageTransfer" class="op2-pick"><button class="choice" type="button" data-value="a">Internal Server Error · Server Error</button><button class="choice" type="button" data-value="b">Service Unavailable · Client Error</button><button class="choice" type="button" data-value="c">Not Found · Client Error</button><button class="choice" type="button" data-value="d">Service Unavailable · Server Error</button></div>
+<div class="btnrow"><button class="btn amber" type="button" onclick="triageSubmit()">Submit investigation and reveal debrief</button><button class="btn secondary" type="button" onclick="triageReset()">Reset Operator 01</button></div><div class="feedback" id="triageF4"></div></div>
+<div class="task" id="triageDebrief" hidden><div class="eyebrow">Investigation debrief</div><h3>See what Splunk matched and why</h3><div id="triageReview"></div><div class="split"><div class="card"><b>Original event</b><div class="artifact">host=web-03
+uri=/checkout
+status=404</div></div><div class="card"><b>Enriched event</b><div class="artifact">host=web-03
+uri=/checkout
+status=404
+status_description=Not Found
+status_type=Client Error</div></div></div><p><b>Splunk SPL example:</b></p><div class="artifact">index=web sourcetype=access_combined
+| lookup http_status status OUTPUT status_description status_type
+| table host uri status status_description status_type</div><p class="sub">This is a guided simulation; the example SPL illustrates the equivalent search-time enrichment in Splunk.</p></div>
+<div class="btnrow"><button class="btn" id="opContinue" type="button" onclick="go(2)" disabled>Complete investigation to continue</button></div>
+</section><section class="screen" id="s2">
+<div class="eyebrow">Operator 02 · Lookup Quality Assurance</div><h2>Investigate an enrichment gap</h2>
+<p class="lead">Your lookup is deployed, but the service desk reports that some web events still lack descriptions. In this lab, you will operate a simulated Splunk investigation: run searches, inspect lookup coverage, choose a safe fix, and verify the results.</p>
+<div class="brief"><b>Case INC-4821:</b> A monitoring dashboard shows a blank <code>status_description</code> for some responses. Your task is to determine whether the lookup is broken, the input field is wrong, or the reference data is incomplete. <b>Complete each station in sequence.</b> Decisions are reviewed in the final debrief.</div>
+<div class="workflow"><span class="step">1 · Inspect events</span><span class="arrow">→</span><span class="step">2 · Inspect lookup</span><span class="arrow">→</span><span class="step">3 · Diagnose</span><span class="arrow">→</span><span class="step">4 · Validate</span></div>
+<div class="task"><div class="eyebrow">Station 01 · Search console</div><h3>Run an enrichment search</h3><p>Select the search that preserves the original events and adds the two descriptive fields. Then click <b>Run Search</b> to see simulated results.</p>
+<div id="op2SearchChoices" class="op2-pick">
+<button type="button" class="choice" data-value="aggregate"><code>index=web | stats count by status</code><span class="sub">Summarize HTTP codes</span></button>
+<button type="button" class="choice" data-value="enrich"><code>index=web | lookup http_status status OUTPUT status_description status_type</code><span class="sub">Add lookup context to each event</span></button>
+<button type="button" class="choice" data-value="inspect"><code>| inputlookup http_status</code><span class="sub">Read reference records</span></button>
+</div><div class="btnrow"><button class="btn amber" type="button" onclick="op2RunSearch()">Run Search</button></div><div id="op2SearchResult" class="artifact" aria-live="polite">Search results will appear here.</div><div class="feedback" id="op2SearchFeedback"></div></div>
+<div class="task" id="op2Station2" hidden><div class="eyebrow">Station 02 · Lookup inspection</div><h3>Check what the reference table actually contains</h3><p>The event with status <code>429</code> has no description. Use the lookup inspector to check whether the reference table includes that code.</p>
+<div class="split"><div class="card"><b>Lookup inspector</b><div class="artifact">| inputlookup http_status</div><label for="op2Filter"><b>Filter reference rows by status</b></label><select id="op2Filter" class="decision"><option value="all">Show all</option><option value="404">404</option><option value="429">429</option><option value="503">503</option></select><div class="btnrow"><button class="btn secondary" type="button" onclick="op2Inspect()">Inspect Lookup</button></div></div><div class="card"><b>Reference results</b><div class="artifact" id="op2LookupResult">Select a filter and inspect the reference data.</div></div></div><div class="btnrow"><button class="btn secondary" type="button" onclick="op2Advance(2)">Record inspection and continue</button></div><div class="feedback" id="op2InspectFeedback"></div></div>
+<div class="task" id="op2Station3" hidden><div class="eyebrow">Station 03 · Root-cause decision</div><h3>Explain the missing description</h3><p>Based on the event search and the lookup contents, select the most defensible diagnosis. Then choose a corrective action that preserves the original evidence.</p>
+<div class="split"><div class="card"><b>Likely root cause</b><div class="op2-pick" id="op2Causes"><button type="button" class="choice" data-value="key">The event uses a different field name from the lookup key.</button><button type="button" class="choice" data-value="missing">The lookup has no matching row for one of the event status values.</button><button type="button" class="choice" data-value="index">The web index contains no events for the affected host.</button><button type="button" class="choice" data-value="overwrite">The lookup replaced the original status code with its description.</button></div></div><div class="card"><b>Corrective action</b><div class="op2-pick" id="op2Fixes"><button type="button" class="choice" data-value="replace">Replace status=429 with status=404 in the source event.</button><button type="button" class="choice" data-value="disable">Disable enrichment for all web events until the next release.</button><button type="button" class="choice" data-value="add">Add a reviewed 429 reference row and retest the enrichment.</button><button type="button" class="choice" data-value="ignore">Hide events with missing descriptions from analyst searches.</button></div></div></div>
+<div class="btnrow"><button class="btn secondary" type="button" onclick="op2Advance(3)">Record diagnosis and continue</button></div><div class="feedback" id="op2DiagnosisFeedback"></div></div>
+<div class="task" id="op2Station4" hidden><div class="eyebrow">Station 04 · Change verification</div><h3>Test the proposed fix against the same events</h3><p>Use the <b>Apply Proposed Change</b> button to simulate your chosen action. Then choose which verification evidence would justify closing the ticket.</p>
+<div class="btnrow"><button class="btn amber" type="button" onclick="op2ApplyFix()">Apply Proposed Change</button></div><div class="artifact" id="op2VerifyResult">No change simulated yet.</div><div id="op2Verification" class="op2-pick"><button class="choice" type="button" data-value="counts">Only the total number of indexed events stays the same.</button><button class="choice" type="button" data-value="preserved">The original status values remain, and all three sample events have accurate descriptions and categories.</button><button class="choice" type="button" data-value="hidden">The dashboard no longer displays any event with a blank description.</button></div><div class="btnrow"><button class="btn amber" type="button" onclick="op2Submit()">Submit investigation and review</button><button class="btn secondary" type="button" onclick="op2Reset()">Reset Operator 02</button></div><div class="feedback" id="op2VerifyFeedback"></div></div>
+<div class="task" id="op2Debrief" hidden><div class="eyebrow">Operator 02 · Investigation debrief</div><h3>Evidence, decisions, and the Splunk connection</h3><div id="op2Review"></div><div class="artifact">index=web
+| lookup http_status status OUTPUT status_description status_type
+| table host uri status status_description status_type</div><p><b>Lesson connection:</b> <code>lookup</code> enriches search events, while <code>inputlookup</code> inspects reference data directly. An unmatched key can leave output fields empty; this does not necessarily mean the lookup command failed. In production, update the approved lookup source through change control, verify permissions, and test the result.</p></div>
+<div class="btnrow"><button class="btn" type="button" id="op2Continue" onclick="go(3)" disabled>Complete Operator 02 to continue</button></div>
+</section><section class="screen" id="s3">
+<div class="eyebrow">Operator 03 · Change Control Mission</div><h2>The Lookup Release Room</h2>
+<p class="lead">Your team has a maintenance window to release HTTP status enrichment. This time, you are not completing a questionnaire. You are operating a simulated deployment room: move artifacts through a release pipeline, use a terminal to run acceptance tests, and make a go/no-go decision.</p>
+<div class="brief"><b>Change CHG-2048:</b> Publish <code>http_codes.csv</code> for the <code>search</code> app; expose a lookup definition named <code>http_codes</code>; enrich <code>access_combined</code> events by <code>status</code> with <code>status_description</code> and <code>status_type</code>. <b>Release rule:</b> Do not approve production until both manual and automatic enrichment tests pass.</div>
+<div class="d3-layout"><div class="d3-panel"><div class="eyebrow">Release board · select a component</div><h3>Deployment pipeline</h3><p class="sub">Select any node to open its configuration drawer. You may inspect them in any order, but dependencies are enforced.</p><div class="d3-pipeline" id="d3Pipeline">
+<button type="button" data-node="file"><span class="d3-number">01</span><b>CSV artifact</b><small id="d3TagFile">Pending</small></button>
+<button type="button" data-node="definition"><span class="d3-number">02</span><b>Lookup definition</b><small id="d3TagDefinition">Blocked</small></button>
+<button type="button" data-node="access"><span class="d3-number">03</span><b>Access policy</b><small id="d3TagAccess">Blocked</small></button>
+<button type="button" data-node="automatic"><span class="d3-number">04</span><b>Automatic lookup</b><small id="d3TagAutomatic">Blocked</small></button>
+</div><div id="d3Drawer" class="d3-drawer" aria-live="polite"><b>Select a pipeline component to configure it.</b></div></div>
+<div class="d3-panel"><div class="eyebrow">Operations telemetry</div><h3>Release health</h3><div class="d3-meter"><strong id="d3Count">0 / 6</strong><span>release checks passed</span></div><div id="d3Health" class="d3-health"></div><h4>Change activity</h4><div class="d3-log" id="d3Audit" aria-live="polite">No deployment actions recorded.</div></div></div>
+<div class="d3-panel"><div class="eyebrow">Validation workstation · simulated SPL</div><h3>Search & acceptance terminal</h3><p>Run the checks when their dependencies are ready. You can type a supported SPL command or select a test card to load it into the terminal.</p><div class="d3-testcards"><button type="button" data-query="| inputlookup http_codes | where status_type="Server Error"">Inspect server-error rows</button><button type="button" data-query="index=web sourcetype=access_combined | lookup http_codes status OUTPUT status_description status_type | table host status status_description status_type">Manual enrichment test</button><button type="button" data-query="index=web sourcetype=access_combined | table host status status_description status_type">Automatic enrichment test</button></div><label for="d3Terminal"><b>SPL search</b></label><textarea id="d3Terminal" class="d3-terminal" spellcheck="false" rows="3" placeholder="Enter a supported SPL test query…"></textarea><div class="btnrow"><button class="btn amber" id="d3Execute" type="button">Run test</button><button class="btn secondary" id="d3Help" type="button">Show supported commands</button></div><pre class="d3-console" id="d3Console" aria-live="polite">splunk-sim> Waiting for a search.</pre></div>
+<div class="d3-layout"><div class="d3-panel"><div class="eyebrow">Release decision</div><h3>Go / no-go gate</h3><p>Review the health indicators, then make the final change decision. A premature release will be rejected and explained.</p><div class="btnrow"><button class="btn amber" id="d3Release" type="button">Approve release</button><button class="btn secondary" id="d3Hold" type="button">Place change on hold</button><button class="btn secondary" id="d3Rollback" type="button">Rollback deployment</button></div><div id="d3Decision" class="d3-decision" aria-live="polite">No release decision recorded.</div></div><div class="d3-panel"><div class="eyebrow">After-action learning</div><h3>What each component accomplishes</h3><div id="d3Lesson" class="d3-drawer">The release debrief becomes available when you approve a validated deployment.</div><div class="btnrow"><button type="button" class="btn secondary" id="d3Reset">Restart mission</button><button type="button" class="btn" onclick="go(4)">Continue to Operator 04 →</button></div></div></div>
+</section><section class="screen" id="s4">
+<div class="eyebrow">Operator 04 · Monitoring Control Room</div>
+<h2>Alert Operations: Live Shift</h2>
+<p class="lead">You are taking over the monitoring desk. Four requests are waiting in the dispatch queue. Choose a request, configure its detection behavior, and replay events to observe what actually triggers, what is suppressed, and what gets delivered.</p>
+<div class="brief"><b>Your objective:</b> Commission four monitoring controls before handing over to the Detective. <b>Workflow:</b> Open a ticket → adjust its configuration → replay sample activity → inspect the results → commission the control. The simulator uses sample events, not a live Splunk instance.</div>
+<div class="o4dash">
+ <div class="o4tickets" id="o4Tickets">
+  <button class="o4ticket active" type="button" onclick="o4Open(0)"><span>OPS-401 · Sales</span><small id="o4Ticket0">Not commissioned</small></button>
+  <button class="o4ticket" type="button" onclick="o4Open(1)"><span>NOC-402 · Web errors</span><small id="o4Ticket1">Not commissioned</small></button>
+  <button class="o4ticket" type="button" onclick="o4Open(2)"><span>SEC-403 · Authentication</span><small id="o4Ticket2">Not commissioned</small></button>
+  <button class="o4ticket" type="button" onclick="o4Open(3)"><span>RPT-404 · Leadership</span><small id="o4Ticket3">Not commissioned</small></button>
+ </div>
+ <div class="o4workbench">
+  <div class="o4workhead"><div><div class="eyebrow" id="o4CaseId">OPS-401 · CHANGE REQUEST</div><h3 id="o4CaseTitle">End-of-day sales guardrail</h3></div><span class="o4state" id="o4CaseState">DRAFT</span></div>
+  <p id="o4CaseBrief"></p>
+  <div class="o4scenario"><b>Sample event feed</b><pre id="o4EventFeed"></pre></div>
+  <div class="o4workhead"><h3>Detection policy</h3><span class="sub">Change settings, then replay</span></div>
+  <div id="o4DynamicControls" class="o4controls"></div>
+  <div class="btnrow"><button class="btn amber" type="button" onclick="o4Replay()">▶ Replay activity</button><button class="btn secondary" type="button" onclick="o4ResetCase()">Reset this ticket</button></div>
+  <div class="o4results" id="o4ReplayResults"><b>Awaiting replay</b><p>Configure the policy and replay the sample events to see its operational behavior.</p></div>
+  <div class="btnrow"><button class="btn" type="button" id="o4Commission" onclick="o4CommissionCase()" disabled>Commission this control</button></div>
+ </div>
+ <aside class="o4side"><h3>Shift dashboard</h3><p class="sub">Commissioning progress</p><div class="o4big" id="o4Count">0 / 4</div><div id="o4ShiftLog" class="o4shiftlog"><p>Shift started. No controls commissioned.</p></div><div class="brief"><b>Analyst note:</b> An alert needs a trigger condition. A scheduled report delivers on completion, even when nothing abnormal happens.</div></aside>
+</div>
+<div class="task"><h3>Shift handoff</h3><p id="o4Handoff">Commission all four controls to unlock the investigation handoff.</p><button class="btn" type="button" id="o4Continue" onclick="go(5)" disabled>Complete the shift to continue</button></div>
+</section><section class="screen" id="s5">
+<div class="eyebrow">Detective · Evidence Reconstruction</div><h2>Casefile 186: The Alert Flood</h2>
+<p class="lead">The NOC received 186 web-error notifications during one incident. Investigate the alert history, reconstruct the mechanism, test a proposed fix, and write an evidence-based handoff. This is a forensic workspace, not a multiple-choice quiz.</p>
+<div class="brief"><b>Assignment:</b> Establish what happened and why. Use the tabs in the evidence locker, then assemble the timeline, run a counterfactual replay, and submit the handoff. The evidence is simulated and is independent of the settings you configured in Operator 04.</div>
+<div class="d5-layout"><aside class="d5-locker"><h3>Evidence locker</h3><p class="sub">Open each source to examine it.</p>
+<button type="button" class="d5-file active" onclick="d5Open(0)">A · Web events <small>Raw telemetry</small></button>
+<button type="button" class="d5-file" onclick="d5Open(1)">B · Alert rule <small>Detection configuration</small></button>
+<button type="button" class="d5-file" onclick="d5Open(2)">C · Trigger log <small>Notification history</small></button>
+<button type="button" class="d5-file" onclick="d5Open(3)">D · NOC report <small>Analyst observations</small></button>
+<button type="button" class="d5-file" onclick="d5Open(4)">E · Retention <small>Triggered-alert record</small></button>
+<div class="d5-progress"><b>Investigation status</b><p id="d5Status">0 / 4 tasks completed</p></div></aside>
+<div class="d5-main"><div class="d5-pane"><div class="d5-head"><h3 id="d5EvidenceTitle">A · Web events</h3><span id="d5EvidenceTag">RAW</span></div><pre id="d5EvidenceBody"></pre><p class="sub" id="d5EvidenceHelp"></p></div>
+<div class="d5-task"><div class="eyebrow">Investigation 01 · Reconstruct the timeline</div><h3>Place four observations in chronological order</h3><p>Use the event and trigger records to establish the sequence. Some observations occur within the same second. Use both event and alert records to establish the most defensible sequence.</p><div id="d5Timeline" class="d5-timeline"></div><button class="btn secondary" type="button" onclick="d5RecordTimeline()">Record timeline</button><div id="d5TimelineFeedback" class="d5-feedback"></div></div>
+<div class="d5-task"><div class="eyebrow">Investigation 02 · Hypothesis lab</div><h3>Change one alert setting and replay the same events</h3><p>Determine whether the alert flood came from repeated events, the trigger configuration, or how records were retained. Compare baseline and proposed results.</p><div class="d5-config"><label>Trigger mode<select id="d5Mode" onchange="d5Invalidate()"><option value="per">Real-time · per result</option><option value="scheduled">Scheduled · one evaluation</option></select></label><label>Suppression key<select id="d5Key" onchange="d5Invalidate()"><option value="none">None</option><option value="status">HTTP status</option><option value="host">Host</option></select></label><label>Suppression duration<select id="d5Minutes" onchange="d5Invalidate()"><option value="0">0 minutes</option><option value="30">30 minutes</option><option value="60">60 minutes</option></select></label></div><button class="btn amber" type="button" onclick="d5Replay()">▶ Run counterfactual replay</button><div class="d5-feedback" id="d5ReplayFeedback">No simulation run yet.</div><div id="d5ReplayTable"></div></div>
+<div class="d5-task"><div class="eyebrow">Investigation 03 · Evidence assessment</div><h3>Separate the cause from supporting details</h3><p>Assign each item a role in the investigation. Classify each observation by its relationship to the notification volume, using the evidence rather than its label.</p><div class="d5-assess" id="d5Assess"></div><button class="btn secondary" type="button" onclick="d5RecordAssessment()">Record evidence assessment</button><div class="d5-feedback" id="d5AssessFeedback"></div></div>
+<div class="d5-task"><div class="eyebrow">Investigation 04 · Analyst handoff</div><h3>Write the operational conclusion</h3><p>Choose the most defensible finding, then document the next investigative action. Several conclusions may sound operationally reasonable. Select the one best supported by the complete evidence set.</p><label>Finding<select id="d5Finding"><option value="">Select the finding most consistent with the evidence</option><option value="severity">The elevated severity made the burst more disruptive; adjusting severity would reduce the notification count while preserving event-level coverage.</option><option value="lookup">Incomplete lookup enrichment may have grouped multiple service failures together; restoring field context should normalize the alert rate.</option><option value="retention">The retained alert records accumulated during the incident; reducing their expiration interval should limit future duplicate notifications.</option><option value="suppression">A sustained 503 burst was evaluated per result without suppression; separate matching events therefore produced repeated notifications.</option><option value="timing">The monitoring schedule evaluated overlapping activity too frequently; widening its interval should prevent duplicate notifications without changing coverage.</option></select></label><label>Recommended next step<select id="d5Next"><option value="">Select the next investigation action</option><option value="compare">Compare alert severity and notification routing across the NOC team, then downgrade the rule before inspecting the web events.</option><option value="results">Open the triggering search results, correlate affected hosts and request patterns, and investigate the service fault separately from alert noise.</option><option value="retune">Extend the alert-record expiration and compare the retained count with new notifications before investigating the originating traffic.</option><option value="close">Document the alert configuration as the incident root cause, close the service investigation, and schedule a post-change review.</option><option value="lookup">Rebuild the HTTP status lookup and validate field enrichment before reviewing the triggering search or service telemetry.</option></select></label><label>Analyst notes (optional)<textarea id="d5Notes" rows="3" placeholder="What evidence supports your finding?"></textarea></label><button class="btn amber" type="button" onclick="d5Submit()">Submit casefile and reveal debrief</button><div id="d5Debrief" class="d5-feedback"></div></div>
+<div class="btnrow"><button class="btn secondary" type="button" onclick="d5Reset()">Reset casefile</button><button class="btn" type="button" id="detContinue" onclick="go(6)" disabled>Submit the casefile to continue</button></div>
+</div></div></section><section class="screen" id="s6"><div class="eyebrow">Judge · Production Decision</div><h2>Release Authority: Change Advisory Board</h2><p class="lead">The incident is understood, but a production change is not automatically safe. You are the release authority. Inspect three competing release packages, run operational acceptance tests, document residual risk, and issue a conditional approval or rejection.</p><div class="brief"><b>Change board · CAB-2048:</b> Reduce repeated 5xx notifications without losing timely visibility into distinct error statuses. Keep triggered records available for investigation. Deliver the daily sales report at 08:00 even on normal days. <b>Decision process:</b> Explore packages, test behavior, and record the disposition. The review explains the tradeoffs only after submission.</div>
+<div class="j6layout"><aside class="j6rail"><h3>Release candidates</h3><div id="j6Packages"></div><p class="sub">Choose any package to load its configuration into the test bench.</p><h3>Review checklist</h3><div id="j6Progress">0 of 3 acceptance tests run</div><div id="j6Log" class="j6log">Awaiting release evaluation.</div></aside><div class="j6main"><div class="j6head"><div><div class="eyebrow" id="j6Name">PACKAGE A</div><h3>Production behavior workbench</h3></div><span class="j6status" id="j6Status">NOT TESTED</span></div><div class="j6spec" id="j6Spec"></div><h3>Acceptance test bench</h3><p class="sub">Run each test. The observed behavior depends on the currently selected release package.</p><div class="j6testrow"><button class="btn secondary" type="button" onclick="j6Test(0)">▶ Test A · Timeliness</button><button class="btn secondary" type="button" onclick="j6Test(1)">▶ Test B · Duplicate control</button><button class="btn secondary" type="button" onclick="j6Test(2)">▶ Test C · Evidence & delivery</button></div><div class="j6console" id="j6Console" aria-live="polite">Select an acceptance test to generate operational evidence.</div><h3>Release board decision</h3><p>Which package should be deployed, and what should happen to the release?</p><div class="j6choices" id="j6Decision"><button type="button" data-v="approve">Approve selected package</button><button type="button" data-v="conditional">Approve subject to specified changes</button><button type="button" data-v="reject">Reject selected package</button></div><label class="j6label">Risk register / release rationale<textarea id="j6Rationale" class="decision" placeholder="Describe the timing, suppression key, record retention, report delivery, and any release conditions. Explain the operational impact, not only the settings."></textarea></label><div class="btnrow"><button class="btn amber" type="button" onclick="j6Submit()">Submit change-board decision</button><button class="btn secondary" type="button" onclick="j6Reset()">Reset release board</button></div><div class="feedback" id="j6Feedback"></div></div></div><div class="task" id="j6Debrief" hidden><div class="eyebrow">Release review · Debrief</div><h3>Production decision analysis</h3><div id="j6Review"></div></div><div class="btnrow"><button class="btn" type="button" id="judgeContinue" onclick="go(7)" disabled>Complete release review to continue</button></div></section><section class="screen" id="s7">
+ <div class="eyebrow">Debrief · 3 minutes</div><h2>Your operating model</h2>
+ <div class="grid">
+  <div class="card"><h3>Lookups</h3><p>External context becomes useful when Splunk can match a shared field. A lookup definition names and points to the lookup table; <code>lookup</code> enriches events, <code>inputlookup</code> reads a lookup table, and <code>outputlookup</code> writes supported search results to a static lookup/KV store. Automatic lookups apply at search time without manual invocation.</p></div>
+  <div class="card"><h3>Alerts</h3><p>An alert combines a saved search, timing/type, trigger condition and action. Scheduled alerts check on a schedule; real-time alerts monitor continuously. Throttling suppresses subsequent alerts for a defined period.</p></div>
+  <div class="card"><h3>Triggered Alerts</h3><p>Triggered Alert records appear when the action is enabled, the alert has triggered recently, retention has not expired, and the listing has not been deleted. Viewing results provides a starting point for troubleshooting.</p></div>
+  <div class="card"><h3>Report ≠ Alert</h3><p>A scheduled report performs its action whenever it completes. A scheduled alert performs its action only when its trigger condition is met.</p></div>
+ </div>
+ 
+ <div class="card full"><h3>Source coverage check · both lessons</h3>
+  <p><b>200.7:</b> lookup purpose; paired fields; CSV, External, KV Store, Geospatial; lookup table files; lookup definitions; CSV structure/restrictions; Settings → Lookups; viewing lookup files; <code>inputlookup</code> + filtering; file upload/capability; permissions; definition creation; <code>lookup</code> + OUTPUT; comparison of unenriched vs enriched results; automatic lookup configuration/permissions/verification; <code>outputlookup</code> and its external-lookup limitation.</p>
+  <p><b>200.8:</b> alert purpose/workflow; saved search; scheduled vs real-time; trigger conditions; throttling; actions; daily-sales scheduled alert; expiration and severity; scheduled report vs scheduled alert; real-time per-result; HTTP-error throttling; rolling-window failed-login pattern; Alerts page management; Triggered Alerts conditions/retention; View results and troubleshooting.</p>
+ </div>
+<div class="task"><h3>One-minute reflection</h3><p>What distinction became clearer, and what would you inspect first if a Splunk alert began flooding responders?</p><textarea class="decision" placeholder="Capture your takeaway..."></textarea></div>
+ <div class="btnrow"><button class="btn" onclick="complete()">Finish practicum</button><button class="btn secondary" onclick="go(0)">Restart</button></div>
+</section>
+</main></div><div class="toast" id="toast"></div>
+<script>
+const menuToggle=document.getElementById('menuToggle');
+menuToggle.addEventListener('click',()=>{
+ const collapsed=document.querySelector('.app').classList.toggle('menu-collapsed');
+ menuToggle.setAttribute('aria-expanded',String(!collapsed));
+ menuToggle.setAttribute('aria-label',collapsed?'Expand navigation menu':'Collapse navigation menu');
+ menuToggle.title=collapsed?'Expand navigation':'Collapse navigation';
+});
+const screens=[
+["Mission","Briefing"],["Operator 01","Lookup Architecture"],["Operator 02","Enrich"],["Operator 03","Build & Commands"],["Operator 04","Monitor"],["Detective","Analyze"],["Judge","Evaluate"],["Debrief","Transfer"]
+];
+let done=new Set();
+const nav=document.getElementById('nav');
+screens.forEach((x,i)=>{let b=document.createElement('button');b.innerHTML=x[0]+"<small>"+x[1]+"</small>";b.onclick=()=>go(i);nav.appendChild(b)});
+function go(n){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById('s'+n).classList.add('active');document.querySelectorAll('.nav button').forEach((x,i)=>x.classList.toggle('active',i===n));window.scrollTo({top:0,behavior:'smooth'});if(n>0){done.add(n-1);progress()}}
+function progress(){let p=Math.min(100,Math.round(done.size/8*100));document.getElementById('bar').style.width=p+'%';document.getElementById('prog').textContent=done.size+' of 8 checkpoints completed'}
+function hint(btn){btn.nextElementSibling.classList.toggle('show')}
+const feedback={
+old_opnotice:["Correct. <code>404</code> is the value we want the lookup to explain. The event already tells us the client IP and URI; the missing context is what the status code means.","Look for the value that is present but not yet explained. In this example, that is the HTTP status code <code>404</code>."],
+opfind:["Correct. The event contains <code>status=404</code>, so we locate the lookup row with the same status value. That row tells us <code>404 = Not Found</code> and classifies it as a <code>Client Error</code>.","Match the lookup row to the exact status value in the event: <code>404</code>."],
+old_opconnect:["Correct. The event and lookup table share the field <code>status</code>, and the value <code>404</code> matches. That shared field/value relationship is what allows Splunk to identify the correct row.","Look at the highlighted information on both sides. The shared field is <code>status</code>, and both sides contain the value <code>404</code>."],
+old_opresult:["Correct. The lookup <strong>enriched</strong> the existing event. The original fields remain, while <code>status_description</code> and <code>status_type</code> are added from the matching lookup row.","Compare BEFORE and AFTER. The original event remains. The difference is that two descriptive fields were added."],
+opwhy:["Correct. The event already has the machine-friendly identifier <code>FS-92-001</code>. The lookup adds context—such as <code>product_name</code> and <code>price</code>—so an analyst does not have to interpret the ID manually.","Focus on the information gap. The event already exists; the analyst needs additional human-readable context about the product ID."],
+oppair:["Correct. <code>productId</code> appears in both the event and <code>products.csv</code>. That shared field gives Splunk a way to compare values and locate the matching lookup row.","Look for the same field on both sides. <code>productId</code> exists in the event and the lookup table."],
+oprow:["Correct. Splunk uses the event value <code>FS-92-001</code> to find the row with the same value, then returns fields from that row such as <code>product_name</code> and <code>price</code>.","Match the exact value from the event. The event contains <code>FS-92-001</code>, so Splunk needs the row containing that same productId."],
+optype:["Correct. A <strong>CSV lookup</strong> fits a small, relatively static table like this 150-row product catalog.","Use the scenario clues: only about 150 rows and infrequent changes. Those characteristics point to a CSV lookup."],
+opnotice:["<strong>Correct.</strong> Enrichment should preserve <code>status=404</code> as original evidence while adding context such as <code>Not Found</code> and <code>Client Error</code>. This makes the event easier to interpret without changing the source value.","Look for the choice that adds meaning while preserving the original evidence. Enrichment adds context; it does not rewrite what the event recorded."],
+opconnect:["<strong>Correct.</strong> <code>status</code> is the defensible match key because it exists in both the event and the lookup table and the values have the same meaning. Fields such as <code>host</code>, <code>uri</code>, and <code>clientip</code> matter to the investigation, but this particular lookup does not contain them.","Ask two questions: Which field exists in both sources? Do its values represent the same thing on both sides?"],
+opresult:["<strong>Correct.</strong> The original <code>status=404</code> remains intact. The matching 404 row contributes <code>status_description=Not Found</code> and <code>status_type=Client Error</code>. The other choices either replace evidence, return data from the wrong row, or introduce fields this lookup does not provide.","Trace the exact value <code>404</code> into the lookup table, then preserve the original field and add only the fields supplied by that row."],
+optransfer:["<strong>Correct.</strong> The reasoning transfers: <code>status=503</code> matches the 503 row, which returns <code>Service Unavailable</code> and <code>Server Error</code>.","Do not rely on the previous 404 example. Find the row matching the new event value <code>503</code>."],
+opmental:["<strong>Correct.</strong> This is the core lookup mechanism: a meaningful event field/value is matched against the lookup, and fields from the corresponding row are added to enrich the event.","Think about what stayed consistent between the 404 and 503 examples: match the event value, locate the corresponding row, then return additional fields."],
+qtype1:["Correct. The lesson recommends <strong>CSV lookups</strong> for small data sets that are relatively static. KV Store is better suited to large or frequently updated lookup data.","The data set is small and relatively static, which matches the lesson's use case for a <strong>CSV lookup</strong>."],
+qcsv:["Correct. The lesson states CSV lookup header rows cannot exceed <strong>4096 characters</strong>. It also requires at least two columns, valid ASCII/UTF-8 characters, and a column whose values overlap an event field.","Review the CSV restrictions. A header longer than <strong>4096 characters</strong> violates the lesson's stated requirements."],
+qdef:["Correct. A <strong>lookup definition</strong> supplies the lookup name and path and can add matching rules or field restrictions. All lookup types require a definition, and one lookup table can support multiple definitions.","A lookup definition is not the table itself. It tells Splunk how to locate/use the lookup and may include matching rules or restrictions."],
+qbuild:["Correct. The lesson first uploads the lookup table file through <strong>Settings → Lookups</strong>, sets its permissions, then creates a lookup definition that points to that file.","The build sequence begins with the lookup table file, followed by permissions and then the lookup definition."],
+qwhere:["Correct. The lesson demonstrates piping <strong>inputlookup</strong> results into <strong>where</strong> to filter lookup rows, including a price-difference example.","Once the lookup contents are loaded with inputlookup, <strong>where</strong> can filter the returned rows using a condition."],
+qout:["Correct. <strong>outputlookup</strong> writes fields from search results to a static lookup table file or KV Store collection. The lesson notes it cannot be used with external lookups.","The write operation is <strong>outputlookup</strong>. inputlookup reads lookup contents; lookup enriches event results."],
+qauto:["Correct. That configuration matches the lesson: <strong>search</strong> app, <strong>http_codes</strong> definition, <strong>access_combined</strong> sourcetype, status as the input match, and status_description/status_type as outputs.","The automatic lookup must connect the lesson's http_codes definition to the access_combined sourcetype using status and return the two descriptive fields."],
+qsched:["Correct. This reproduces the lesson's scheduled-sales-alert configuration, including daily 23:00 timing, results &lt; 800, 24-hour expiration, Medium severity, and Add to Triggered Alerts.","The lesson's sales scenario is a scheduled daily check at 23:00 that triggers below 800 results; throttling is not used in that example."],
+qtriggered:["Correct. All four conditions come directly from the lesson's Triggered Alerts section.","Triggered-alert visibility depends on the action being enabled, recent triggering, unexpired retention, and the listing not having been deleted."],
+qview:["Correct. <strong>View results</strong> opens the event that triggered the alert and gives the responder a concrete starting point for troubleshooting.","View results is an investigation handoff: it exposes the triggering event and its useful fields in Search & Reporting."],
+qtrade:["Correct. <strong>Throttling</strong> controls how soon another alert can trigger; the lesson's server-error example suppresses repeated alerts during a defined window.","Retention changes how long records remain visible; it does not prevent repeated notifications. Throttling/suppression does."],
+q1:["Correct. <strong>status</strong> exists in both the event and CSV. That paired field lets Splunk locate the matching row and return fields such as status_description and status_type.","A lookup needs a paired field that exists in both sources. Here, <strong>status</strong> is the shared key."],
+q2:["Correct. <strong>inputlookup</strong> searches the contents of a lookup table such as a CSV or KV Store.","Not quite. The task is to inspect the lookup table itself. <strong>inputlookup</strong> is the command used to search lookup-table contents."],
+q3:["Correct. <strong>lookup</strong> adds fields from the lookup to events already in the search results. OUTPUT identifies the fields to return from the lookup.","The search already has events and needs enrichment. Use <strong>lookup</strong>; inputlookup reads the table itself, while outputlookup writes results to a supported lookup target."],
+q4:["Correct. An <strong>automatic lookup</strong> is applied to searches at search time, so analysts do not need to invoke the lookup command manually.","The requirement is automatic enrichment at search time. That is the role of an <strong>automatic lookup</strong>."],
+q5:["Correct. The requirement is periodic, not continuous: run daily at 23:00 and trigger only when the result count is below 800.","The timing clue is decisive: this check occurs once per day at 23:00, so a <strong>scheduled alert</strong> fits. Its action occurs only when the trigger condition is met."],
+q6:["Correct. Real-time per-result monitoring detects each matching server-error event, while <strong>throttling</strong> suppresses subsequent alerts for the configured period to reduce duplicate notifications.","Continuous server-error monitoring points to real-time behavior. Because many 500-series events can occur during one incident, suppression/throttling prevents an alert flood."],
+q7:["Correct. A <strong>rolling time window</strong> evaluates whether the result threshold is met within the specified window. Here: more than 20 results in five minutes, then suppress for 30 minutes.","The requirement depends on an aggregate pattern across time—not one individual event. That calls for a <strong>real-time rolling-window</strong> trigger."],
+q8:["Correct. Proposal B aligns continuous monitoring with the server-error condition, uses throttling to control repeated notifications, and preserves a High-severity triggered record for responder follow-up.","Reconsider the operational need. The design must detect server errors continuously while controlling duplicate notifications and preserving a useful responder record."],
+q9:["Correct. A <strong>scheduled report</strong> performs its action every time it completes; it does not require an alert trigger condition.","The manager wants delivery every morning regardless of abnormal results. That behavior matches a <strong>scheduled report</strong>."]
+};
+document.querySelectorAll('.choices').forEach(group=>group.querySelectorAll('.choice').forEach(btn=>btn.onclick=()=>{
+ if(group.dataset.locked)return; group.dataset.locked="1"; let ok=btn.dataset.ok==="1";
+ group.querySelectorAll('.choice').forEach(x=>{x.disabled=true;if(x.dataset.ok==="1")x.classList.add('correct')}); if(!ok)btn.classList.add('wrong');
+ let fb=document.getElementById('fb-'+group.dataset.q);fb.innerHTML=feedback[group.dataset.q][ok?0:1];fb.classList.add('show');if(group.dataset.q==='qdef'&&ok)opPass('definition');
+}));
+function checkEvidence(){let vals=[...document.querySelectorAll('#s4 input:checked')].map(x=>x.value);let ok=vals.length===2&&vals.includes('stream')&&vals.includes('per');let fb=document.getElementById('fb-evidence');fb.classList.add('show');fb.innerHTML=ok?"<strong>Strong reconstruction.</strong> The event stream shows repeated matching events seconds apart, and per-result triggering means each matching event can trigger. With throttling off, repeated events become repeated notifications. Severity labels the alert; it does not cause the flood.":"Focus on <strong>cause</strong>. Which evidence shows repeated qualifying events, and which setting causes each qualifying event to trigger independently? Severity and the Triggered Alerts action affect labeling/recording, not the repetition itself."}
+function checkDefense(){let t=document.getElementById('defense').value.toLowerCase();let keys=['real-time','real time','thrott','suppress','trigger','action','investig','continuous'];let hits=keys.filter(k=>t.includes(k)).length;let fb=document.getElementById('fb-defense');fb.classList.add('show');fb.innerHTML=hits>=2&&t.length>70?"<strong>Briefing accepted.</strong> Your justification connects the configuration to operational behavior. In production, that relationship is the core of a defensible alert design.":"Strengthen the briefing. Explain <strong>why</strong> the timing fits, <strong>how</strong> duplicate notifications are controlled, and/or <strong>what</strong> responders can do with the triggered record."}
+
+let opPassed=new Set(),opPairState={event:null,lookup:null};function opPass(k){opPassed.add(k);let e=document.getElementById('opScore');if(e)e.textContent=opPassed.size+'/4'}function opCheckTypes(){let a=[...document.querySelectorAll('.opType')],f=a.every(x=>x.value),c=a.filter(x=>x.value===x.dataset.answer).length;a.forEach(x=>{x.classList.remove('ok','no');if(x.value)x.classList.add(x.value===x.dataset.answer?'ok':'no')});let b=document.getElementById('opTypeFeedback');b.classList.add('show');if(!f){b.innerHTML='<strong>Finish the triage.</strong> Choose all four types.';return}if(c===4){b.innerHTML='<strong>Architecture approved.</strong> CSV fits small/static data; KV Store large/frequently updated data; External uses scripts/services; Geospatial maps coordinates to geographic features.';opPass('types')}else b.innerHTML='<strong>'+c+'/4 aligned.</strong> Use the workload clues: size, update frequency, external execution, and geographic features.'}function opInspectCsv(){let v=[...document.querySelectorAll('.csvRule:checked')].map(x=>x.value),r=['columns','overlap','encoding','header'],ok=r.every(x=>v.includes(x))&&!v.includes('fake')&&v.length===4,b=document.getElementById('opCsvFeedback');b.classList.add('show');if(ok){b.innerHTML='<strong>File approved.</strong> It meets the CSV requirements and <code>productId</code> provides a usable overlap with the event.';opPass('csv')}else b.innerHTML='<strong>Inspection incomplete.</strong> Select the four actual requirements; exactly three columns is not one of them.'}document.querySelectorAll('.opPair .choice').forEach(x=>x.addEventListener('click',()=>{let g=x.closest('.opPair'),side=g.dataset.side;g.querySelectorAll('.choice').forEach(y=>y.classList.remove('selected'));x.classList.add('selected');opPairState[side]=x.dataset.field;document.getElementById(side==='event'?'eventPair':'lookupPair').textContent=(side==='event'?'Event field: ':'Lookup field: ')+x.dataset.field}));function opValidatePair(){let b=document.getElementById('opPairFeedback');b.classList.add('show');if(!opPairState.event||!opPairState.lookup){b.innerHTML='<strong>Select both sides.</strong>';return}if(opPairState.event==='productId'&&opPairState.lookup==='productId'){b.innerHTML='<strong>Relationship validated.</strong> <code>productId</code> exists in both sources and can return <code>product_name</code> and <code>price</code>.';opPass('pair')}else b.innerHTML='<strong>No reliable match.</strong> Choose the field whose values meaningfully overlap in both sources.'}
+
+const triageState={field:null,row:null,key:null,outputs:[],transfer:null};
+function triagePick(id,prop,multi=false){
+ document.querySelectorAll('#'+id+' .choice').forEach(btn=>btn.addEventListener('click',()=>{
+  if(multi){const v=btn.dataset.value;triageState.outputs=triageState.outputs.includes(v)?triageState.outputs.filter(x=>x!==v):[...triageState.outputs,v];}
+  else{triageState[prop]=btn.dataset.value;}
+  document.querySelectorAll('#'+id+' .choice').forEach(x=>x.classList.toggle('selected',multi?triageState.outputs.includes(x.dataset.value):triageState[prop]===x.dataset.value));
+  if(multi){document.getElementById('triageOutputCount').textContent=triageState.outputs.length+' fields selected (choose exactly 2)';
+   document.getElementById('triagePreview').textContent='Original: status=404\\nLookup outputs: '+(triageState.outputs.join(', ')||'none')+'\\nOriginal status remains unchanged.';}
+ }));
+}
+triagePick('triageFields','field');triagePick('triageRows','row');triagePick('triageKeys','key');triagePick('triageOutputs','outputs',true);triagePick('triageTransfer','transfer');
+function triageMessage(n,message){let el=document.getElementById('triageF'+n);el.textContent=message;el.classList.add('show')}
+function triageNext(n){
+ const ready=n===1?!!triageState.field:n===2?!!triageState.row&&!!triageState.key:triageState.outputs.length===2;
+ if(!ready){triageMessage(n,n===3?'Select exactly two output fields before continuing.':'Make all selections in this station before continuing.');return;}
+ document.getElementById('triageStation'+(n+1)).hidden=false;
+ triageMessage(n,'Decision recorded. Continue investigating; accuracy will be reviewed at the end.');
+ document.getElementById('triageStation'+(n+1)).scrollIntoView({behavior:'smooth',block:'start'});
+}
+function triageSubmit(){
+ if(!triageState.transfer){triageMessage(4,'Select the expected result for the second event before submitting.');return;}
+ const checks=[
+ ['Identify the field needing context',triageState.field==='status','The ticket asks for the meaning of the HTTP response; status=404 is the value to explain.'],
+ ['Match the reference row and key',triageState.row==='404'&&triageState.key==='status','The event and CSV share the status field. The value 404 matches the Not Found row.'],
+ ['Choose lookup output fields',triageState.outputs.length===2&&triageState.outputs.includes('status_description')&&triageState.outputs.includes('status_type'),'Return status_description and status_type. Keep status=404 and every other original event field.'],
+ ['Verify the second event',triageState.transfer==='d','The status 503 row adds Service Unavailable and Server Error. The same key works across hosts and URIs.']
+ ];
+ let score=checks.filter(x=>x[1]).length;
+ document.getElementById('triageReview').innerHTML='<div class="brief"><b>'+score+' of 4 decisions aligned with the evidence.</b> Review the explanation for every station.</div>'+checks.map((x,i)=>'<div class="op-review '+(x[1]?'correct':'incorrect')+'"><h4>Station '+(i+1)+' · '+x[0]+' · '+(x[1]?'Aligned':'Needs review')+'</h4><p>'+x[2]+'</p></div>').join('');
+ document.getElementById('triageDebrief').hidden=false;
+ let btn=document.getElementById('opContinue');btn.disabled=false;btn.textContent='Continue to Operator 02 →';
+ document.getElementById('triageDebrief').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function triageReset(){
+ Object.assign(triageState,{field:null,row:null,key:null,outputs:[],transfer:null});
+ document.querySelectorAll('#s1 .choice').forEach(x=>x.classList.remove('selected'));
+ [2,3,4].forEach(n=>document.getElementById('triageStation'+n).hidden=true);
+ [1,2,3,4].forEach(n=>{let e=document.getElementById('triageF'+n);e.classList.remove('show');e.textContent=''});
+ document.getElementById('triageDebrief').hidden=true;
+ document.getElementById('triageOutputCount').textContent='0 fields selected';
+ document.getElementById('triagePreview').textContent='Enrichment preview will appear when two fields are selected.';
+ let btn=document.getElementById('opContinue');btn.disabled=true;btn.textContent='Complete investigation to continue';
+ document.getElementById('s1').scrollIntoView({behavior:'smooth',block:'start'});
+}
+const op2QA={search:null,inspected:false,filter:null,cause:null,fix:null,applied:false,verification:null};
+function op2Choose(id,key){document.querySelectorAll('#'+id+' .choice').forEach(b=>b.addEventListener('click',()=>{op2QA[key]=b.dataset.value;document.querySelectorAll('#'+id+' .choice').forEach(x=>x.classList.toggle('selected',x===b));}));}
+op2Choose('op2SearchChoices','search');op2Choose('op2Causes','cause');op2Choose('op2Fixes','fix');op2Choose('op2Verification','verification');
+function op2Msg(id,message){let e=document.getElementById(id);e.textContent=message;e.classList.add('show');}
+const op2Events=[['web-03','/checkout','404','Not Found','Client Error'],['web-01','/payment','503','Service Unavailable','Server Error'],['web-02','/api/orders','429','','']];
+function op2RunSearch(){if(!op2QA.search){op2Msg('op2SearchFeedback','Select a search before running it.');return;}
+let rows=op2QA.search==='aggregate'?'status,count\n404,1\n429,1\n503,1':op2QA.search==='inspect'?'status,status_description,status_type\n200,OK,Successful\n404,Not Found,Client Error\n503,Service Unavailable,Server Error':'host,uri,status,status_description,status_type\n'+op2Events.map(x=>x.join(',')).join('\n');
+document.getElementById('op2SearchResult').textContent=rows;document.getElementById('op2Station2').hidden=false;
+op2Msg('op2SearchFeedback','Search executed. Compare the results with the ticket. Your search choice will be evaluated during the debrief.');}
+function op2Inspect(){let v=document.getElementById('op2Filter').value;op2QA.inspected=true;op2QA.filter=v;let rows=[['200','OK','Successful'],['404','Not Found','Client Error'],['503','Service Unavailable','Server Error']].filter(x=>v==='all'||x[0]===v);document.getElementById('op2LookupResult').textContent=rows.length?'status,status_description,status_type\n'+rows.map(x=>x.join(',')).join('\n'):'0 matching rows for status='+v;op2Msg('op2InspectFeedback','Reference query executed. Consider whether every observed event status has a corresponding lookup row.');}
+function op2Advance(n){if(n===2&&!op2QA.inspected){op2Msg('op2InspectFeedback','Run the lookup inspector before continuing.');return;}if(n===3&&(!op2QA.cause||!op2QA.fix)){op2Msg('op2DiagnosisFeedback','Select a diagnosis and a corrective action before continuing.');return;}document.getElementById('op2Station'+(n+1)).hidden=false;document.getElementById('op2Station'+(n+1)).scrollIntoView({behavior:'smooth',block:'start'});}
+function op2ApplyFix(){if(!op2QA.fix){op2Msg('op2VerifyFeedback','Select a corrective action in Station 03 first.');return;}op2QA.applied=true;let correct=op2QA.fix==='add';document.getElementById('op2VerifyResult').textContent='host,uri,status,status_description,status_type\n'+op2Events.map(x=>correct&&x[2]==='429'?[x[0],x[1],x[2],'Too Many Requests','Client Error'].join(','):x.join(',')).join('\n')+(correct?'\n\nSimulation: reviewed status=429 row added to lookup.':'\n\nSimulation: proposed action did not repair the missing lookup mapping.');op2Msg('op2VerifyFeedback','Change simulation complete. Examine whether the missing description is resolved without altering source evidence.');}
+function op2Submit(){if(!op2QA.applied||!op2QA.verification){op2Msg('op2VerifyFeedback','Apply your proposed change and select verification evidence before submitting.');return;}
+let checks=[['Enrichment search',op2QA.search==='enrich','Use lookup to add fields to indexed events. stats summarizes results; inputlookup reads reference rows rather than web events.'],['Reference coverage',op2QA.inspected&&['429','all'].includes(op2QA.filter),'The reference file has 200, 404, and 503 but no 429. An unmatched status does not receive descriptive fields.'],['Root cause',op2QA.cause==='missing','The event key status=429 exists, but the corresponding row is missing from the lookup.'],['Corrective action',op2QA.fix==='add','Add the approved 429, Too Many Requests, Client Error mapping to the reference source, preserving status=429.'],['Verification',op2QA.verification==='preserved'&&op2QA.fix==='add','Verify the original codes remain unchanged and every sample event now has accurate descriptive fields.']];let score=checks.filter(x=>x[1]).length;document.getElementById('op2Review').innerHTML='<div class="brief"><b>'+score+' of 5 evidence checks aligned.</b> Review each decision below.</div>'+checks.map((x,i)=>'<div class="op-review '+(x[1]?'correct':'incorrect')+'"><h4>'+ (i+1)+'. '+x[0]+' · '+(x[1]?'Aligned':'Needs review')+'</h4><p>'+x[2]+'</p></div>').join('');document.getElementById('op2Debrief').hidden=false;let btn=document.getElementById('op2Continue');btn.disabled=false;btn.textContent='Continue to Operator 03 →';document.getElementById('op2Debrief').scrollIntoView({behavior:'smooth',block:'start'});}
+function op2Reset(){Object.assign(op2QA,{search:null,inspected:false,filter:null,cause:null,fix:null,applied:false,verification:null});document.querySelectorAll('#s2 .choice').forEach(x=>x.classList.remove('selected'));[2,3,4].forEach(n=>document.getElementById('op2Station'+n).hidden=true);document.getElementById('op2Debrief').hidden=true;['op2SearchFeedback','op2InspectFeedback','op2DiagnosisFeedback','op2VerifyFeedback'].forEach(id=>{let e=document.getElementById(id);e.classList.remove('show');e.textContent='';});document.getElementById('op2SearchResult').textContent='Search results will appear here.';document.getElementById('op2LookupResult').textContent='Select a filter and inspect the reference data.';document.getElementById('op2VerifyResult').textContent='No change simulated yet.';document.getElementById('op2Filter').value='all';let btn=document.getElementById('op2Continue');btn.disabled=true;btn.textContent='Complete Operator 02 to continue';document.getElementById('s2').scrollIntoView({behavior:'smooth',block:'start'});}
+(function setupOp3(){
+ const root=document.getElementById('s3-old-disabled'); if(!root)return;
+ const passed=new Set(), order=['upload','permissions','definition','automatic'], labels={upload:'Upload file',permissions:'Set permissions',definition:'Create definition',automatic:'Configure automatic lookup'};
+ function pass(k,id){passed.add(k);document.getElementById(id).textContent=(id==='op3S1'?'Sequence':id==='op3S2'?'Enrichment SPL':id==='op3S3'?'Inspection SPL':'Automatic lookup')+': validated';if(passed.size===4)document.getElementById('op3Final').innerHTML='<b>Deployment validated.</b> You uploaded and exposed the lookup, created its definition, used the appropriate SPL commands, and wired the automatic lookup to the correct sourcetype and fields.'}
+ let seq=[];
+ document.querySelectorAll('#op3Pool .choice').forEach(b=>b.addEventListener('click',()=>{
+   const expected=order[seq.length],fb=document.getElementById('op3SeqFeedback');fb.classList.add('show');
+   if(b.dataset.step===expected){seq.push(expected);b.disabled=true;document.getElementById('op3Rail').insertAdjacentHTML('beforeend','<span class="arrow">→</span><span class="step">'+labels[expected]+'</span>');fb.innerHTML='<strong>Action accepted.</strong> Continue the deployment.';if(seq.length===4){document.getElementById('op3Next').textContent='Sequence complete';pass('seq','op3S1')}}
+   else fb.innerHTML='<strong>Sequence conflict.</strong> Consider which dependency must exist before this action can be completed. The full sequence remains hidden.';
+ }));
+ function commandBuilder(poolId,viewId,runId,clearId,feedbackId,correct,statusId,key){
+   let chosen=[];
+   const buttons=[...document.querySelectorAll('#'+poolId+' .token')],view=document.getElementById(viewId);
+   function draw(){view.textContent='SPL pipeline: '+(chosen.length?chosen.map(x=>buttons.find(b=>b.dataset.token===x).textContent.trim()).join(' '):'select commands above')}
+   buttons.forEach(b=>b.addEventListener('click',()=>{if(chosen.includes(b.dataset.token))return;chosen.push(b.dataset.token);b.classList.add('selected');draw()}));
+   document.getElementById(clearId).addEventListener('click',()=>{chosen=[];buttons.forEach(b=>b.classList.remove('selected'));draw();document.getElementById(feedbackId).classList.remove('show')});
+   document.getElementById(runId).addEventListener('click',()=>{const fb=document.getElementById(feedbackId);fb.classList.add('show');if(JSON.stringify(chosen)===JSON.stringify(correct)){fb.innerHTML='<strong>Command accepted.</strong> The pipeline performs the requested job without adding an unrelated command.';pass(key,statusId)}else fb.innerHTML='<strong>Search does not yet satisfy the request.</strong> Re-read what data source you need and what transformation/filter must happen. Clear the console and rebuild the shortest valid pipeline.'});
+   draw();
+ }
+ commandBuilder('op3Tokens','op3Command','op3Run','op3Clear','op3CommandFeedback',['search','lookup'],'op3S2','enrich');
+ commandBuilder('op3InspectTokens','op3InspectCommand','op3InspectRun','op3InspectClear','op3InspectFeedback',['input','where'],'op3S3','inspect');
+ const source=document.getElementById('op3Source'),input=document.getElementById('op3Input'),outputs=document.getElementById('op3Outputs'),preview=document.getElementById('op3AutoPreview');
+ function previewAuto(){preview.textContent='Automatic lookup: http_codes\nsourcetype = '+(source.value||'?')+'\nINPUT = '+(input.value||'?')+'\nOUTPUT = '+(outputs.value||'?')}
+ [source,input,outputs].forEach(x=>x.addEventListener('change',previewAuto));
+ document.getElementById('op3ValidateAuto').addEventListener('click',()=>{const fb=document.getElementById('op3AutoFeedback');fb.classList.add('show');if(source.value==='access_combined'&&input.value==='status'&&outputs.value==='status_description + status_type'){fb.innerHTML='<strong>Configuration validated.</strong> Searches against <code>access_combined</code> can now receive the descriptive HTTP fields automatically at search time.';pass('auto','op3S4')}else fb.innerHTML='<strong>Configuration mismatch.</strong> Compare the change ticket with the event type, shared input field, and requested outputs.'});
+ previewAuto();
+})();
+
+
+(function setupOp3ClearChallenge(){
+ const root=document.getElementById('s3-old-disabled'); if(!root)return;
+ const passed=new Set(), sequence=['upload','permissions','definition','automatic'];
+ const names={upload:'Reference file registered',permissions:'Resource access configured',definition:'Lookup object created',automatic:'Automatic mapping configured'};
+ function mark(k,id,label){passed.add(k);document.getElementById(id).textContent=label+': validated';if(passed.size===4)document.getElementById('op3Final').innerHTML='<b>Change validated.</b> The deployment dependencies, explicit enrichment search, reference inspection, and automatic lookup configuration all satisfy CHG-2048.'}
+ let pos=0;
+ root.querySelectorAll('#op3Pool-old-disabled .choice').forEach(b=>b.addEventListener('click',()=>{
+   const fb=document.getElementById('op3SeqFeedback');fb.classList.add('show');
+   if(b.dataset.step===sequence[pos]){
+     b.disabled=true;document.getElementById('op3Rail').insertAdjacentHTML('beforeend','<span class="arrow">→</span><span class="step">'+names[b.dataset.step]+'</span>');pos++;
+     fb.innerHTML=pos===4?'<strong>Dependency chain validated.</strong> Each configuration step now has the object or access it depends on.':'<strong>Action committed.</strong> Determine what dependency should be satisfied next.';
+     document.getElementById('op3Next').textContent=pos===4?'Dependency chain complete':pos+' of 4 actions committed';
+     if(pos===4)mark('seq','op3S1','Dependencies');
+   }else fb.innerHTML='<strong>That action is valid, but not yet.</strong> A prerequisite is still missing. Ask what must exist or be accessible before this action can succeed.';
+ }));
+ function builder(pool,view,run,clear,fbid,answer,key,status,label){
+   let selected=[];const buttons=[...root.querySelectorAll('#'+pool+' .token')],display=document.getElementById(view);
+   const draw=()=>display.textContent='SPL pipeline: '+(selected.length?selected.map(v=>buttons.find(x=>x.dataset.token===v).querySelector('code').textContent).join(' '):'select commands above');
+   buttons.forEach(b=>b.addEventListener('click',()=>{if(!selected.includes(b.dataset.token)){selected.push(b.dataset.token);b.classList.add('selected');draw()}}));
+   document.getElementById(clear).addEventListener('click',()=>{selected=[];buttons.forEach(b=>b.classList.remove('selected'));draw();document.getElementById(fbid).classList.remove('show')});
+   document.getElementById(run).addEventListener('click',()=>{const fb=document.getElementById(fbid);fb.classList.add('show');if(JSON.stringify(selected)===JSON.stringify(answer)){fb.innerHTML='<strong>Pipeline validated.</strong> It satisfies the request with no unnecessary command.';mark(key,status,label)}else fb.innerHTML='<strong>Pipeline needs revision.</strong> Every selected command is real, but this combination does not produce the requested outcome. Re-check the required data source, operation, and whether you added an unnecessary command.'});
+   draw();
+ }
+ builder('op3Tokens','op3Command','op3Run','op3Clear','op3CommandFeedback',['search','lookup'],'search','op3S2','Search SPL');
+ builder('op3InspectTokens','op3InspectCommand','op3InspectRun','op3InspectClear','op3InspectFeedback',['input','where'],'inspect','op3S3','Inspection SPL');
+ const source=document.getElementById('op3Source'),input=document.getElementById('op3Input'),outputs=document.getElementById('op3Outputs'),preview=document.getElementById('op3AutoPreview');
+ function drawAuto(){preview.textContent='Automatic lookup: http_codes\nEVENT SCOPE = '+(source.options[source.selectedIndex]?.text||'?')+'\nINPUT RELATIONSHIP = '+(input.options[input.selectedIndex]?.text||'?')+'\nOUTPUT FIELDS = '+(outputs.options[outputs.selectedIndex]?.text||'?')}
+ [source,input,outputs].forEach(x=>x.addEventListener('change',drawAuto));
+ document.getElementById('op3ValidateAuto').addEventListener('click',()=>{const fb=document.getElementById('op3AutoFeedback');fb.classList.add('show');if(source.value==='access_combined'&&input.value==='status'&&outputs.value==='desc_type'){fb.innerHTML='<strong>Automatic lookup validated.</strong> The scope matches the ticket, the input relationship can locate a row, and the returned fields satisfy the requested enrichment.';mark('auto','op3S4','Automatic lookup')}else fb.innerHTML='<strong>Configuration does not fully satisfy CHG-2048.</strong> Re-check all three dimensions independently: event scope, match relationship, and requested output.'});
+ drawAuto();
+})();
+
+
+(function setupStation01Redesign(){
+ const root=document.querySelector('.op3-station01'); if(!root)return;
+ const required=['upload','permissions','definition','automatic'];
+ const labels={
+  upload:'Register approved reference file',
+  permissions:'Expose resource to analysts',
+  definition:'Create named lookup object',
+  automatic:'Bind enrichment to sourcetype'
+ };
+ let chosen=[];
+ const buttons=[...root.querySelectorAll('.op3-action')];
+ const slots=[...root.querySelectorAll('.order-slot')];
+ const feedback=document.getElementById('op3SeqFeedback');
+ const submit=document.getElementById('op3SubmitSequence');
+ const count=document.getElementById('op3Count');
+
+ function render(){
+   slots.forEach((slot,i)=>{
+     const v=chosen[i];
+     slot.classList.toggle('filled',!!v);
+     slot.querySelector('em').textContent=v?labels[v]:'Not selected yet';
+   });
+   count.textContent=chosen.length+' of 4';
+   submit.disabled=chosen.length!==4;
+   buttons.forEach(b=>b.classList.toggle('committed',chosen.includes(b.dataset.step)));
+ }
+ buttons.forEach(b=>b.addEventListener('click',()=>{
+   if(chosen.includes(b.dataset.step))return;
+   const expected=required[chosen.length];
+   feedback.classList.add('show');
+   if(b.dataset.step===expected){
+     chosen.push(b.dataset.step);
+     feedback.innerHTML='<strong>Action accepted.</strong> That dependency is satisfied. Determine which remaining action can now be performed.';
+     render();
+   }else{
+     feedback.innerHTML='<strong>Not yet.</strong> This is a legitimate deployment action, but something it depends on has not been completed. Review what currently exists and try another action.';
+   }
+ }));
+ document.getElementById('op3ResetSequence').addEventListener('click',()=>{
+   chosen=[];feedback.classList.remove('show');feedback.innerHTML='';render();
+ });
+ submit.addEventListener('click',()=>{
+   feedback.classList.add('show');
+   feedback.innerHTML='<strong>Sequence validated.</strong> You registered the reference resource, made it available to the intended users, created the reusable lookup object, and then attached that lookup to the target sourcetype.';
+   submit.disabled=true; submit.textContent='Sequence Submitted';
+   const status=document.getElementById('op3S1'); if(status)status.textContent='Dependencies: validated';
+ });
+ render();
+})();
+
+
+(function setupOperator04Challenge(){
+ const form=document.getElementById('op4Form-old-disabled'); if(!form)return;
+ const answers={1:'b',2:'c',3:'c',4:'c'};
+ const labels={
+  1:{a:'Real-time per-result after 23:00',b:'Daily 23:00 scheduled alert; trigger below 800',c:'Hourly scheduled alert; compare each hour with 800',d:'Daily action on every completion'},
+  2:{a:'Hourly scheduled alert',b:'Real-time rolling-window threshold',c:'Real-time per-result + 60-minute status suppression',d:'Real-time per-result without suppression'},
+  3:{a:'Per-result + five-minute suppression',b:'30-minute scheduled search over five-minute data',c:'Five-minute rolling window >20 + 30-minute suppression',d:'Rolling window with per-result trigger'},
+  4:{a:'Scheduled alert with broad trigger',b:'Real-time alert throttled to morning',c:'Scheduled report whose action runs on completion',d:'Scheduled alert based on day-over-day change'}
+ };
+ const why={
+  1:'The requirement is a single end-of-day evaluation against a threshold. A scheduled alert at 23:00 evaluates the completed daily result and triggers only when sales are below 800.',
+  2:'The lesson’s web-error example requires immediate per-event visibility while controlling duplicate noise. Per-result real-time triggering provides immediacy; throttling by the status value for 60 minutes suppresses repeated alerts for the same status.',
+  3:'This requirement describes a pattern across multiple events, not one failed login. A five-minute rolling window evaluates the count continuously, triggers when results exceed 20, and the 30-minute suppression controls repeated notifications.',
+  4:'A scheduled report performs its configured action whenever the scheduled search completes. A scheduled alert performs its action only when its trigger condition is met. Because leadership wants delivery every morning regardless of exception state, the report behavior fits the requirement.'
+ };
+ const status=document.getElementById('op4Status'),submit=document.getElementById('op4Submit');
+ function count(){
+   let n=0;for(let i=1;i<=4;i++)if(form.querySelector('input[name="op4q'+i+'"]:checked'))n++;
+   status.innerHTML='Answered: <b>'+n+' of 4</b>. '+(n===4?'All decisions are locked in and ready for review.':'The debrief remains hidden until every monitoring decision is complete.');
+   submit.disabled=n!==4;
+ }
+ form.querySelectorAll('input[type=radio]').forEach(r=>r.addEventListener('change',count));
+ form.addEventListener('submit',e=>{
+   e.preventDefault();let score=0,review='';
+   for(let i=1;i<=4;i++){
+     const selected=form.querySelector('input[name="op4q'+i+'"]:checked').value,ok=selected===answers[i];if(ok)score++;
+     review+='<div class="op4-review '+(ok?'correct':'incorrect')+'"><h4>Decision '+i+' · '+(ok?'Design aligned':'Design needs revision')+'</h4><p><b>Your design:</b> '+labels[i][selected]+'</p><p><b>Evidence-supported design:</b> '+labels[i][answers[i]]+'</p><p>'+why[i]+'</p></div>';
+   }
+   form.querySelectorAll('input').forEach(x=>x.disabled=true);submit.disabled=true;submit.textContent='Monitoring Plan Submitted';
+   document.getElementById('op4Score').innerHTML='<b>'+score+' of 4 monitoring decisions aligned with the requirements.</b> Review the reasoning for all four decisions.';
+   document.getElementById('op4Review').innerHTML=review;
+   document.getElementById('op4Debrief').hidden=false;
+   const c=document.getElementById('op4Continue');c.disabled=false;c.textContent='Continue to Detective Investigation →';
+   document.getElementById('op4Debrief').scrollIntoView({behavior:'smooth',block:'start'});
+ });
+ count();
+})();
+
+
+const o4Passed=new Set();
+function o4Pass(key,id,label){
+ o4Passed.add(key);document.getElementById(id).textContent=label+': validated';
+ if(o4Passed.size===4){document.getElementById('o4Final').innerHTML='<b>Monitoring plan validated.</b> The four consoles now implement end-of-day threshold monitoring, immediate error detection with noise control, rolling-window authentication detection, and unconditional daily reporting.';const b=document.getElementById('o4Continue');b.disabled=false;b.textContent='Continue to Detective Investigation →';}
+}
+function showO4(id,msg){const f=document.getElementById(id);f.classList.add('show');f.innerHTML=msg}
+function testO4Sales(){
+ const mode=document.getElementById('o4SalesMode').value,time=document.getElementById('o4SalesTime').value,op=document.getElementById('o4SalesOp').value,n=+document.getElementById('o4SalesThreshold').value;
+ let issues=[];if(mode!=='scheduled')issues.push('The request calls for one evaluation after the day closes, so reconsider the evaluation mode.');if(time!=='23:00')issues.push('The configured execution time does not match the stated close-of-day time.');if(op!=='lt'||n!==800)issues.push('Re-check both the comparison direction and the business threshold.');
+ if(!issues.length){showO4('o4SalesFeedback','<strong>Sales guardrail validated.</strong> The search runs once at 23:00 and produces an alert only when the completed daily count is below 800.');o4Pass('sales','o4S1','Sales')}else showO4('o4SalesFeedback','<strong>Configuration needs tuning.</strong> '+issues.join(' '));
+}
+function testO4Web(){
+ const mode=document.getElementById('o4WebMode').value,field=document.getElementById('o4WebField').value,min=+document.getElementById('o4WebMinutes').value;
+ let issues=[];if(mode!=='perresult')issues.push('The NOC wants visibility when an individual qualifying event occurs.');if(field!=='status')issues.push('Suppression must group repeated occurrences according to the value named in the requirement.');if(min!==60)issues.push('The suppression interval does not yet match the requested quiet period.');
+ if(!issues.length){showO4('o4WebFeedback','<strong>Noise simulation passed.</strong> A 503 can alert immediately, later 503 events are suppressed for 60 minutes, while a different status such as 500 can still generate its own alert.');o4Pass('web','o4S2','Web errors')}else showO4('o4WebFeedback','<strong>The alert would not behave as requested.</strong> '+issues.join(' '));
+}
+function testO4Login(){
+ const w=+document.getElementById('o4LoginWindow').value,t=+document.getElementById('o4LoginThreshold').value,s=+document.getElementById('o4LoginSuppress').value;
+ let issues=[];if(w!==5)issues.push('The observation window does not match the period in the requirement.');if(t!==20)issues.push('The trigger threshold should represent “exceeds 20,” not a different event count.');if(s!==30)issues.push('The post-trigger quiet period is not yet configured correctly.');
+ if(!issues.length){showO4('o4LoginFeedback','<strong>Pattern detector validated.</strong> In the sample stream, 17 failures would not trigger, while 23 failures within five minutes would. After that trigger, similar notifications are suppressed for 30 minutes.');o4Pass('login','o4S3','Login pattern')}else showO4('o4LoginFeedback','<strong>Detector needs tuning.</strong> '+issues.join(' '));
+}
+function testO4Delivery(){
+ const type=document.getElementById('o4DeliveryType').value,time=document.getElementById('o4DeliveryTime').value;
+ let issues=[];if(type!=='report')issues.push('The requested action must occur every scheduled completion rather than only when an alert condition is met.');if(time!=='08:00')issues.push('The delivery time does not match leadership’s requested schedule.');
+ if(!issues.length){showO4('o4DeliveryFeedback','<strong>Delivery route validated.</strong> A scheduled report at 08:00 performs the configured delivery action every morning, including normal days.');o4Pass('delivery','o4S4','Daily delivery')}else showO4('o4DeliveryFeedback','<strong>Delivery route needs revision.</strong> '+issues.join(' '));
+}
+
+
+const d5Sources=[
+ ['A · Web events','RAW','09:14:01 host=www2 status=503 uri=/checkout\n09:14:02 host=www2 status=503 uri=/checkout\n09:14:03 host=www2 status=503 uri=/checkout\n09:14:04 host=www2 status=503 uri=/checkout\n09:14:06 host=www2 status=503 uri=/checkout','Compare the timestamps, host, URI, and response values across the raw records.'],
+ ['B · Alert rule','CONFIG','Alert: NOC_Web_Error\nMode: Real-time\nTrigger: Per result\nSuppression: None\nAction: Add to Triggered Alerts\nSeverity: High\nExpires: 24 hours','Review the full configuration and distinguish evaluation behavior from alert metadata.'],
+ ['C · Trigger log','HISTORY','09:14:01 NOC_Web_Error HIGH\n09:14:02 NOC_Web_Error HIGH\n09:14:03 NOC_Web_Error HIGH\n09:14:04 NOC_Web_Error HIGH\n09:14:06 NOC_Web_Error HIGH\n09:20:00 NOC reports 186 notifications','Compare this notification history against the event timestamps and alert policy.'],
+ ['D · NOC report','REPORT','09:20 — NOC analyst: “The first notification helped. Repeated notifications described the same continuing error condition and crowded out unrelated work.”','Consider what the analyst observed directly and what still requires technical validation.'],
+ ['E · Retention','RECORD','Alert triggered: 09:14\nCurrent time: 16:40\nAction: Add to Triggered Alerts\nExpires: 24 hours\nListing: Not deleted','Determine whether this setting governs event evaluation, notification delivery, or record availability.']
+];
+const d5State={done:new Set(),replayValid:false};
+function d5Open(i){document.querySelectorAll('.d5-file').forEach((b,j)=>b.classList.toggle('active',i===j));document.getElementById('d5EvidenceTitle').textContent=d5Sources[i][0];document.getElementById('d5EvidenceTag').textContent=d5Sources[i][1];document.getElementById('d5EvidenceBody').textContent=d5Sources[i][2].replaceAll('\\n','\n');document.getElementById('d5EvidenceHelp').textContent=d5Sources[i][3]}
+const d5TimelineItems=[['report','NOC reports 186 notifications'],['first','First 503 event at 09:14:01'],['repeat','More 503 events at 09:14:02–06'],['trigger','First alert triggers at 09:14:01']];
+const d5AssessItems=[['events','Burst of separate 503 events'],['per','Per-result triggering'],['none','No suppression interval'],['severity','High severity classification'],['expiry','24-hour triggered-record retention']];
+function d5Init(){document.getElementById('d5Timeline').innerHTML=[0,1,2,3].map((_,i)=>'<label>Position '+(i+1)+'<select class="d5-order"><option value="">Choose an observation</option>'+d5TimelineItems.map(([v,t])=>'<option value="'+v+'">'+t+'</option>').join('')+'</select></label>').join('');document.getElementById('d5Assess').innerHTML=d5AssessItems.map(([v,t])=>'<label><span>'+t+'</span><select data-evidence="'+v+'"><option value="">Choose role</option><option value="cause">Contributes to repeated triggering</option><option value="detail">Describes classification or retention</option></select></label>').join('')}
+function d5Mark(k){d5State.done.add(k);document.getElementById('d5Status').textContent=d5State.done.size+' / 4 tasks completed'}
+function d5RecordTimeline(){const v=[...document.querySelectorAll('.d5-order')].map(x=>x.value),f=document.getElementById('d5TimelineFeedback');if(v.some(x=>!x)||new Set(v).size!==4){f.textContent='Choose four different observations, one per position.';return}d5State.timeline=v;d5Mark('timeline');f.textContent='Timeline recorded. Your ordering will be evaluated in the final debrief.'}
+function d5Invalidate(){d5State.replayValid=false;d5State.done.delete('replay');document.getElementById('d5Status').textContent=d5State.done.size+' / 4 tasks completed';document.getElementById('d5ReplayFeedback').textContent='Configuration changed. Run the replay again.'}
+function d5Replay(){const mode=document.getElementById('d5Mode').value,key=document.getElementById('d5Key').value,mins=Number(document.getElementById('d5Minutes').value);const events=[['09:14:01',503,'www2',0],['09:14:02',503,'www2',1/60],['09:14:03',503,'www2',2/60],['09:14:04',503,'www2',3/60],['09:14:06',503,'www2',5/60]];const last={};let fired=0;const rows=events.map(([time,status,host,t],i)=>{let result='Alert fired';if(mode==='scheduled'){result=i===0?'One scheduled evaluation':'Included in same evaluation';if(i===0)fired++}else{const group=key==='status'?status:key==='host'?host:'all';if(key!=='none'&&mins>0&&last[group]!==undefined&&t-last[group]<mins)result='Suppressed';else{last[group]=t;fired++}}return '<tr><td>'+time+'</td><td>'+status+'</td><td>'+result+'</td></tr>'});document.getElementById('d5ReplayTable').innerHTML='<table><thead><tr><th>Event time</th><th>HTTP status</th><th>Outcome</th></tr></thead><tbody>'+rows.join('')+'</tbody></table>';document.getElementById('d5ReplayFeedback').textContent='Sample replay: '+fired+' notification(s) from five events. Baseline configuration: 5 notifications. Compare detection timing and grouping as well as volume.';d5State.replayValid=true;d5State.replayChoice={mode,key,mins,fired};d5Mark('replay')}
+function d5RecordAssessment(){const choices=[...document.querySelectorAll('#d5Assess select')];if(choices.some(x=>!x.value)){document.getElementById('d5AssessFeedback').textContent='Classify every evidence item before recording.';return}d5State.assess=Object.fromEntries(choices.map(x=>[x.dataset.evidence,x.value]));d5Mark('assess');document.getElementById('d5AssessFeedback').textContent='Evidence roles recorded. They will be reviewed after case submission.'}
+function d5Submit(){const finding=document.getElementById('d5Finding').value,next=document.getElementById('d5Next').value,f=document.getElementById('d5Debrief');if(!finding||!next){f.textContent='Choose both a finding and a next investigative action.';return}d5Mark('handoff');if(d5State.done.size!==4){f.textContent='Complete the timeline, replay, and evidence assessment before submitting the casefile.';return}const timelineOk=JSON.stringify(d5State.timeline)===JSON.stringify(['first','trigger','repeat','report']);const a=d5State.assess;const assessOk=['events','per','none'].every(x=>a[x]==='cause')&&['severity','expiry'].every(x=>a[x]==='detail');const replayOk=d5State.replayChoice.fired<5&&d5State.replayChoice.mode==='per'&&d5State.replayChoice.key==='status'&&d5State.replayChoice.mins>0;const handoffOk=finding==='suppression'&&next==='results';const score=[timelineOk,replayOk,assessOk,handoffOk].filter(Boolean).length;f.innerHTML='<h3>Casefile debrief · '+score+' / 4 aligned decisions</h3><p><b>Timeline:</b> '+(timelineOk?'Aligned.':'Review order.')+' The first 503 and first trigger coincide at 09:14:01; more events and triggers follow; the NOC reports the flood at 09:20.</p><p><b>Counterfactual:</b> '+(replayOk?'Aligned.':'Review your proposed configuration.')+' Suppression by HTTP status reduces duplicate notifications while retaining immediate event-level detection. A scheduled design reduces volume but changes detection latency.</p><p><b>Evidence roles:</b> '+(assessOk?'Aligned.':'Review classifications.')+' Event volume, per-result mode, and absent suppression explain repeated triggers. Severity and retention do not cause the flood.</p><p><b>Handoff:</b> '+(handoffOk?'Aligned.':'Review the finding and next action.')+' View results provides the triggering search/event context, not proof of the underlying web-service root cause.</p>';document.getElementById('detContinue').disabled=false;document.getElementById('detContinue').textContent='Proceed to Judge →';f.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function d5Reset(){d5State.done.clear();d5State.replayValid=false;d5State.timeline=null;d5State.assess=null;d5State.replayChoice=null;d5Init();['d5ReplayTable','d5TimelineFeedback','d5AssessFeedback','d5Debrief'].forEach(id=>document.getElementById(id).innerHTML='');document.getElementById('d5ReplayFeedback').textContent='No simulation run yet.';document.getElementById('d5Finding').value='';document.getElementById('d5Next').value='';document.getElementById('d5Notes').value='';document.getElementById('d5Mode').value='per';document.getElementById('d5Key').value='none';document.getElementById('d5Minutes').value='0';document.getElementById('detContinue').disabled=true;document.getElementById('detContinue').textContent='Submit the casefile to continue';document.getElementById('d5Status').textContent='0 / 4 tasks completed';d5Open(0)}
+d5Init();d5Open(0);
+const j6Packages=[
+ {name:'Package A · Batch Sentinel',config:['Evaluation: every 5 minutes','Trigger: any matching 5xx result','Suppression: 60 minutes (all events)','Triggered records: 7 days','Sales: scheduled report at 08:00'],outcomes:[['10:01 503 arrives','10:05 batch evaluation','Awareness delayed by up to five minutes'],['10:01 503','Notification created'],['10:11 500','Suppressed by global quiet period'],['Triggered record','Retained for seven days'],['08:00 normal sales','Report delivered']]},
+ {name:'Package B · Status-Aware',config:['Evaluation: real-time per result','Trigger: each qualifying 5xx event','Suppression: status for 60 minutes','Triggered records: 7 days','Sales: scheduled report at 08:00'],outcomes:[['10:01 503 arrives','10:01 event evaluation','Immediate qualifying notification'],['10:01 503','Notification created'],['10:06 503','Suppressed: same status'],['10:11 500','Notification created: distinct status'],['11:03 503','Notification created: quiet period elapsed'],['Triggered record','Retained for seven days'],['08:00 normal sales','Report delivered']]},
+ {name:'Package C · Host Guard',config:['Evaluation: real-time per result','Trigger: each qualifying 5xx event','Suppression: host for 60 minutes','Triggered records: 24 hours','Sales: scheduled alert at 08:00, conditional'],outcomes:[['10:01 503 arrives','10:01 event evaluation','Immediate qualifying notification'],['10:01 www2 503','Notification created'],['10:11 www2 500','Suppressed: same host'],['10:34 www3 503','Notification created: different host'],['Triggered record','Retained for 24 hours'],['08:00 normal sales','Conditional alert may not deliver']]}
+];
+const j6={selected:0,tests:[false,false,false],decision:null};
+function j6Render(){document.getElementById('j6Packages').innerHTML=j6Packages.map((p,i)=>'<button type="button" class="j6package '+(i===j6.selected?'active':'')+'" onclick="j6Select('+i+')"><b>'+p.name+'</b><small>'+(['Scheduled evaluation','Status-based suppression','Host-based suppression'][i])+'</small></button>').join('');document.getElementById('j6Name').textContent=j6Packages[j6.selected].name;document.getElementById('j6Spec').innerHTML=j6Packages[j6.selected].config.map(x=>'<div>'+x+'</div>').join('');document.getElementById('j6Progress').textContent=j6.tests.filter(Boolean).length+' of 3 acceptance tests run';document.getElementById('j6Status').textContent=j6.tests.every(Boolean)?'EVIDENCE READY':'TESTING';}
+function j6Select(i){j6.selected=i;j6.tests=[false,false,false];j6.decision=null;document.querySelectorAll('#j6Decision button').forEach(b=>b.classList.remove('selected'));document.getElementById('j6Console').textContent='Package loaded. Run all three acceptance tests to assess this configuration.';document.getElementById('j6Log').textContent='Loaded '+j6Packages[i].name+'.';j6Render()}
+function j6Test(i){j6.tests[i]=true;const p=j6Packages[j6.selected],o=p.outcomes;let lines=i===0?o.slice(0,3):i===1?o.filter(r=>r[0].includes('503')||r[0].includes('500')):o.filter(r=>r[0].includes('record')||r[0].includes('sales'));document.getElementById('j6Console').innerHTML='<b>'+['TEST A · RESPONSE TIMING','TEST B · REPEAT NOTIFICATIONS','TEST C · RETENTION AND REPORTING'][i]+'</b><pre>'+lines.map(x=>x.join('  |  ')).join('\n')+'</pre><p>Record your interpretation in the release rationale. A completed test does not necessarily mean the package meets the requirement.</p>';document.getElementById('j6Log').textContent='Test '+String.fromCharCode(65+i)+' executed for '+p.name+'.';j6Render()}
+document.querySelectorAll('#j6Decision button').forEach(b=>b.addEventListener('click',()=>{j6.decision=b.dataset.v;document.querySelectorAll('#j6Decision button').forEach(x=>x.classList.toggle('selected',x===b))}));
+function j6Submit(){const f=document.getElementById('j6Feedback'),r=document.getElementById('j6Rationale').value.trim();f.classList.add('show');if(!j6.tests.every(Boolean)||!j6.decision||r.length<100){f.textContent='Complete all three acceptance tests, select a disposition, and write at least 100 characters of operational justification before submitting.';return}const good=j6.selected===1&&j6.decision==='approve';const outcome=good?'The selected package and disposition satisfy the documented release requirements.':'The selected disposition requires reconsideration against the acceptance evidence.';document.getElementById('j6Review').innerHTML='<p><b>'+outcome+'</b></p><p><b>Package A:</b> Scheduled evaluation introduces latency, and global suppression can hide a distinct 500-series status.</p><p><b>Package B:</b> Real-time per-result detection, status-keyed 60-minute suppression, seven-day triggered records, and an unconditional 08:00 scheduled report satisfy the requirements.</p><p><b>Package C:</b> Host-keyed suppression can hide a different error status on the same host; its conditional sales alert can miss a normal-day delivery.</p><p><b>Important distinction:</b> Triggered-alert retention preserves investigation records. It does not prevent new notifications; suppression controls repeated notifications.</p><p><b>Decision practice:</b> The release authority should use observed behavior to justify approval, rejection, or conditions rather than relying on configuration labels.</p>';document.getElementById('j6Debrief').hidden=false;f.textContent='Change-board decision recorded. Review the production analysis below.';const btn=document.getElementById('judgeContinue');btn.disabled=false;btn.textContent='Continue to final debrief →';document.getElementById('j6Debrief').scrollIntoView({behavior:'smooth',block:'start'})}
+function j6Reset(){j6.selected=0;j6.tests=[false,false,false];j6.decision=null;document.getElementById('j6Rationale').value='';document.getElementById('j6Debrief').hidden=true;document.getElementById('j6Feedback').classList.remove('show');document.getElementById('judgeContinue').disabled=true;document.querySelectorAll('#j6Decision button').forEach(b=>b.classList.remove('selected'));j6Select(0)}
+j6Render();
+(function initDeployment03(){
+ const $=id=>document.getElementById(id);
+ let st,history,active;
+ const steps=['file','definition','access','automatic'];
+ const names={file:'CSV artifact',definition:'Lookup definition',access:'Access policy',automatic:'Automatic lookup'};
+ const requirements={file:'',definition:'file',access:'definition',automatic:'access'};
+ const escape=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function note(t){history.unshift(t);$('d3Audit').textContent=history.slice(0,10).map((x,i)=>`${i+1}. ${x}`).join('\n')}
+ function ready(k){return !requirements[k]||st[requirements[k]]}
+ function render(){
+  const tests=['reference','manual','auto'].filter(k=>st[k]).length;
+  const total=steps.filter(k=>st[k]).length+Math.min(tests,2);
+  $('d3Count').textContent=total+' / 6';
+  $('d3Health').innerHTML=[['CSV file',st.file],['Definition',st.definition],['Permissions',st.access],['Automatic rule',st.automatic],['Reference test',st.reference],['Manual test',st.manual],['Automatic test',st.auto]].map(([k,v])=>`<div><span>${escape(k)}</span><b class="${v?'d3-pass':'d3-wait'}">${v?'PASS':'PENDING'}</b></div>`).join('');
+  steps.forEach(k=>{const n=document.querySelector('#d3Pipeline [data-node="'+k+'"]');n.classList.toggle('d3-active',active===k);n.classList.toggle('d3-done',!!st[k]);$('d3Tag'+k[0].toUpperCase()+k.slice(1)).textContent=st[k]?'Configured':ready(k)?'Ready':'Waiting on '+names[requirements[k]]});
+ }
+ function drawer(k){active=k;const common={file:['Approved artifact','Choose the approved source file and its destination app.','<label>CSV file<select id="d3File"><option value="http_codes.csv">http_codes.csv</option><option value="web_errors.csv">web_errors.csv</option></select></label><label>Destination app<select id="d3App"><option value="security">security</option><option value="search">search</option></select></label>'],definition:['Define the lookup','Bind a lookup name to the uploaded CSV.','<label>Definition name<input id="d3DefName" value="http_codes"></label><label>Source file<select id="d3DefFile"><option value="http_codes.csv">http_codes.csv</option><option value="web_errors.csv">web_errors.csv</option></select></label>'],access:['Publish access','Allow analysts in the search app to use the lookup.','<label>Permission scope<select id="d3Permission"><option value="private">Private / owner only</option><option value="app">Shared in search app</option><option value="global">Global / all apps</option></select></label>'],automatic:['Configure search-time enrichment','Attach the lookup to the intended event type.','<label>Sourcetype<select id="d3Sourcetype"><option value="syslog">syslog</option><option value="access_combined">access_combined</option></select></label><label>Match field<select id="d3Match"><option value="host">host</option><option value="status">status</option></select></label><label>Output fields<select id="d3Fields"><option value="status">status only</option><option value="both">status_description + status_type</option><option value="host">host + uri</option></select></label>']};let x=common[k];$('d3Drawer').innerHTML='<div class="eyebrow">Configuration drawer</div><h3>'+x[0]+'</h3><p>'+x[1]+'</p><div class="d3-fields">'+x[2]+'</div><div class="btnrow"><button class="btn amber" id="d3Commit" type="button">Save configuration</button></div><p class="sub" id="d3DrawerMsg">'+(st[k]?'Already configured. You may review the fields.':ready(k)?'Ready for configuration.':'Prerequisite: configure '+names[requirements[k]]+' first.')+'</p>';$('d3Commit').addEventListener('click',()=>commit(k));render()}
+ function commit(k){const msg=$('d3DrawerMsg');if(!ready(k)){msg.textContent='Cannot save: '+names[requirements[k]]+' must be configured first.';return}
+ let ok=k==='file'?$('d3File').value==='http_codes.csv'&&$('d3App').value==='search':k==='definition'?$('d3DefName').value.trim()==='http_codes'&&$('d3DefFile').value==='http_codes.csv':k==='access'?$('d3Permission').value==='app':$('d3Sourcetype').value==='access_combined'&&$('d3Match').value==='status'&&$('d3Fields').value==='both';
+ if(!ok){msg.textContent=k==='file'?'Check the approved filename and target app.':k==='definition'?'The definition must point to the approved CSV under the required name.':k==='access'?'This change requires lookup access inside the search app.':'Compare the sourcetype, matching key, and outputs to CHG-2048.';return}
+ if(st[k]){msg.textContent='This component is already configured.';return}
+ st[k]=true;st.auto=false;if(k==='file'||k==='definition'||k==='access')st.manual=false;note('Saved '+names[k]);msg.textContent='Configuration saved. Run validation tests before approving release.';render()}
+ function execute(){const raw=$('d3Terminal').value.trim();const q=raw.replace(/\s+/g,' ').toLowerCase();let output='';
+ if(!raw){output='ERROR: Enter a supported SPL test or load a test card.'}
+ else if(q.includes('inputlookup')){if(!st.definition){output='ERROR: Lookup definition is not available. Configure the artifact and definition.'}else if(!q.includes('where')||!q.includes('status_type')||!q.includes('server error')){output='Search ran, but the required server-error filter was not applied. Try where status_type="Server Error".'}else{st.reference=true;output='2 results\nstatus | status_description    | status_type\n500    | Internal Server Error | Server Error\n503    | Service Unavailable  | Server Error\nPASS: reference data contains server-error mappings.';note('Reference inspection passed')}}
+ else if(q.includes('outputlookup')){output='BLOCKED: outputlookup writes results to a CSV. This change requires read-only validation.'}
+ else if(q.includes('| lookup')){if(!st.access){output='ERROR: Lookup is not available to the search app. Check file, definition and permissions.'}else if(!q.includes('http_codes status')||!q.includes('output status_description status_type')){output='Search ran, but the lookup name, match field or output fields do not meet the change request.'}else{st.manual=true;output='3 events\nhost   | status | status_description | status_type\nweb-03 | 404    | Not Found          | Client Error\nweb-01 | 503    | Service Unavailable| Server Error\nweb-02 | 200    | OK                 | Successful\nPASS: manual enrichment preserved status and added two fields.';note('Manual lookup validation passed')}}
+ else if(q.includes('index=web')&&q.includes('table')){if(!st.automatic){output='3 events\nhost   | status | status_description | status_type\nweb-03 | 404    | (missing)          | (missing)\nweb-01 | 503    | (missing)          | (missing)\nFAIL: automatic lookup is not configured.'}else{st.auto=true;output='3 events\nhost   | status | status_description | status_type\nweb-03 | 404    | Not Found          | Client Error\nweb-01 | 503    | Service Unavailable| Server Error\nweb-02 | 200    | OK                 | Successful\nPASS: automatic lookup enriched events without an explicit lookup command.';note('Automatic lookup validation passed')}}
+ else output='UNRECOGNIZED TEST: This simulator supports the three acceptance searches shown above. It is not a full SPL interpreter.';
+ $('d3Console').textContent='splunk-sim> '+raw+'\n\n'+output;render()}
+ function decision(type){if(type==='hold'){note('Release placed on hold');$('d3Decision').textContent='HOLD: Deployment is paused. Continue testing or choose rollback.';return}if(type==='rollback'){st={file:false,definition:false,access:false,automatic:false,reference:false,manual:false,auto:false,released:false};note('Deployment rolled back');$('d3Decision').textContent='ROLLBACK COMPLETE: All simulated configuration and test state has been cleared.';$('d3Lesson').textContent='The release debrief becomes available when you approve a validated deployment.';active=null;$('d3Drawer').textContent='Select a pipeline component to configure it.';render();return}
+ const missing=[['CSV artifact',st.file],['Lookup definition',st.definition],['Access policy',st.access],['Automatic lookup',st.automatic],['Reference inspection',st.reference],['Manual enrichment',st.manual],['Automatic enrichment',st.auto]].filter(x=>!x[1]).map(x=>x[0]);if(missing.length){$('d3Decision').textContent='NO-GO: The change is not ready. Outstanding checks: '+missing.join(', ')+'.';note('Release blocked by unmet checks');return}st.released=true;$('d3Decision').textContent='GO: CHG-2048 approved. All configuration dependencies and three acceptance tests passed.';$('d3Lesson').innerHTML='<p><b>Artifact:</b> The CSV supplies reference rows; it does not modify indexed events.</p><p><b>Definition:</b> The named lookup lets SPL reference that CSV.</p><p><b>Permissions:</b> The search app must be allowed to access the lookup.</p><p><b>Manual lookup:</b> An explicit <code>lookup</code> command enriches selected events.</p><p><b>inputlookup:</b> Reads CSV records directly for validation, without retrieving indexed events.</p><p><b>Automatic lookup:</b> Applies at search time to the configured sourcetype, with no explicit lookup command.</p><p><b>Release control:</b> A successful deployment is verified by observed search results, not configuration alone.</p>';note('Release approved');render()}
+ function reset(){st={file:false,definition:false,access:false,automatic:false,reference:false,manual:false,auto:false,released:false};history=[];active=null;$('d3Drawer').innerHTML='<b>Select a pipeline component to configure it.</b>';$('d3Audit').textContent='No deployment actions recorded.';$('d3Terminal').value='';$('d3Console').textContent='splunk-sim> Waiting for a search.';$('d3Decision').textContent='No release decision recorded.';$('d3Lesson').textContent='The release debrief becomes available when you approve a validated deployment.';render()}
+ document.querySelectorAll('#d3Pipeline [data-node]').forEach(el=>el.addEventListener('click',()=>drawer(el.dataset.node)));
+ document.querySelectorAll('#s3 [data-query]').forEach(el=>el.addEventListener('click',()=>{$('d3Terminal').value=el.dataset.query;$('d3Terminal').focus()}));
+ $('d3Execute').addEventListener('click',execute);$('d3Help').addEventListener('click',()=>{$('d3Console').textContent='Supported test searches:\n1. | inputlookup http_codes | where status_type="Server Error"\n2. index=web sourcetype=access_combined | lookup http_codes status OUTPUT status_description status_type | table host status status_description status_type\n3. index=web sourcetype=access_combined | table host status status_description status_type\n\nTip: Click a test card to load a query.'});$('d3Release').addEventListener('click',()=>decision('release'));$('d3Hold').addEventListener('click',()=>decision('hold'));$('d3Rollback').addEventListener('click',()=>decision('rollback'));$('d3Reset').addEventListener('click',reset);reset();
+})();
+
+function complete(){done=new Set([0,1,2,3,4,5,6,7]);progress();let t=document.getElementById('toast');t.textContent="Practicum complete — Operator → Detective → Judge";t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500)}
+go(0);
+
+// Operator 04 independent shift simulation.
+const o4Cases=[
+ {id:'OPS-401',title:'End-of-day sales guardrail',brief:'Finance wants one check at 23:00. Notify operations only when the completed daily purchase count is below 800.',feed:'23:00  daily_sales=764\n23:00  prior_day_sales=829\n23:00  index=commerce action=purchase',fields:[['mode','Execution','Scheduled|scheduled','Real-time|realtime'],['time','Run time','22:00|22:00','23:00|23:00','08:00|08:00'],['operator','Trigger','Below threshold|lt','Above threshold|gt','Every completion|always'],['threshold','Count threshold','500|500','800|800','1000|1000']],defaults:['realtime','22:00','gt','500']},
+ {id:'NOC-402',title:'Web error noise control',brief:'Notify immediately for each new 5xx status code, but suppress repeat notifications for the same status for 60 minutes.',feed:'10:01  www2 status=503\n10:06  www2 status=503\n10:11  www1 status=500\n10:34  www3 status=503\n11:03  www2 status=503',fields:[['mode','Detection','Per matching event|perresult','Rolling window|window','Scheduled|scheduled'],['group','Suppress by','Host|host','Status code|status','Client IP|clientip'],['duration','Quiet period','0 min|0','30 min|30','60 min|60']],defaults:['window','host','30']},
+ {id:'SEC-403',title:'Failed-login burst detector',brief:'Notify when more than 20 failed logins occur within a rolling five-minute window. Suppress similar notifications for 30 minutes after the first trigger.',feed:'10:00–10:05  failures=17\n10:02–10:07  failures=23\n10:04–10:09  failures=26\n10:35–10:40  failures=22',fields:[['window','Rolling window','3 min|3','5 min|5','10 min|10'],['threshold','Trigger if count >','15|15','20|20','25|25'],['duration','Suppression','0 min|0','15 min|15','30 min|30']],defaults:['10','15','15']},
+ {id:'RPT-404',title:'Daily leadership delivery',brief:'Send the daily sales summary at 08:00 every morning, including normal days. This is a scheduled delivery, not an exception-only notification.',feed:'08:00  Monday  sales=921 (normal)\n08:00  Tuesday sales=775 (low)\n08:00  Wednesday sales=850 (normal)',fields:[['type','Saved-search behavior','Scheduled alert|alert','Scheduled report|report','Real-time alert|realtime'],['time','Delivery time','07:00|07:00','08:00|08:00','09:00|09:00']],defaults:['alert','07:00']}
+];
+const o4Desk={active:0,passed:new Set(),replayed:false,good:false,values:{}};
+function o4Open(i){
+ o4Desk.active=i;o4Desk.replayed=false;o4Desk.good=false;
+ document.querySelectorAll('.o4ticket').forEach((x,j)=>x.classList.toggle('active',i===j));
+ const c=o4Cases[i];document.getElementById('o4CaseId').textContent=c.id+' · DISPATCH TICKET';
+ document.getElementById('o4CaseTitle').textContent=c.title;document.getElementById('o4CaseBrief').textContent=c.brief;
+ document.getElementById('o4EventFeed').textContent=c.feed;
+ const vals=o4Desk.values[i]||c.defaults;
+ document.getElementById('o4DynamicControls').innerHTML=c.fields.map((f,k)=>'<label>'+f[1]+'<select data-index="'+k+'" onchange="o4Changed()">'+f.slice(2).map(v=>{const [label,value]=v.split('|');return '<option value="'+value+'" '+(vals[k]===value?'selected':'')+'>'+label+'</option>'}).join('')+'</select></label>').join('');
+ document.getElementById('o4CaseState').textContent=o4Desk.passed.has(i)?'COMMISSIONED':'DRAFT';
+ document.getElementById('o4ReplayResults').innerHTML='<b>Awaiting replay</b><p>Run the sample activity to inspect the current policy.</p>';
+ document.getElementById('o4Commission').disabled=true;
+}
+function o4Values(){return [...document.querySelectorAll('#o4DynamicControls select')].map(x=>x.value)}
+function o4Changed(){o4Desk.values[o4Desk.active]=o4Values();o4Desk.replayed=false;o4Desk.good=false;document.getElementById('o4Commission').disabled=true;document.getElementById('o4ReplayResults').innerHTML='<b>Configuration changed</b><p>Replay the events to validate the new settings.</p>'}
+function o4Replay(){
+ const i=o4Desk.active,v=o4Values();o4Desk.values[i]=v;o4Desk.replayed=true;
+ const targets=[['scheduled','23:00','lt','800'],['perresult','status','60'],['5','20','30'],['report','08:00']];
+ const correct=targets[i].every((x,j)=>v[j]===x);o4Desk.good=correct;
+ let rows=[],notes='';
+ if(i===0){const trig=v[2]==='lt'?764<Number(v[3]):v[2]==='gt'?764>Number(v[3]):true;rows=[['23:00 · 764 purchases',v[0]==='scheduled'&&v[1]==='23:00'?(trig?'Alert fired':'No alert'):'Evaluation timing differs']];notes='Expected: one 23:00 evaluation; alert only for fewer than 800 purchases.'}
+ if(i===1){let last={};const events=[['10:01',503,1],['10:06',503,6],['10:11',500,11],['10:34',503,34],['11:03',503,63]];rows=events.map(([time,status,min])=>{const key=v[1]==='status'?status:v[1]==='host'?(time==='10:11'?'www1':time==='10:34'?'www3':'www2'):'client-A';let out='Alert fired';if(v[0]!=='perresult')out='Not per-result';else if(last[key]!==undefined&&min-last[key]<Number(v[2]))out='Suppressed';else last[key]=min;return [time+' · '+status,out]});notes='Expected: 503 at 10:01 fires; 10:06 and 10:34 are suppressed; 500 at 10:11 fires separately; 503 at 11:03 fires after the 60-minute interval.'}
+ if(i===2){const windows=[['10:00–10:05',17,0],['10:02–10:07',23,2],['10:04–10:09',26,4],['10:35–10:40',22,35]];let last=null;rows=windows.map(([t,n,min])=>{let result=n>Number(v[1])?'Alert fired':'No alert';if(result==='Alert fired'&&last!==null&&min-last<Number(v[2]))result='Suppressed';else if(result==='Alert fired')last=min;return [t+' · '+n+' failures',v[0]==='5'?result:'Window mismatch: result unreliable']});notes='Expected: 17 does not trigger; 23 triggers; 26 is suppressed; a later 22 can trigger after the quiet period.'}
+ if(i===3){rows=[['Monday · normal',v[0]==='report'&&v[1]==='08:00'?'Delivered':'Delivery not guaranteed'],['Tuesday · low',v[0]==='report'&&v[1]==='08:00'?'Delivered':'Delivery not guaranteed'],['Wednesday · normal',v[0]==='report'&&v[1]==='08:00'?'Delivered':'Delivery not guaranteed']];notes='Expected: all three days are delivered at 08:00, regardless of whether sales are normal.'}
+ const table='<table><thead><tr><th>Observed sample</th><th>Simulation outcome</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('')+'</tbody></table>';
+ document.getElementById('o4ReplayResults').innerHTML='<b>Replay completed · '+(correct?'Policy meets ticket':'Policy needs adjustment')+'</b>'+table+'<p>'+ (correct?notes:'Compare the event outcomes with the dispatch ticket. Check timing, trigger behavior, grouping, and suppression as applicable. Reconfigure and replay.')+'</p>';
+ document.getElementById('o4Commission').disabled=!correct;
+ document.getElementById('o4CaseState').textContent=correct?'READY':'TUNE POLICY';
+}
+function o4CommissionCase(){
+ if(!o4Desk.good)return;
+ const i=o4Desk.active,c=o4Cases[i];o4Desk.passed.add(i);
+ document.getElementById('o4Ticket'+i).textContent='Commissioned ✓';
+ document.getElementById('o4CaseState').textContent='COMMISSIONED';
+ document.getElementById('o4Count').textContent=o4Desk.passed.size+' / 4';
+ document.getElementById('o4ShiftLog').insertAdjacentHTML('afterbegin','<p>✓ '+c.id+' — '+c.title+' validated.</p>');
+ document.getElementById('o4Commission').disabled=true;
+ if(o4Desk.passed.size===4){document.getElementById('o4Handoff').innerHTML='<b>All controls commissioned.</b> The shift is ready for Detective review.';document.getElementById('o4Continue').disabled=false;document.getElementById('o4Continue').textContent='Handoff to Detective →'}
+ else {const next=[0,1,2,3].find(n=>!o4Desk.passed.has(n));o4Open(next)}
+}
+function o4ResetCase(){o4Desk.values[o4Desk.active]=[...o4Cases[o4Desk.active].defaults];o4Desk.passed.delete(o4Desk.active);document.getElementById('o4Ticket'+o4Desk.active).textContent='Not commissioned';document.getElementById('o4Count').textContent=o4Desk.passed.size+' / 4';document.getElementById('o4Continue').disabled=true;document.getElementById('o4Handoff').textContent='Commission all four controls to unlock the investigation handoff.';o4Open(o4Desk.active)}
+o4Open(0);
+</script>
+</body></html>
