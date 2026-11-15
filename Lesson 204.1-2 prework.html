@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Meridian Exchange — Human Signal to Security Intelligence</title>
+<style>
+:root{
+ --ink:#1d2730;--muted:#5f6970;--canvas:#eef0ea;--paper:#fffdf7;--paper2:#f5efe2;
+ --nav:#3a203e;--nav2:#512b55;--plum:#6d365f;--coral:#d76a52;--gold:#c99b42;
+ --sage:#607d6d;--line:#cfc6b8;--ok:#e1efe3;--bad:#f7dfda;--hint:#fff3cf;
+ --shadow:0 16px 38px rgba(35,31,36,.12)
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:"Trebuchet MS",Segoe UI,Arial,sans-serif;background:linear-gradient(120deg,#eceee8,#f4efe6 60%,#e8ece6);color:var(--ink);line-height:1.6}
+button,select,textarea{font:inherit}button{cursor:pointer}.shell{min-height:100vh;display:grid;grid-template-columns:310px 1fr}
+.rail{background:linear-gradient(180deg,var(--nav),#241a2b);color:#fff;padding:28px 20px;position:sticky;top:0;height:100vh;overflow:auto;border-right:7px solid var(--gold)}
+.brand{font-family:Georgia,serif;font-weight:700;font-size:1.35rem;line-height:1.15}.brand small{display:block;font-family:"Trebuchet MS",sans-serif;font-size:.72rem;font-weight:500;opacity:.72;margin-top:8px;letter-spacing:.08em;text-transform:uppercase}
+.progress{height:7px;background:#ffffff24;border-radius:20px;margin:22px 0 8px}.progress>div{height:100%;background:linear-gradient(90deg,var(--gold),#f2cf7b);border-radius:20px;width:0}
+#pct{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;opacity:.8}.collapse{display:none;margin:14px 0;background:#ffffff12;color:#fff;border:1px solid #ffffff38;padding:8px 11px;border-radius:3px}
+.rail button.nav{width:100%;text-align:left;border:0;border-bottom:1px solid #ffffff12;background:transparent;color:#e9dfe9;padding:11px 10px;margin:0;font-size:.87rem}
+.rail button.nav:hover{background:#ffffff0d}.rail button.nav.active{background:#ffffff13;color:#fff;border-left:4px solid var(--gold);padding-left:12px}.rail button.nav.done::after{content:"✓";float:right;color:#f2cf7b}
+.main{padding:46px clamp(24px,5vw,76px) 80px;max-width:1320px;width:100%;margin:auto}.screen{display:none;animation:paperIn .3s ease}.screen.active{display:block}@keyframes paperIn{from{opacity:.2;transform:translateY(10px)}}
+.kicker{display:inline-block;text-transform:uppercase;letter-spacing:.18em;font-size:.72rem;color:var(--plum);font-weight:900;border-bottom:2px solid var(--gold);padding-bottom:4px}
+h1{font-family:Georgia,serif;font-size:clamp(2.25rem,4vw,4.6rem);font-weight:500;line-height:1.02;margin:.28em 0;color:#2c2430}h3{font-family:Georgia,serif;margin-top:.2em}.lead{font-size:1.16rem;max-width:900px;color:#4c565b}
+.hero{background:var(--paper);padding:42px clamp(25px,4vw,56px);box-shadow:var(--shadow);border:1px solid var(--line);border-top:12px solid var(--plum);position:relative}
+.hero:before{content:"FIELD DOSSIER";position:absolute;right:26px;top:18px;font-size:.64rem;letter-spacing:.2em;color:#9b8064}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:var(--paper);border:1px solid var(--line);padding:22px;border-radius:2px;box-shadow:5px 5px 0 #d8d0c4}.card:nth-child(even){transform:rotate(.12deg)}
+.note{background:#edf1e9;border-left:6px solid var(--sage);padding:17px 19px;margin:20px 0}.brief{background:var(--paper2);border:1px solid #cdbda7;border-left:7px solid var(--coral);padding:20px 22px;margin:22px 0;box-shadow:4px 4px 0 #ddd2c2}.brief strong{display:block;font-family:Georgia,serif;font-size:1.1rem;margin-bottom:7px;color:#4e2d45}
+.controls{display:flex;gap:10px;justify-content:space-between;margin-top:30px;flex-wrap:wrap}.btn{border:0;border-radius:2px;padding:12px 17px;background:var(--plum);color:#fff;font-weight:800;box-shadow:3px 3px 0 #2e2031}.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #2e2031}.btn.secondary{background:#ded7cb;color:var(--ink);box-shadow:3px 3px 0 #aaa095}.btn.accent{background:var(--coral);box-shadow:3px 3px 0 #743a31}
+.pill{display:inline-block;padding:5px 9px;border-radius:2px;background:#e8dfc8;border:1px solid #cbb98c;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.vocab{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}.flip{height:255px;perspective:1000px;border:0;background:transparent;padding:0;text-align:left}.flip-inner{position:relative;width:100%;height:100%;transition:.5s;transform-style:preserve-3d}.flip.flipped .flip-inner{transform:rotateY(180deg)}.face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--line);padding:22px;background:var(--paper);box-shadow:5px 5px 0 #d7cec1}.back{transform:rotateY(180deg);background:#f1eee4;border-top:6px solid var(--sage);overflow:auto}.term{font-family:Georgia,serif;font-size:1.42rem;font-weight:700;margin-top:8px}.hint{font-size:.82rem;color:var(--muted)}
+.activity-row{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;padding:16px;border-bottom:1px solid #ddd4c7;background:#fffdf8}.activity-row:nth-child(even){background:#f4f0e7}.activity-row select,.card select{width:100%;padding:10px;border:1px solid #a99e91;border-radius:2px;background:#fff}
+.feedback{margin-top:14px;padding:16px 18px;display:none;border-left:6px solid}.feedback.show{display:block}.feedback.ok{background:var(--ok);border-color:#548362}.feedback.bad{background:var(--bad);border-color:#b9564c}.feedback ul{margin:.5em 0 .2em;padding-left:1.2em}
+.email{background:#fffdf8;border:1px solid var(--line);padding:24px;max-width:850px;box-shadow:6px 6px 0 #d9d0c4}.email .flag{border:0;background:transparent;padding:3px 5px;color:inherit;text-align:left}.email .flag.selected{background:#f8d5c9;outline:2px solid var(--coral)}
+textarea{width:100%;min-height:120px;padding:13px;border:1px solid #a99e91;border-radius:2px;background:#fff}.checkline{display:flex;gap:10px;align-items:flex-start;margin:10px 0}.status{font-size:.85rem;color:var(--muted);margin-top:8px}
+.storybeat{border-left:3px solid var(--gold);padding-left:16px;margin:12px 0}.brief .why{margin-top:10px;font-size:.92rem;color:#5e5550}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.rail{position:relative;height:auto;border-right:0;border-bottom:7px solid var(--gold)}.collapse{display:block}.navwrap.collapsed{display:none}.main{padding:25px}.grid,.grid3,.vocab,.activity-row{grid-template-columns:1fr}.hero{padding:28px}.flip{height:285px}}
+
+/* Vocabulary reference-format override */
+.vocab-intro{margin:20px 0 16px;background:#fff5df;border-left:6px solid #c8912f;padding:18px 22px;font-size:1.02rem}
+.vocab{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:20px!important;margin-top:0}
+.flip{height:300px!important;perspective:1200px!important;border:0!important;background:transparent!important;padding:0!important;text-align:left!important}
+.flip-inner{position:relative!important;width:100%!important;height:100%!important;transition:transform .55s ease!important;transform-style:preserve-3d!important}
+.flip.flipped .flip-inner{transform:rotateY(180deg)!important}
+.flip .face{position:absolute!important;inset:0!important;display:flex!important;flex-direction:column!important;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important;border:1px solid #ccd5e2!important;border-radius:0!important;padding:30px 28px!important;background:#fff!important;box-shadow:0 8px 22px rgba(28,45,74,.07)!important;overflow:hidden!important}
+.flip .front{justify-content:space-between!important}
+.flip .back{transform:rotateY(180deg)!important;background:#fffaf0!important;border:2px solid #c8912f!important;border-left:7px solid #c8912f!important;overflow:auto!important;justify-content:flex-start!important}
+.vnum{font-size:.78rem!important;color:#60708a!important;letter-spacing:.035em!important;text-transform:uppercase!important}
+.flip .term{font-family:"Trebuchet MS",Segoe UI,Arial,sans-serif!important;font-size:1.72rem!important;line-height:1.08!important;font-weight:900!important;color:#101010!important;margin:auto 0!important}
+.vprompt{font-size:.84rem!important;color:#60708a!important}
+.flip .back .term{font-size:1.18rem!important;margin:0 0 12px!important;color:#3a203e!important}
+.flip .back .vdetail{font-size:.9rem!important;line-height:1.5!important;color:#303840!important}
+.flip .back .vdetail b{color:#202938!important}
+@media(max-width:1100px){.vocab{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:700px){.vocab{grid-template-columns:1fr!important}.flip{height:330px!important}}
+
+
+/* VOCABULARY LAYOUT HOTFIX — force full-card geometry */
+.vocab{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:20px!important;
+  width:100%!important;
+  align-items:stretch!important;
+}
+.vocab > .flip{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:300px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+  white-space:normal!important;
+}
+.vocab > .flip > .flip-inner{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  transform-style:preserve-3d!important;
+}
+.vocab > .flip .face{
+  display:flex!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  max-width:100%!important;
+  margin:0!important;
+  padding:30px 28px!important;
+  border:1px solid #ccd5e2!important;
+  background:#fff!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  white-space:normal!important;
+  text-align:left!important;
+  backface-visibility:hidden!important;
+  -webkit-backface-visibility:hidden!important;
+}
+.vocab > .flip .front{justify-content:space-between!important}
+.vocab > .flip .back{
+  transform:rotateY(180deg)!important;
+  background:#fffaf0!important;
+  border:2px solid #c8912f!important;
+  border-left:7px solid #c8912f!important;
+  overflow:auto!important;
+}
+.vocab > .flip.flipped > .flip-inner{transform:rotateY(180deg)!important}
+.vocab .vnum,.vocab .term,.vocab .vprompt,.vocab .vdetail{
+  display:block!important;
+  width:auto!important;
+  max-width:100%!important;
+  white-space:normal!important;
+}
+.vocab .front .term{margin:auto 0!important}
+@media(max-width:1100px){
+ .vocab{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:700px){
+ .vocab{grid-template-columns:1fr!important}
+ .vocab > .flip{height:330px!important}
+}
+
+
+/* Evidence Bridge interaction */
+.bridge-case{background:var(--paper);border:1px solid var(--line);padding:22px;margin:20px 0;box-shadow:5px 5px 0 #d8d0c4}
+.bridge-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.bridge-evidence{font-size:1.03rem;margin:12px 0 17px}
+.bridge-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.bridge-choice{appearance:none;border:2px solid #c7c0b5;background:#fff;padding:15px;text-align:left;min-height:118px;color:var(--ink);box-shadow:none}
+.bridge-choice:hover{border-color:var(--plum);transform:translateY(-1px)}
+.bridge-choice.selected{border-color:var(--plum);outline:3px solid rgba(109,54,95,.13);background:#f7f0f5}
+.bridge-choice .choice-title{display:block;font-weight:900;margin-bottom:5px}
+.bridge-choice .choice-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.35}
+.bridge-case.locked .bridge-choice{cursor:default}
+.bridge-case.locked .bridge-choice:not(.selected){opacity:.64}
+@media(max-width:850px){.bridge-choices{grid-template-columns:1fr}}
+
+
+/* Detection Relay */
+.relay-case{background:var(--paper);border:1px solid var(--line);padding:22px;margin:20px 0;box-shadow:5px 5px 0 #d8d0c4}
+.relay-context{font-size:1.02rem;line-height:1.6;margin:12px 0 17px}
+.relay-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.relay-choice{appearance:none;border:2px solid #c7c0b5;background:#fff;padding:16px;text-align:left;min-height:126px;color:var(--ink);box-shadow:none;white-space:normal}
+.relay-choice:hover{border-color:var(--plum);transform:translateY(-1px)}
+.relay-choice.selected{border-color:var(--plum);outline:3px solid rgba(109,54,95,.13);background:#f7f0f5}
+.relay-choice .choice-title{display:block;font-weight:900;margin-bottom:7px}
+.relay-choice .choice-note{display:block;font-size:.83rem;line-height:1.4;color:var(--muted)}
+.relay-case.locked .relay-choice{cursor:default}
+.relay-case.locked .relay-choice:not(.selected){opacity:.62}
+@media(max-width:850px){.relay-choices{grid-template-columns:1fr}}
+
+
+/* Signal Chain Reconstruction */
+.recon-bank{background:#f5efe6;border:1px solid var(--line);padding:20px;margin:20px 0}
+.recon-items{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;min-height:64px}
+.recon-token{border:2px solid #b8aea1;background:#fff;padding:12px 15px;font-weight:900;cursor:grab;box-shadow:3px 3px 0 #ded6cb;user-select:none}
+.recon-token:active{cursor:grabbing}
+.recon-board{display:grid;gap:16px;margin:22px 0}
+.recon-slot{display:grid;grid-template-columns:minmax(190px,.7fr) minmax(0,1.5fr);gap:18px;align-items:stretch;border:1px solid var(--line);background:var(--paper);padding:18px}
+.recon-drop{border:2px dashed #a99d90;min-height:82px;display:flex;align-items:center;justify-content:center;padding:10px;background:#faf8f3}
+.recon-drop.over{border-style:solid;border-color:var(--plum);background:#f6eef4}
+.recon-rel{display:flex;flex-direction:column;justify-content:center}
+.recon-rel b{font-size:1.02rem}
+.recon-rel p{margin:.35rem 0 0}
+.recon-slot.correct{border-left:7px solid #43745d}
+.recon-slot.wrong{border-left:7px solid #a85151}
+.recon-explain{margin-top:12px;font-size:.92rem;line-height:1.5}
+@media(max-width:760px){.recon-slot{grid-template-columns:1fr}}
+
+
+/* ES Workspace Walkthrough */
+.workspace-shell{border:1px solid var(--line);background:#e9e3da;margin:22px 0;box-shadow:7px 7px 0 #d4cbc0}
+.workspace-top{padding:14px 18px;background:#2f2930;color:#fff;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.workspace-grid{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:12px;padding:18px}
+.ws-hotspot{border:2px solid #b9afa4;background:#fff;min-height:125px;padding:18px;text-align:left;color:var(--ink);position:relative}
+.ws-hotspot:hover,.ws-hotspot.active{border-color:var(--plum);background:#f7f0f5}
+.ws-hotspot span{display:inline-flex;width:31px;height:31px;border-radius:50%;align-items:center;justify-content:center;background:var(--plum);color:#fff;font-weight:900;margin-bottom:12px}
+.ws-hotspot b,.ws-hotspot small{display:block}.ws-hotspot small{margin-top:5px;color:var(--muted)}
+.workspace-inspector{border-left:7px solid var(--plum);background:var(--paper);padding:22px;margin:18px 0}
+.annotation-box{width:100%;min-height:100px;padding:12px;border:1px solid #aaa;font:inherit;margin-top:10px}
+.concept-drawer{border:1px solid var(--line);background:#faf7f1;padding:16px;margin:18px 0}
+.concept-drawer summary{cursor:pointer}
+.drawer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px}
+.drawer-grid div{background:#fff;border:1px solid var(--line);padding:14px}
+.drawer-grid p{margin:.35rem 0 0}
+@media(max-width:800px){.workspace-grid,.drawer-grid{grid-template-columns:1fr}}
+
+
+/* Awareness Briefing Canvas */
+.aw-source-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0}
+.aw-source{border:2px solid #b9afa4;background:#fff;padding:15px;text-align:left;min-height:112px;color:var(--ink)}
+.aw-source:hover,.aw-source.active{border-color:var(--plum);background:#f7f0f5}
+.aw-source span{display:inline-flex;width:29px;height:29px;border-radius:50%;align-items:center;justify-content:center;background:var(--plum);color:#fff;font-weight:900;margin-bottom:9px}
+.aw-source b,.aw-source small{display:block}.aw-source small{margin-top:5px;color:var(--muted)}
+.aw-source-viewer{background:var(--paper);border-left:7px solid var(--gold);padding:20px;margin:16px 0 24px}
+.source-records{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.source-records div{background:#fff;border:1px solid var(--line);padding:12px}
+.human-model{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;gap:9px;align-items:stretch;margin:24px 0}
+.hm-panel{background:var(--paper);border:1px solid var(--line);padding:16px;min-width:0}
+.hm-panel textarea,.synthesis-box textarea{width:100%;min-height:125px;padding:11px;border:1px solid #aaa;font:inherit;margin-top:8px}
+.hm-arrow{align-self:center;font-size:1.8rem;font-weight:900;color:var(--plum)}
+.synthesis-box{background:#f5efe6;border:1px solid var(--line);padding:18px;margin:18px 0}
+@media(max-width:1050px){.aw-source-grid{grid-template-columns:repeat(2,1fr)}.human-model{grid-template-columns:1fr}.hm-arrow{transform:rotate(90deg);justify-self:center}}
+@media(max-width:650px){.aw-source-grid,.source-records{grid-template-columns:1fr}}
+
+
+/* Human Signal Conference */
+.conference-desk{border:1px solid var(--line);background:#eee8df;margin:22px 0;box-shadow:7px 7px 0 #d6cec3}
+.conference-header{background:#2f2930;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.signal-reports{padding:18px;display:grid;gap:18px}
+.signal-report{background:var(--paper);border:1px solid var(--line);padding:20px}
+.report-evidence{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.report-evidence div{background:#fff;border:1px solid var(--line);padding:12px}
+.interpretation-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:15px}
+.interpretation-note{border:2px solid #b9afa4;background:#fff;padding:15px;text-align:left;min-height:150px;color:var(--ink);white-space:normal}
+.interpretation-note:hover,.interpretation-note.selected{border-color:var(--plum);background:#f7f0f5}
+.interpretation-note b{display:block;margin-bottom:8px}
+.signal-report.locked .interpretation-note{cursor:default}
+.signal-report.locked .interpretation-note:not(.selected){opacity:.6}
+@media(max-width:800px){.report-evidence,.interpretation-grid{grid-template-columns:1fr}}
+
+
+/* Threat Journey Room */
+.journey-strip{background:var(--paper);border:1px solid var(--line);padding:21px;margin:22px 0;box-shadow:5px 5px 0 #d8d0c4}
+.journey-evidence{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:14px 0}
+.journey-tile{background:#fff;border:2px solid #b9afa4;padding:14px;min-height:108px;cursor:grab}
+.journey-tile b{display:block;margin-bottom:6px}.journey-tile small{color:var(--muted);line-height:1.4}
+.journey-track{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:9px;align-items:center;margin:16px 0}
+.journey-slot{border:2px dashed #a99d90;background:#faf8f3;min-height:105px;padding:12px;display:flex;align-items:center;justify-content:center;text-align:center}
+.journey-slot.over{border-style:solid;border-color:var(--plum);background:#f7f0f5}
+.journey-arrow{font-size:1.55rem;font-weight:900;color:var(--plum)}
+.journey-explain{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.journey-reason{border:2px solid #b9afa4;background:#fff;padding:14px;text-align:left;min-height:132px;color:var(--ink);white-space:normal}
+.journey-reason:hover,.journey-reason.selected{border-color:var(--plum);background:#f7f0f5}
+.journey-strip.locked .journey-reason,.journey-strip.locked .journey-tile{cursor:default}
+@media(max-width:850px){.journey-evidence,.journey-explain{grid-template-columns:1fr}.journey-track{grid-template-columns:1fr}.journey-arrow{transform:rotate(90deg);justify-self:center}}
+
+
+/* Shift Change Brief */
+.shift-packet{border:1px solid var(--line);background:#eee8df;margin:22px 0}
+.packet-head{background:#302a31;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.packet-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:16px}
+.packet-note{background:#fff;border:2px solid #b9afa4;padding:14px;text-align:left;min-height:105px;color:var(--ink)}
+.packet-note:hover,.packet-note.active{border-color:var(--plum);background:#f7f0f5}
+.packet-note span{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:50%;background:var(--plum);color:#fff;font-weight:900;margin-bottom:8px}
+.packet-note b,.packet-note small{display:block}.packet-note small{margin-top:5px;color:var(--muted);line-height:1.35}
+.shift-note-viewer{margin:0 16px 16px;background:var(--paper);border-left:6px solid var(--gold);padding:18px}
+.brief-builder{display:grid;gap:18px;margin:24px 0}
+.brief-line{background:var(--paper);border:1px solid var(--line);padding:20px;box-shadow:5px 5px 0 #d8d0c4}
+.brief-line-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.draft-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:14px}
+.draft-choice{background:#fff;border:2px solid #b9afa4;padding:15px;text-align:left;min-height:154px;color:var(--ink);white-space:normal}
+.draft-choice:hover,.draft-choice.selected{border-color:var(--plum);background:#f7f0f5}
+.brief-line.locked .draft-choice{cursor:default}
+.brief-line.locked .draft-choice:not(.selected){opacity:.62}
+@media(max-width:850px){.packet-grid,.draft-grid{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="rail">
+  <div class="brand">The Meridian Exchange<small>A Human Signal → Security Intelligence Field Story</small></div>
+  <div class="progress"><div id="bar"></div></div>
+  <div id="pct">0% complete</div>
+  <button class="collapse" onclick="document.querySelector('.navwrap').classList.toggle('collapsed')">☰ Toggle learning map</button>
+  <div class="navwrap" id="nav"></div>
+</aside>
+<main class="main">
+<section class="screen active" data-title="Welcome">
+ <div class="hero"><div class="kicker">Prework • Orientation</div><h1>A routine morning becomes a security story.</h1>
+ <p class="lead">You are the newest <b>Security Readiness Associate</b> at Meridian Exchange, a regional organization that coordinates time-sensitive services across offices, vendors, and remote teams. At 8:17 a.m., an ordinary workday begins to change: an employee reports a strange account message, a controlled door is held for an unfamiliar visitor, and the security team begins seeing technical activity worth reviewing. Your prework follows that same morning from the employee’s first uneasy feeling to the analyst’s view inside Splunk Enterprise Security.</p>
+ <div class="grid"><div class="card"><b>Your mission</b><p>Follow Meridian Exchange’s morning security story in chronological order. First recognize the language employees and analysts use; then interpret the human warning signs; finally connect the technical signals to the introductory Splunk ES workflow.</p></div>
+ <div class="card"><b>Story path</b><p><span class="pill">Reporter · Remember</span> covers the first observations and shared vocabulary. <span class="pill">Translator · Understand</span> follows the same case into relationships, ES workflow, and the human-to-analyst bridge. Each briefing advances the same morning rather than starting a new scenario.</p></div></div>
+ <div class="note"><b>Estimated time:</b> about 40 minutes. This prework does not ask you to troubleshoot incidents or operate a production SIEM. It prepares you for later Apply and Analyze work.</div></div>
+ <div class="controls"><span></span><button class="btn" onclick="goTitle('Learning Objectives')">Review objectives →</button></div>
+</section>
+
+<section class="screen" data-title="Learning Objectives">
+ <div class="kicker">Orientation • 02</div><h1>Learning objectives</h1><p class="lead">By the end of this prework, you should be able to remember foundational terminology and explain how security-awareness decisions connect with introductory Splunk ES concepts.</p>
+ <div class="grid">
+  <div class="card"><b>Recognize</b><p>Threat, vulnerability, exploit, risk, phishing/social-engineering red flags, malware indicators, and suspicious activity/reporting concepts.</p></div>
+  <div class="card"><b>Identify</b><p>Core Splunk ES concepts including data sources, forwarders, indexes/events, data models, detections, findings, Mission Control, dashboards, and ES roles.</p></div>
+  <div class="card"><b>Explain</b><p>How security data moves from collection toward detection, findings, analyst investigation, and response.</p></div>
+  <div class="card"><b>Connect</b><p>How an employee’s recognition and reporting of suspicious behavior complements the analyst-facing visibility provided by Splunk ES.</p></div>
+ </div><div class="controls"><button class="btn secondary" onclick="goTitle('Welcome')">← Back</button><button class="btn" onclick="goTitle('Essential Vocabulary')">Build vocabulary →</button></div>
+</section>
+
+<section class="screen" data-title="Essential Vocabulary">
+ <div class="kicker">Foundation • 03</div><h1>Essential vocabulary</h1><p class="lead">Read the term, say what you think it means, then select the card to reveal the explanation. This is retrieval practice—not a guessing game.</p>
+ <div class="vocab-intro"><b>How to use the cards:</b> Each card teaches the term in four layers: <b>What it means → How it works → Why it matters → Lesson example.</b> Try to explain the term yourself first, then select the card to check and deepen your understanding.</div><div class="vocab" id="vocab"></div><div class="status" id="vocabStatus"></div>
+ <div class="controls"><button class="btn secondary" onclick="goTitle('Learning Objectives')">← Back</button><button class="btn" onclick="goTitle('Reporter Phase Brief')">Enter Reporter →</button></div>
+</section>
+
+
+<section class="screen" data-title="Complete Source Atlas">
+ <div class="kicker">Complete Coverage • Source Atlas</div><h1>Everything the two lessons contribute</h1>
+ <p class="lead">This atlas consolidates the complete meaningful instructional content of both uploaded lessons before you practice it. Use the tabs to review each source strand. The activities that follow deliberately reuse these concepts so they are not merely mentioned.</p>
+ <div class="grid">
+  <div class="card"><h3>Cybersecurity Awareness — foundation</h3>
+   <p><b>Security awareness:</b> cybersecurity is everyone’s responsibility. Individual decisions can reduce or increase organizational risk.</p>
+   <p><b>Core terminology:</b> vulnerability, threat, exploit, and risk. A vulnerability is a weakness; a threat is something capable of causing harm; an exploit uses a weakness; risk concerns the possibility and impact of harm.</p>
+   <p><b>Security terminology relationships:</b> learners should distinguish the terms rather than treat them as interchangeable and understand how they combine in a real security situation.</p>
+  </div>
+  <div class="card"><h3>Social engineering & phishing</h3>
+   <p>Social engineering targets people and their motivations. The lesson connects manipulation with human needs and motivations, including safety, belonging, and self-actualization, and shows how attackers can use persuasion to influence behavior.</p>
+   <p>Phishing can use <b>quid pro quo, urgency, authority</b>, and other manipulation techniques. Learners are taught to inspect the entire message rather than react to one cue.</p>
+   <p><b>Email red flags:</b> unexpected sender/domain, generic or unusual greeting, urgency, credential requests, suspicious links, questionable attachments, spelling/grammar or formatting problems, and requests that conflict with normal organizational practice.</p>
+  </div>
+  <div class="card"><h3>Phishing response & reporting</h3>
+   <p>Do not interact with a suspicious message simply because it appears urgent. Stop, inspect, verify through trusted channels, and follow the organization’s reporting process.</p>
+   <p>Reporting matters because security teams need the suspicious message and its context to investigate. Awareness therefore includes both <b>recognition</b> and <b>appropriate reporting</b>.</p>
+  </div>
+  <div class="card"><h3>Recognizing malware</h3>
+   <p>Malware is complicated and can affect users even when they believe they are careful. Security is not guaranteed merely because antimalware exists, because a user believes nobody is targeting them, or because they have previously avoided infection.</p>
+   <p>The lesson reinforces practical awareness of malicious software, risky links/attachments, software and device behavior, and the importance of organizational protections and user decisions working together.</p>
+  </div>
+  <div class="card"><h3>Suspicious activities</h3>
+   <p>Employees have a responsibility to notice and report suspicious situations rather than assume someone else will handle them. Examples in the lesson include suspicious physical or workplace behavior, unusual requests, people seeking access or information, and circumstances that do not fit normal expectations.</p>
+   <p>Awareness applies to both digital and physical situations. The learner should observe, avoid unsafe disclosure or access, and use the organization’s reporting path.</p>
+  </div>
+  <div class="card"><h3>Practice scenarios from the awareness lesson</h3>
+   <p>The lesson uses workplace decisions such as <b>incident requests, account/access questions, password sharing, tailgating/access behavior, and suspicious situations</b>. The common principle is to verify identity and authorization rather than relying on familiarity, urgency, politeness, or pressure.</p>
+   <p>The lesson closes with the idea that <b>security is everyone’s job</b>: employees, managers, IT, and security functions all contribute to the organization’s security posture.</p>
+  </div>
+  <div class="card"><h3>Enterprise Security — SIEM foundation</h3>
+   <p>Splunk Enterprise Security (ES) is introduced as a <b>SIEM</b>: a security-focused solution that brings together machine/security data so analysts can recognize, investigate, and respond to threats.</p>
+   <p>The course explains why organizations need this capability, what Splunk ES does, and how it fits with broader security operations rather than treating ES as a generic search tool.</p>
+  </div>
+  <div class="card"><h3>Threat & incident framework</h3>
+   <p>The Enterprise Security lesson introduces the <b>anatomy of a security incident</b>, <b>kill chain methodology</b>, <b>advanced persistent threats (APTs)</b>, and ES security use cases. The purpose is to understand that attacks develop through stages and that security data can expose activity across those stages.</p>
+   <p>The course also introduces security frameworks/operations concepts to help learners understand how analysts organize security work and how ES supports that work.</p>
+  </div>
+  <div class="card"><h3>Splunk ES roles</h3>
+   <p>The lesson distinguishes ES responsibilities and access through roles such as <b>User, Power, Admin, and Analyst</b>. The point is that different users interact with Splunk/ES according to different responsibilities and permissions; the analyst role is centered on security investigation work.</p>
+  </div>
+  <div class="card"><h3>Data in Splunk ES</h3>
+   <p>The source-to-security-intelligence story includes <b>gathering data, indexing events, searching data, looking for trouble, process summary, dashboards, and data models</b>.</p>
+   <p>Machine/security data is collected from sources, stored as searchable events, and organized so analysts and security content can work with it. <b>Accelerated data models</b> improve access to normalized security information used by ES analytics.</p>
+  </div>
+  <div class="card"><h3>Threat detection process</h3>
+   <p>ES uses <b>correlation searches/detections</b> to look for defined security patterns. When conditions are met, ES can create <b>notable events/findings</b> for analyst attention. The conceptual flow is:</p>
+   <p><b>Security data → search/normalized data → detection/correlation search → suspicious activity → finding/notable event → analyst investigation → response.</b></p>
+   <p>The lesson also introduces exploring searches in Splunk ES so learners understand that detection logic is grounded in searchable event data.</p>
+  </div>
+  <div class="card"><h3>Dashboards, risk & security intelligence</h3>
+   <p>The course introduces ES dashboards including <b>Security Posture, Incident Review, and Executive Summary</b>, plus <b>risk-based alerting</b>. Dashboards provide different views of security information; risk-based alerting adds context around entities and activity instead of treating every signal as an unrelated event.</p>
+  </div>
+  <div class="card"><h3>Working in ES</h3>
+   <p>The lesson’s final portion connects the environment to analyst work: security content, detection/investigation workflow, threat intelligence, and analyst roles. It shows that ES is an analyst-facing security environment, while remaining introductory rather than a full SOC analyst operations course.</p>
+   <p>Its workflow framing includes <b>Trigger Workflow, Investigation Workflow, Detection Workflow, Threat Intelligence Workflow</b>, and the people/roles that support them.</p>
+  </div>
+  <div class="card"><h3>The bridge between both lessons</h3>
+   <p>The awareness lesson develops the human side of security: recognize manipulation or suspicious activity, protect information and access, and report concerns. The Enterprise Security lesson develops the introductory analyst/SIEM side: collect and search data, detect meaningful activity, surface findings, and support investigation.</p>
+   <p>Together they create one mental model: <b>people notice and report; systems collect and correlate; analysts investigate; the organization responds.</b></p>
+  </div>
+ </div>
+ <div class="note"><b>Coverage rule used in this build:</b> concepts from both sources are consolidated when they teach the same relationship, but no major instructional strand is intentionally omitted. The application stays at Remember and Understand because this is prework.</div>
+ <div class="controls"><button class="btn secondary" onclick="goTitle('Essential Vocabulary')">← Vocabulary</button><button class="btn" onclick="goTitle('Reporter • Signal Catalog')">Enter Reporter →</button></div>
+</section>
+
+<section class="screen" data-title="Reporter Phase Brief">
+ <div class="hero"><div class="kicker">Reporter • Remember</div><h1>Build a reliable signal vocabulary.</h1>
+ <p class="lead">A readiness associate cannot explain relationships accurately until the foundational terms and stages are recognizable. In Reporter, concentrate on <b>recognizing, identifying, recalling, locating, labeling, and associating</b> information you have already reviewed.</p>
+ <div class="brief"><strong>Workplace moment</strong>At 8:22 a.m., the Readiness Lead opens the first case envelope. Before anyone can interpret the morning’s events, the team needs a shared language. Your job is to verify the foundational labels that employees and analysts will use as the story unfolds. You are not investigating the incident yet; you are building accurate recognition so later explanations are based on the same vocabulary.</div>
+ <p><b>Success looks like:</b> accurate recognition without relying on position, answer length, or wording patterns. Approximate phase time: 12–15 minutes.</p></div>
+ <div class="controls"><button class="btn secondary" onclick="goTitle('Essential Vocabulary')">← Back</button><button class="btn" onclick="goTitle('Reporter • Signal Catalog')">Begin Reporter →</button></div>
+</section>
+
+<section class="screen" data-title="Reporter • Signal Catalog">
+ <div class="kicker">Reporter • Case Intake 01</div>
+ <h1>Signal Catalog: Morning Intake Board</h1>
+ <p class="lead">8:24 a.m. — Meridian Exchange has received four early security records. None tells the whole story. Label what each record actually describes before the team connects the events.</p>
+ <div class="brief"><strong>Activity brief</strong>
+ <b>Why this matters:</b> Vulnerability, threat, exploit, and risk are related, but they do not mean the same thing.<br><br>
+ <b>What to examine:</b> Decide whether each record centers on a weakness, a source of harm, a method/action using a weakness, or potential organizational harm.<br><br>
+ <b>What to do:</b> Select the best classification for each intake record, then choose <b>Validate intake</b>. Incorrect choices require another attempt and do not reveal the correct answer.<br><br>
+ <b>Success:</b> Classify by meaning—not keyword, answer position, or response length.
+ </div>
+ <div id="catalog" style="display:none"></div><div id="signalCases"></div>
+ <button class="btn accent" onclick="checkSignalCatalog()">Validate intake</button>
+ <div id="catalogFb" class="feedback"></div>
+ <div class="controls"><button class="btn secondary" onclick="goTitle('Reporter Phase Brief')">← Reporter Brief</button><button class="btn" onclick="goTitle('Reporter • Data Route')">Continue →</button></div>
+</section>
+
+<section class="screen" data-title="Reporter • Data Route">
+ <div class="kicker">Reporter • Evidence Route 02</div>
+ <h1>Data Route Strip: Follow the Security Signal</h1>
+ <p class="lead">8:46 a.m. — The morning report has reached the SOC. Now follow one security signal as it moves from collected machine data toward analyst attention in Splunk Enterprise Security.</p>
+ <div class="brief"><strong>Activity brief</strong>
+  <b>Why this matters:</b> Splunk ES does not jump directly from a device to an investigation. Different parts of the workflow collect, store, organize, evaluate, and present security information.<br><br>
+  <b>What to examine:</b> Each route checkpoint describes what is happening to the signal at that moment. Focus on the <em>function</em> of the stage rather than one familiar word.<br><br>
+  <b>What to do:</b> For each checkpoint, select the stage that best explains what happens next. Options are deliberately similar in length and their positions vary. Then choose <b>Validate route</b>.<br><br>
+  <b>If incorrect:</b> You will receive a clue about the stage you selected, but the application will not reveal the correct answer. Reconsider the evidence and try again.<br><br>
+  <b>Success:</b> Reconstruct the introductory source workflow from security data through analyst investigation while understanding why neighboring stages do not fit.
+ </div>
+ <div class="note"><b>Case thread:</b> A workstation associated with the earlier account-verification message is producing security telemetry. You are tracing how that evidence becomes something an analyst can review—not deciding whether the activity is malicious.</div>
+ <div id="route" style="display:none"></div><div id="routeCases"></div>
+ <button class="btn accent" onclick="checkDataRouteEnhanced()">Validate route</button>
+ <div id="routeEnhancedFb" class="feedback"></div>
+ <div class="controls"><button class="btn secondary" onclick="goTitle('Reporter • Signal Catalog')">← Signal Catalog</button><button class="btn" onclick="goTitle('Reporter • Red Flag Markup')">Continue →</button></div>
+</section>
+
+<section class="screen" data-title="Reporter • Red Flag Markup">
+ <div class="kicker">Reporter • Message Triage 03</div>
+ <h1>Red Flag Markup: Suspicious Message Review</h1>
+ <p class="lead">8:31 a.m. — Maya Chen has forwarded the account-verification message that started the morning’s concern. Instead of hunting for one “bad-looking” clue, review the message the way an awareness-trained employee should: examine context, persuasion, identity, destination, and requested action together.</p>
+ <div class="brief"><strong>Activity brief</strong>
+  <b>Why this matters:</b> Phishing often works because individual details can look ordinary. The stronger judgment comes from recognizing how multiple cues combine—especially urgency, authority, credential requests, sender inconsistencies, and suspicious destinations.<br><br>
+  <b>What to examine:</b> Review each evidence record from the message. Some details are suspicious; others are neutral or only become meaningful when combined with context.<br><br>
+  <b>What to do:</b> For each record, choose the interpretation that best explains its security significance. Options are intentionally plausible and vary in position. Then choose <b>Validate message review</b>.<br><br>
+  <b>If incorrect:</b> You will learn why your interpretation does not fit, but the correct choice will remain hidden until you reconsider the evidence.<br><br>
+  <b>Success:</b> Distinguish a meaningful phishing indicator from a normal message feature without relying on obvious wording or answer length.
+ </div>
+ <div class="email">
+   <div class="pill">FORWARDED MESSAGE • 08:31</div>
+   <p><b>From:</b> Meridian Access Desk &lt;account-services@meridian-access-support.com&gt;<br>
+   <b>Subject:</b> Verification required before 9:00 AM</p>
+   <p>Hello Meridian User,</p>
+   <p>We detected an authentication issue affecting your employee profile. To prevent a temporary interruption, review your account before 9:00 AM.</p>
+   <p><b>Review account:</b> https://meridian-verify-login.com/session</p>
+   <p>Sign in with your current company credentials to confirm the profile. If verification is not completed, access may be restricted while the issue is reviewed.</p>
+   <p>— Meridian Access Desk</p>
+ </div>
+ <div id="email" style="display:none"></div><div id="redFlagCases" style="margin-top:20px"></div>
+ <button class="btn accent" onclick="checkRedFlagEnhanced()">Validate message review</button>
+ <div id="redFlagEnhancedFb" class="feedback"></div>
+ <div class="controls"><button class="btn secondary" onclick="goTitle('Reporter • Data Route')">← Data Route</button><button class="btn" onclick="goTitle('Reporter • Access Desk')">Continue →</button></div>
+</section>
+
+<section class="screen" data-title="Reporter • Access Desk">
+ <div class="kicker">Reporter • Access Desk 04</div>
+ <h1>Access Desk: Route the Security Request</h1>
+ <p class="lead">9:12 a.m. — As the morning case develops, several Splunk Enterprise Security requests arrive at the readiness desk. Your job is not to solve the requests. Your job is to recognize which ES role or workspace is the appropriate starting point.</p>
+
+ <div class="brief"><strong>Activity brief</strong>
+  <b>Why this matters:</b> Splunk ES separates responsibilities and workspaces. Analysts, administrators, and general ES users do not all perform the same work, and Mission Control, Security Content, Search, and broader analytics views serve different purposes.<br><br>
+  <b>What to examine:</b> Each ticket contains a realistic work request. Identify the <em>primary responsibility or destination</em> described—not every tool that could possibly appear later in the workflow.<br><br>
+  <b>What to do:</b> Review each ticket and select the best routing destination. The choices use legitimate ES roles/workspaces, their wording is intentionally comparable, and correct answers appear in different positions.<br><br>
+  <b>If incorrect:</b> You will receive an explanation of why your selected destination is plausible but not the best fit. The correct answer stays hidden until you reconsider the ticket.<br><br>
+  <b>Success:</b> Recognize who is responsible for the work and where that work begins without confusing investigation, configuration, content management, ad hoc search, and high-level security visibility.
+ </div>
+
+ <div class="note"><b>Story connection:</b> The suspicious message has been reported and the technical signal has entered ES. These tickets show how different people and ES views support the security program around that same workflow.</div>
+
+ <div id="accessDeskCases"></div>
+ <button class="btn accent" onclick="checkAccessDesk()">Route requests</button>
+ <div id="accessDeskFb" class="feedback"></div>
+
+ <div class="controls">
+  <button class="btn secondary" onclick="goTitle('Reporter • Red Flag Markup')">← Red Flag Markup</button>
+  <button class="btn" onclick="goTitle('Translator Phase Brief')">Finish Reporter →</button>
+ </div>
+</section>
+<section class="screen" data-title="Translator Phase Brief">
+ <div class="hero"><div class="kicker">Translator • Understand</div><h1>Move from labels to meaning.</h1>
+ <p class="lead">You have identified the vocabulary and stages. Now the orientation team needs you to explain how the ideas fit together. Translator asks you to <b>compare, classify, interpret, organize, summarize, and connect</b>—without moving into troubleshooting or incident-response execution.</p>
+ <div class="brief"><strong>Workplace development</strong>The draft orientation is accurate, but it still feels like two separate courses. Your responsibility now is to make the relationship between employee security awareness and analyst-facing Splunk ES understandable.</div>
+ <p><b>Success looks like:</b> clear mental models and accurate distinctions. Approximate phase time: 15–18 minutes.</p></div>
+ <div class="controls"><button class="btn secondary" onclick="goTitle('Reporter • Red Flag Markup')">← Back</button><button class="btn" onclick="goTitle('Translator • Evidence Bridge')">Begin Translator →</button></div>
+</section>
+
+<section class="screen" data-title="Translator • Evidence Bridge">
+ <div class="kicker">Translator • Evidence Bridge 01</div>
+ <h1>Evidence Bridge: Connect the Human Signal to the SOC</h1>
+ <p class="lead">9:26 a.m. — Meridian’s Readiness Lead is preparing a joint employee/SOC debrief. The team has six statements from the morning case, but they need to be placed into the correct part of the security story: employee awareness, Splunk ES analyst workflow, or the bridge where human reporting becomes useful security context.</p>
+
+ <div class="brief"><strong>Activity brief</strong>
+  <b>Why this matters:</b> Cybersecurity Awareness and Splunk Enterprise Security support the same security program, but they do not teach the same responsibilities. Employees recognize and report suspicious situations; ES helps security teams organize, detect, surface, and investigate security information.<br><br>
+  <b>What to examine:</b> Read each case record and determine what its <em>primary purpose</em> is. Do not classify by a single keyword. Some records deliberately mention both people and technology.<br><br>
+  <b>What to do:</b> For each evidence record, select one of the three destination cards. Your selection locks in for validation. If it is incorrect, the record reopens after feedback so you can reconsider it.<br><br>
+  <b>Success:</b> Explain the boundary and relationship between awareness behavior, ES analyst workflow, and the bridge connecting them.
+ </div>
+
+ <div class="note"><b>Three destinations</b><br>
+  <b>Awareness Desk</b> — recognition, judgment, safe behavior, and reporting by employees.<br>
+  <b>Security Operations Desk</b> — ES-supported detection, findings, triage, search, and analyst investigation.<br>
+  <b>Evidence Bridge</b> — the relationship where human reporting and technical security information contribute to a broader security picture.
+ </div>
+
+ <div id="bridgeCases"></div>
+ <button class="btn accent" onclick="validateEvidenceBridge()">Validate evidence bridge</button>
+ <div id="bridgeFb" class="feedback"></div>
+
+ <div class="controls">
+  <button class="btn secondary" onclick="goTitle('Translator Phase Brief')">← Translator Brief</button>
+  <button class="btn" onclick="goTitle('Translator • Detection Story')">Continue →</button>
+ </div>
+</section>
+
+<section class="screen" data-title="Translator • Detection Story">
+ <div class="kicker">Translator • Relationship Reconstruction 02</div>
+ <h1>Signal Chain Reconstruction: Rebuild the ES Meaning Model</h1>
+ <p class="lead">9:41 a.m. — The morning briefing board was cleared before the SOC handoff. Five concept records remain, but the relationships between them are missing. Reconstruct the conceptual model so a new analyst can understand how security information moves from organized data to human review.</p>
+
+ <div class="brief"><strong>Activity brief</strong>
+  <b>Why this matters:</b> The lesson is easier to understand when ES concepts are connected by function instead of memorized as isolated definitions. Data models, detections, findings, Mission Control, and risk-based alerting contribute different kinds of meaning.<br><br>
+  <b>What to do:</b> Drag each concept record into the position whose <em>relationship statement</em> it completes. Then use the relationship notes to understand why the neighboring concepts cannot fill that position. This is a reconstruction activity—not multiple choice or a dropdown exercise.<br><br>
+  <b>What to focus on:</b> Ask what each concept contributes: structure, evaluation, analyst-visible output, human workflow, or accumulated behavioral risk context.<br><br>
+  <b>Success:</b> Reconstruct all five relationships and explain the complete ES mental model in your own words.
+ </div>
+
+ <div class="note"><b>Case thread:</b> Maya’s report is being considered alongside authentication and endpoint information. You are rebuilding the conceptual map used in the training handoff. You are not diagnosing the incident or deciding what response action to take.</div>
+
+ <div class="recon-bank">
+   <div class="pill">CONCEPT RECORDS</div>
+   <p class="small">Drag each record into the relationship position where it belongs. You can move a record again before validating.</p>
+   <div id="reconBank" class="recon-items"></div>
+ </div>
+
+ <div id="reconBoard" class="recon-board"></div>
+
+ <button class="btn accent" onclick="validateReconstruction()">Validate reconstruction</button>
+ <button class="btn secondary" onclick="resetReconstruction()">Reset board</button>
+ <div id="reconFb" class="feedback"></div>
+
+ <div class="controls">
+   <button class="btn secondary" onclick="goTitle('Translator • Evidence Bridge')">← Evidence Bridge</button>
+   <button class="btn" onclick="goTitle('Translator • Interface Meaning')">Continue →</button>
+ </div>
+</section>
+
+<section class="screen" data-title="Translator • Interface Meaning">
+ <div class="kicker">Translator • Interpretation & Meaning 03</div>
+ <h1>ES Workspace Walkthrough: Annotate the Analyst’s Screen</h1>
+ <p class="lead">10:02 a.m. — A new analyst has opened a simplified Enterprise Security workspace during onboarding. Rather than memorizing menu names, you will annotate the screen to explain what each area means and how its purpose differs from the others.</p>
+
+ <div class="brief"><strong>Activity brief</strong>
+  <b>Why this matters:</b> The Enterprise Security lesson introduces several ES areas—Mission Control, Analytics/Security Posture, Security Content, Search, and General Configuration. Knowing the labels is not enough; learners need a mental model of what kind of work or information each area represents.<br><br>
+  <b>What to do:</b> Explore the workspace by opening each numbered hotspot. Read the workplace cue attached to that region, then write a short annotation explaining the region’s purpose in your own words. Use the <b>Concept Reference Drawer</b> if you need support. There are no answer choices to guess from.<br><br>
+  <b>What to focus on:</b> Explain meaning—not procedures. Describe what the area is primarily for and distinguish it from neighboring ES areas.<br><br>
+  <b>Success:</b> Complete all five annotations with the key ideas supported by the lesson. You can revise an annotation after coaching.
+ </div>
+
+ <div class="note"><b>Story connection:</b> The conceptual signal chain has already been reconstructed. Now you are interpreting the analyst-facing environment where different parts of ES become visible to people.</div>
+
+ <div class="workspace-shell">
+   <div class="workspace-top"><b>MERIDIAN // ENTERPRISE SECURITY ORIENTATION</b><span>Training representation</span></div>
+   <div class="workspace-grid">
+     <button class="ws-hotspot" onclick="openWorkspaceRegion(0)"><span>01</span><b>Mission Control</b><small>Analyst work area</small></button>
+     <button class="ws-hotspot" onclick="openWorkspaceRegion(1)"><span>02</span><b>Analytics</b><small>Security visibility</small></button>
+     <button class="ws-hotspot" onclick="openWorkspaceRegion(2)"><span>03</span><b>Security Content</b><small>Detection content</small></button>
+     <button class="ws-hotspot" onclick="openWorkspaceRegion(3)"><span>04</span><b>Search</b><small>Data exploration</small></button>
+     <button class="ws-hotspot" onclick="openWorkspaceRegion(4)"><span>05</span><b>General Configuration</b><small>Authorized setup</small></button>
+   </div>
+ </div>
+
+ <div id="workspaceInspector" class="workspace-inspector">
+   <div class="pill">WORKSPACE INSPECTOR</div>
+   <h3>Select a numbered region above</h3>
+   <p>Each region reveals a workplace cue and an annotation field.</p>
+ </div>
+
+ <details class="concept-drawer">
+   <summary><b>Concept Reference Drawer</b> — open if you need support</summary>
+   <div class="drawer-grid">
+     <div><b>Analyst triage & investigation</b><p>Think about the central analyst workflow and queue.</p></div>
+     <div><b>High-level security visibility</b><p>Think about dashboards and broader posture/activity views.</p></div>
+     <div><b>Security detection content</b><p>Think about the content used to identify suspicious behavior.</p></div>
+     <div><b>Ad hoc data exploration</b><p>Think about asking questions directly of available event data.</p></div>
+     <div><b>Application administration</b><p>Think about authorized ES settings and configuration.</p></div>
+   </div>
+ </details>
+
+ <button class="btn accent" onclick="validateWorkspaceAnnotations()">Review my annotations</button>
+ <div id="workspaceFb" class="feedback"></div>
+
+ <div class="controls">
+   <button class="btn secondary" onclick="goTitle('Translator • Detection Story')">← Signal Chain Reconstruction</button>
+   <button class="btn" onclick="goTitle('Translator • Awareness Decisions')">Continue →</button>
+ </div>
+</section>
+
+
+
+<section class="screen" data-title="Translator • Awareness Decisions">
+ <div class="kicker">Translator • Comparison & Differentiation 04</div>
+ <h1>Human Signal Conference: Compare What the Clues Actually Mean</h1>
+ <p class="lead">10:18 a.m. — Meridian’s awareness team is preparing a five-minute staff debrief. Four reports arrived during the morning, and the team wants to prevent a common mistake: treating every unusual event as proof of the same security problem.</p>
+
+ <div class="brief"><strong>Activity brief</strong>
+  <b>Why this matters:</b> Security awareness depends on interpreting clues carefully. Urgency, authority, credential requests, unusual device behavior, tailgating, and other warning signs can matter—but a clue is not automatically proof of compromise.<br><br>
+  <b>What to do:</b> Open each employee report and compare the three interpretation notes written by the awareness team. Select the interpretation that best preserves what the evidence supports. The alternatives are intentionally similar in length and use realistic security reasoning.<br><br>
+  <b>If your interpretation is incorrect:</b> The report remains open and you receive coaching about the misconception behind that choice. The strongest interpretation is not revealed.<br><br>
+  <b>When correct:</b> You receive expert feedback explaining why your interpretation fits and why both competing interpretations do not fit as well.<br><br>
+  <b>Success:</b> Distinguish warning signs, manipulation techniques, suspicious activity, and appropriate reporting without turning uncertainty into certainty.
+ </div>
+
+ <div class="conference-desk">
+   <div class="conference-header"><b>MERIDIAN // HUMAN SIGNAL CONFERENCE</b><span>Awareness interpretation desk</span></div>
+   <div id="signalReports" class="signal-reports"></div>
+ </div>
+
+ <button class="btn accent" onclick="reviewSignalConference()">Review conference notes</button>
+ <div id="signalConferenceFb" class="feedback"></div>
+
+ <div class="controls">
+   <button class="btn secondary" onclick="goTitle('Translator • Interface Meaning')">← ES Workspace Walkthrough</button>
+   <button class="btn" onclick="goTitle('Translator • Incident Framework')">Continue →</button>
+ </div>
+</section>
+<section class="screen" data-title="Translator • Incident Framework">
+ <div class="kicker">Translator • Process Understanding 05</div>
+ <h1>Threat Journey Room: Trace Framework → Detection → Analyst Meaning</h1>
+ <p class="lead">10:37 a.m. — Meridian’s training team is preparing a wall-sized orientation map for new SOC analysts. The problem is not that the terms are missing; the problem is that new analysts often treat attack frameworks, detections, findings, data models, and threat intelligence as if they all describe the same layer of security work.</p>
+
+ <div class="brief"><strong>Activity brief</strong>
+  <b>Why this matters:</b> Enterprise Security brings together attack-framework thinking, organized security data, detection logic, analyst-visible findings, and contextual intelligence. Understanding how these ideas relate prevents a learner from confusing an attack model with a detection, or a detection with the information an analyst eventually reviews.<br><br>
+  <b>What to do:</b> Work through three investigation strips. For each strip, place the three evidence tiles into the conceptual order that best explains the relationship, then choose the explanation that most accurately describes <em>why</em> that order makes sense. This is a process-understanding activity, not an operational incident-response task.<br><br>
+  <b>What to focus on:</b> Trace meaning across layers: how a framework describes behavior, how ES can organize/evaluate security information, and how resulting information becomes useful to an analyst.<br><br>
+  <b>Success:</b> Reconstruct all three conceptual pathways and explain the distinction between the layers without treating them as interchangeable.
+ </div>
+
+ <div class="note"><b>Cognitive work note:</b> Do not ask, “What would I do next in a real incident?” Ask, “What does each layer represent, and how does its meaning connect to the next layer?”</div>
+
+ <div id="journeyRoom"></div>
+
+ <button class="btn accent" onclick="validateThreatJourneys()">Validate journey room</button>
+ <div id="journeyFb" class="feedback"></div>
+
+ <div class="controls">
+   <button class="btn secondary" onclick="goTitle('Translator • Awareness Decisions')">← Human Signal Conference</button>
+   <button class="btn" onclick="goTitle('Translator • Workflow Bridge')">Continue →</button>
+ </div>
+</section>
+<section class="screen" data-title="Translator • Workflow Bridge">
+ <div class="kicker">Translator • Knowledge Synthesis 06</div>
+ <h1>Shift Change Brief: Build the Security Story</h1>
+ <p class="lead">11:02 a.m. — Meridian’s morning orientation is ending. Before the afternoon team arrives, the Readiness Lead needs a concise shift-change brief explaining how the two courses fit together. Your job is not to repeat definitions. It is to turn several source notes into one coherent security story.</p>
+
+ <div class="brief"><strong>Activity brief</strong>
+  <b>Why this matters:</b> The awareness course explains how people recognize suspicious situations and make safer decisions. Enterprise Security explains how security data, detections, findings, context, and analyst workflows support investigation. A useful mental model connects those perspectives without pretending they perform the same job.<br><br>
+  <b>What to do:</b> First, inspect the six notes in the shift packet. Then build a three-line executive brief: one line must explain the <b>human layer</b>, one the <b>Enterprise Security layer</b>, and one the <b>connection between them</b>. Each line has three professionally plausible drafts. Choose the draft that best preserves the source meaning.<br><br>
+  <b>What to focus on:</b> Watch for statements that sound polished but overstate what awareness, Splunk ES, dashboards, reporting, or detections actually do.<br><br>
+  <b>Success:</b> Produce a brief that accurately explains both perspectives and their relationship without collapsing recognition, reporting, detection, and investigation into one function.
+ </div>
+
+ <div class="note"><b>Cognitive work note:</b> Strong synthesis keeps boundaries intact. Ask: “What does this layer contribute?” and then “How does that contribution connect to the larger security picture?”</div>
+
+ <div class="shift-packet">
+   <div class="packet-head"><b>MERIDIAN // SHIFT-CHANGE SOURCE PACKET</b><span>Read all six notes before drafting</span></div>
+   <div class="packet-grid">
+     <button class="packet-note" onclick="openShiftNote(0)"><span>01</span><b>Shared Responsibility</b><small>People influence organizational risk.</small></button>
+     <button class="packet-note" onclick="openShiftNote(1)"><span>02</span><b>Suspicious Activity</b><small>Recognition does not require diagnosis.</small></button>
+     <button class="packet-note" onclick="openShiftNote(2)"><span>03</span><b>Reporting</b><small>Human observations can reach security teams.</small></button>
+     <button class="packet-note" onclick="openShiftNote(3)"><span>04</span><b>Security Data</b><small>ES works with searchable security information.</small></button>
+     <button class="packet-note" onclick="openShiftNote(4)"><span>05</span><b>Detections & Findings</b><small>Analytics can surface activity for attention.</small></button>
+     <button class="packet-note" onclick="openShiftNote(5)"><span>06</span><b>Analyst Workflow</b><small>Mission Control supports triage and investigation.</small></button>
+   </div>
+   <div id="shiftNoteViewer" class="shift-note-viewer"><span class="pill">SOURCE NOTE VIEWER</span><h3>Select a packet note</h3><p>Use the packet to check the meaning behind each proposed briefing line.</p></div>
+ </div>
+
+ <div id="briefBuilder" class="brief-builder"></div>
+
+ <button class="btn accent" onclick="validateShiftBrief()">Deliver shift-change brief</button>
+ <div id="shiftBriefFb" class="feedback"></div>
+
+ <div class="controls">
+   <button class="btn secondary" onclick="goTitle('Translator • Incident Framework')">← Threat Journey Room</button>
+   <button class="btn" onclick="goTitle('Final Reflection')">Continue →</button>
+ </div>
+</section>
+
+<section class="screen" data-title="Final Reflection">
+ <div class="kicker">Synthesis • 08</div><h1>Final reflection</h1><p class="lead">Use your own words. This reflection stays at Understand: explain relationships and identify what still needs clarification.</p>
+ <div class="card"><label><b>1. How does employee security awareness complement what Splunk ES provides to a security analyst?</b></label><textarea id="r1" oninput="saveText()"></textarea></div>
+ <div class="card"><label><b>2. Explain the relationship among security data, detections, findings, and analyst investigation.</b></label><textarea id="r2" oninput="saveText()"></textarea></div>
+ <div class="card"><label><b>3. Which concept would you like clarified during instructor-led class?</b></label><textarea id="r3" oninput="saveText()"></textarea></div>
+ <div class="controls"><button class="btn secondary" onclick="goTitle('Translator • Interface Meaning')">← Back</button><button class="btn" onclick="goTitle('Completion Checklist')">Completion check →</button></div>
+</section>
+
+<section class="screen" data-title="Completion Checklist">
+ <div class="kicker">Completion • 09</div><h1>Readiness checklist</h1><p class="lead">This confirms completion; it is not another assessment.</p>
+ <div id="checklist"></div>
+ <div class="note">Your responses remain available while this browser tab stays open. Nothing is sent to a server.</div>
+ <div class="controls"><button class="btn secondary" onclick="goTitle('Final Reflection')">← Back</button><button class="btn" onclick="goTitle('Bridge to Practitioner Cycle')">See the bridge →</button></div>
+</section>
+
+<section class="screen" data-title="Bridge to Practitioner Cycle">
+ <div class="hero"><div class="kicker">Next Stage • 10</div><h1>Foundation built. Practice comes next.</h1>
+ <div class="grid3">
+  <div class="card"><span class="pill">Reporter · Remember</span><h3>You built recognition.</h3><p>Terms, red flags, ES components, and the basic data-to-finding pathway became retrievable.</p></div>
+  <div class="card"><span class="pill">Translator · Understand</span><h3>You built meaning.</h3><p>You connected employee behavior with security visibility and explained how Splunk ES organizes information for analysts.</p></div>
+  <div class="card"><span class="pill">Practitioner · Next</span><h3>You will use the foundation.</h3><p>Instructor-led learning can now move into Apply and Analyze through operator tasks and detective-style investigation.</p></div>
+ </div><div class="note"><b>Bring to class:</b> the concept you marked for clarification and any question you still have about how awareness, security data, detections, findings, or analyst workflow connect.</div></div>
+ <div class="controls"><button class="btn secondary" onclick="goTitle('Completion Checklist')">← Back</button><button class="btn accent" onclick="goTitle('Welcome')">Return to start</button></div>
+</section>
+</main></div>
+
+<script>
+const screens=[...document.querySelectorAll('.screen')], completed=new Set(); let current=0;
+const vocab=[
+["Vulnerability","<b>Meaning:</b> A weakness in a system, process, configuration, or condition that could be taken advantage of. <br><b>Think of it as:</b> the opening or weakness—not the attacker. <br><b>Example:</b> an unpatched computer or weak password. <br><b>Do not confuse it with:</b> a threat, which is something capable of acting on the weakness."],
+["Threat","<b>Meaning:</b> An actor, event, or situation capable of causing harm or taking advantage of a vulnerability. <br><b>Think of it as:</b> the source of potential harm. <br><b>Example:</b> a phishing actor or ransomware group. <br><b>Relationship:</b> a threat may use a vulnerability; the two terms are not interchangeable."],
+["Exploit","<b>Meaning:</b> A method, action, or tool used to take advantage of a vulnerability. <br><b>Think of it as:</b> how the weakness is manipulated. <br><b>Example:</b> malicious code or a successful deceptive action that leverages a weakness. <br><b>Distinction:</b> the exploit is not the weakness itself."],
+["Risk","<b>Meaning:</b> The possibility of loss or harmful impact when threats and vulnerabilities create exposure. <br><b>Think of it as:</b> what the organization stands to lose or suffer. <br><b>Example:</b> data loss, operational disruption, or loss of confidence in systems. <br><b>Relationship:</b> risk becomes meaningful when you consider threat, weakness, likelihood/exposure, and impact together."],
+["Social engineering","<b>Meaning:</b> Manipulating people into taking an unsafe action or revealing information. <br><b>How it works:</b> attackers can appeal to urgency, authority, reciprocity/quid pro quo, belonging, fear, or other human motivations. <br><b>Key idea:</b> the target is human judgment, even when technology delivers the message."],
+["Phishing","<b>Meaning:</b> A deceptive-message form of social engineering designed to trigger an action. <br><b>Look for:</b> unusual sender details, urgency, impersonal wording, suspicious destinations, credential requests, attachments, or requests inconsistent with normal practice. <br><b>Response:</b> stop, inspect, verify through a trusted channel, and report according to organizational procedure."],
+["Malware","<b>Meaning:</b> Malicious software intended to perform unwanted or harmful activity. <br><b>Awareness lesson:</b> safe-looking websites and installed antimalware do not guarantee safety, and nobody should assume they are too unimportant to be targeted. <br><b>Possible indicators:</b> unexpected popups, unusual browser behavior, severe unexplained slowdown, security alerts, or suspicious change requests."],
+["Suspicious activity","<b>Meaning:</b> Digital or physical behavior that does not fit expected conditions and deserves attention. <br><b>Examples:</b> unusual access behavior, strange devices, questionable requests, or someone attempting to enter a controlled area without proper verification. <br><b>Key idea:</b> uncertainty is not a reason to ignore it; follow the organization’s reporting path."],
+["SIEM / Splunk ES","<b>Meaning:</b> Splunk Enterprise Security is introduced as a SIEM-focused security solution that brings security data together to help analysts recognize and investigate threats. <br><b>Purpose:</b> turn large amounts of machine/security data into organized, actionable security intelligence. <br><b>Scope here:</b> understand the workflow, not advanced administration."],
+["Data model","<b>Meaning:</b> A normalized, structured representation of data that helps Splunk ES search consistently across sources. <br><b>Acceleration:</b> accelerated data models improve the speed of searches used by dashboards and analytics. <br><b>Why it matters:</b> different raw sources become easier to analyze through a common structure."],
+["Detection","<b>Meaning:</b> Search logic/rules in ES that look for defined patterns or suspicious conditions in security data. <br><b>Earlier terminology:</b> the source also discusses correlation searches. <br><b>Relationship:</b> a detection evaluates data; when its conditions are met, it can produce analyst-visible security information."],
+["Finding","<b>Meaning:</b> Analyst-visible security information created when detection conditions warrant attention; the lesson connects this with earlier notable-event terminology. <br><b>Why it matters:</b> it brings qualifying activity into the analyst workflow for triage and investigation. <br><b>Distinction:</b> it is the result presented for attention, not the raw event or the detection rule itself."],
+["Mission Control","<b>Meaning:</b> A central Splunk ES analyst workspace for triaging findings and managing investigation work. <br><b>Think of it as:</b> the place where analyst workflow comes together. <br><b>Distinction:</b> it is not the same thing as raw data storage, a detection rule, or an executive dashboard."],
+["Security Posture","<b>Meaning:</b> An ES analytics view that gives high-level visibility into security status and findings. <br><b>Purpose:</b> help users understand the broader security picture. <br><b>Distinction:</b> dashboards organize and communicate information; they do not replace analyst reasoning."],
+["Risk-based alerting","<b>Meaning:</b> An approach that assigns/accumulates risk context around entities or objects so multiple signals can contribute to prioritization. <br><b>Why it matters:</b> related activity can be considered together rather than every signal being treated as an isolated event. <br><b>Distinction:</b> risk context supports prioritization; it does not prove every event is malicious."],
+["Cyber Kill Chain","<b>Meaning:</b> A model for understanding an attack as stages such as reconnaissance, weaponization, delivery, exploitation, installation, command and control, and actions on objectives. <br><b>Why it matters:</b> defenders can look for evidence across stages, and interrupting the chain can prevent an attacker from reaching the objective."],
+["APT","<b>Meaning:</b> Advanced Persistent Threat—a capable, sustained threat that may pursue objectives over time. <br><b>Why it matters here:</b> it reinforces that a security incident can unfold across multiple stages and produce different evidence rather than appearing as one isolated event."]
+]
+document.getElementById('vocab').innerHTML=vocab.map((v,i)=>`<button type="button" class="flip" onclick="flip(this,${i})" aria-label="Flip vocabulary card for ${v[0]}"><span class="flip-inner"><span class="face front"><span class="vnum">TERM ${String(i+1).padStart(2,'0')} · Recall before flipping</span><span class="term">${v[0]}</span><span class="vprompt">Select for full understanding →</span></span><span class="face back"><span class="term">${v[0]}</span><span class="vdetail">${v[1]}</span><span class="vprompt" style="margin-top:auto">Select to return ↩</span></span></span></button>`).join('');
+const seen=new Set(); function flip(el,i){el.classList.toggle('flipped');seen.add(i);document.getElementById('vocabStatus').textContent=`${seen.size} of ${vocab.length} cards reviewed`;if(seen.size===vocab.length)completed.add(2);update();}
+
+const opts=(arr)=>'<option value="">Choose…</option>'+arr.map(x=>`<option>${x}</option>`).join('');
+const catalogData=[
+["A weak password on a critical system","Vulnerability"],
+["A ransomware group capable of attacking an organization","Threat"],
+["A malicious technique that uses an unpatched flaw","Exploit"],
+["Potential organizational impact when a threat can use a weakness","Risk"]
+], catalogOptions=["Exploit","Risk","Threat","Vulnerability"];
+document.getElementById('catalog').innerHTML=catalogData.map((x,i)=>`<div class="activity-row"><div>${x[0]}</div><select id="cat${i}">${opts(catalogOptions)}</select></div>`).join('');
+
+const routeCorrect=["Security data sources & forwarders","Indexed events","Normalized/accelerated data models","Detections search for defined patterns","Finding generated for analyst attention","Analyst queue / investigation"];
+const routeOptions=["Analyst queue / investigation","Detections search for defined patterns","Security data sources & forwarders","Finding generated for analyst attention","Indexed events","Normalized/accelerated data models"];
+document.getElementById('route').innerHTML=routeCorrect.map((x,i)=>`<div class="activity-row"><div><b>Stage ${i+1}</b></div><select id="route${i}">${opts(routeOptions)}</select></div>`).join('');
+
+document.querySelectorAll('.flag').forEach(b=>b.onclick=()=>b.classList.toggle('selected'));
+
+
+
+
+function checkInterface(){checkSet('int',intData,'interfaceFb',{bad:"Separate the purposes: analyst work, dashboards, security-content management, administration, and ad-hoc searching each have a different role.",good:"Mission Control centers analyst work; Analytics presents security dashboards; Security Content manages detections and related knowledge objects; Configure handles administrative settings; Search provides ad-hoc exploration of security data within the ES context."})}
+
+
+
+
+
+
+
+
+const signalCatalogCases=[
+ {title:"Remote-access configuration review",evidence:"A vendor-support account can still authenticate with a single password because an older remote-access exception was never updated.",answer:"Vulnerability",options:["Threat","Vulnerability","Risk","Exploit"],
+ why:{Vulnerability:"The record describes an existing weakness in the access configuration. It could be used, but this note does not say anyone has used it.",Threat:"A threat is an actor, event, or condition capable of causing harm. This record centers on the weak authentication condition itself.",Risk:"Risk centers on potential loss or harmful impact. This record establishes a weakness rather than describing the resulting exposure or consequence.",Exploit:"An exploit is the method or action used to take advantage of a weakness. No use of this weak authentication path is described."}},
+ {title:"External activity advisory",evidence:"Security receives notice that a financially motivated group is actively targeting organizations in the sector with credential-theft campaigns.",answer:"Threat",options:["Risk","Exploit","Threat","Vulnerability"],
+ why:{Threat:"The record describes a capable source of potential harm: an active group targeting similar organizations.",Vulnerability:"A vulnerability is a weakness that could be taken advantage of. This advisory describes the hostile source, not a weakness inside Meridian.",Exploit:"An exploit is a method or action that takes advantage of a weakness. This record identifies the hostile group/campaign rather than documenting a specific weakness being used at Meridian.",Risk:"Risk describes potential organizational harm or exposure. That can result from this threat, but the record itself centers on the source of harm."}},
+ {title:"Message interaction evidence",evidence:"A deceptive sign-in page captures a user’s submitted credentials after the user follows a link in a convincing account-verification message.",answer:"Exploit",options:["Vulnerability","Risk","Exploit","Threat"],
+ why:{Exploit:"The record focuses on the deceptive method/action used to take advantage of human trust and obtain credentials.",Threat:"A threat would center on the actor or condition capable of causing harm. Here the evidence emphasizes how the weakness was used.",Vulnerability:"The vulnerability is the weakness that can be taken advantage of. This record has moved beyond the weakness and describes the method/action.",Risk:"Risk would focus on possible harmful consequences such as unauthorized access and impact, rather than the method used."}},
+ {title:"Business exposure note",evidence:"If compromised credentials provide unauthorized access to scheduling systems, Meridian could face service disruption, data exposure, and recovery costs.",answer:"Risk",options:["Exploit","Threat","Vulnerability","Risk"],
+ why:{Risk:"The statement centers on possible harmful outcomes and organizational exposure if compromise occurs.",Threat:"A threat is a source capable of causing harm. This statement instead describes what Meridian could suffer.",Vulnerability:"A vulnerability is the weakness that could be used. This note focuses on possible consequences rather than the weakness.",Exploit:"An exploit is the method/action used against a weakness. No exploitation method is described here."}}
+];
+document.getElementById('signalCases').innerHTML=signalCatalogCases.map((c,i)=>`<div class="card" style="margin:18px 0"><div class="pill">INTAKE ${String.fromCharCode(65+i)}</div><h3 style="margin-top:12px">${c.title}</h3><p>${c.evidence}</p><label for="sig${i}"><b>Best classification</b></label><select id="sig${i}" style="width:100%;padding:11px;margin-top:7px"><option value="">Select a classification…</option>${c.options.map(o=>`<option>${o}</option>`).join('')}</select><div id="sigwhy${i}" class="status"></div></div>`).join('');
+
+function checkSignalCatalog(){
+ let wrong=0,missing=0;
+ signalCatalogCases.forEach((c,i)=>{
+  const picked=document.getElementById('sig'+i).value,box=document.getElementById('sigwhy'+i);
+  if(!picked){missing++;box.innerHTML="<b>Not yet classified.</b>";return}
+  if(picked===c.answer){
+   box.innerHTML=`<div class="feedback show ok"><b>${c.answer} is correct.</b> ${c.why[c.answer]}<br><br><b>Why the other choices are wrong here:</b><ul>${c.options.filter(o=>o!==c.answer).map(o=>`<li><b>${o}:</b> ${c.why[o]}</li>`).join('')}</ul></div>`;
+  }else{
+   wrong++;box.innerHTML=`<div class="feedback show bad"><b>${picked} does not best fit this record.</b> ${c.why[picked]}<br><br><b>Try again:</b> Ask whether the evidence centers on the weakness, source of harm, method/action, or potential consequence. The correct label is intentionally not revealed.</div>`;
+  }
+ });
+ if(missing||wrong){showFb('catalogFb',false,`<b>Intake not cleared.</b> ${missing?missing+" record(s) still need a classification. ":""}${wrong?wrong+" classification(s) need another look.":""}`);return}
+ completed.add(current);showFb('catalogFb',true,"<b>Intake cleared.</b> You separated the concepts by function: vulnerability = weakness, threat = source of potential harm, exploit = method/action using a weakness, and risk = potential harmful exposure or impact. All four can appear in the same security story, so the record’s focus determines the label.");update();
+}
+
+
+
+const routeCases=[
+ {n:"01",title:"Collection checkpoint",evidence:"Endpoint, identity, network, and other security sources produce machine data that must first reach the Splunk environment.",answer:"Security data sources & forwarders",
+ options:["Indexed events in searchable storage","Security data sources & forwarders","Detection logic evaluating patterns","Normalized accelerated data models"],
+ why:{
+ "Security data sources & forwarders":"Correct — this is the collection/transport edge of the introductory workflow. Security sources generate telemetry and forwarders help move that data into Splunk.",
+ "Indexed events in searchable storage":"Indexed events come after data has reached Splunk and been processed into searchable storage; this checkpoint is still describing where the data originates and enters the pipeline.",
+ "Detection logic evaluating patterns":"Detection logic evaluates searchable security data for defined conditions. It does not serve as the initial collection mechanism for endpoint, identity, or network telemetry.",
+ "Normalized accelerated data models":"Data models organize normalized data for consistent, efficient analytics. They depend on collected/indexed data rather than acting as the original source/transport stage."}},
+ {n:"02",title:"Searchable evidence checkpoint",evidence:"The incoming telemetry is processed so the SOC can retrieve the resulting events through Splunk searches.",answer:"Indexed events in searchable storage",
+ options:["Analyst queue and investigation work","Normalized accelerated data models","Indexed events in searchable storage","Detection logic evaluating patterns"],
+ why:{
+ "Indexed events in searchable storage":"Correct — indexing makes incoming event data available for search and retrieval. This establishes the searchable evidence base used by later analytics.",
+ "Analyst queue and investigation work":"The analyst workflow occurs after security information has been surfaced for attention. It is not the stage that turns incoming telemetry into searchable events.",
+ "Normalized accelerated data models":"Data models organize and accelerate normalized information for analytics, but this checkpoint specifically describes the foundational searchable event storage created through indexing.",
+ "Detection logic evaluating patterns":"Detections query/evaluate data that is already searchable. They do not replace the indexing step that makes the events available to search."}},
+ {n:"03",title:"Common-structure checkpoint",evidence:"Security information from different sources is organized into a consistent structure that ES analytics can search efficiently.",answer:"Normalized accelerated data models",
+ options:["Finding created for analyst attention","Detection logic evaluating patterns","Security data sources & forwarders","Normalized accelerated data models"],
+ why:{
+ "Normalized accelerated data models":"Correct — the source lesson connects data models with normalized security information and acceleration, allowing ES analytics to work efficiently across different data sources.",
+ "Finding created for analyst attention":"A finding is analyst-visible output after qualifying detection activity; it does not normalize heterogeneous source data into a common analytical structure.",
+ "Detection logic evaluating patterns":"A detection uses organized/searchable data to look for defined conditions. It consumes the structured data rather than being the structure itself.",
+ "Security data sources & forwarders":"Sources and forwarders supply/move telemetry. They do not provide the normalized analytical model described at this checkpoint."}},
+ {n:"04",title:"Analytics checkpoint",evidence:"ES search logic evaluates the available security data for a defined combination of conditions associated with suspicious activity.",answer:"Detection logic evaluating patterns",
+ options:["Normalized accelerated data models","Finding created for analyst attention","Detection logic evaluating patterns","Indexed events in searchable storage"],
+ why:{
+ "Detection logic evaluating patterns":"Correct — detections/correlation searches examine security data for defined patterns or conditions. This checkpoint is about evaluation logic, not storage or presentation.",
+ "Normalized accelerated data models":"Data models structure and accelerate information used by analytics, but they do not themselves represent the rule/search logic evaluating the suspicious condition.",
+ "Finding created for analyst attention":"A finding is an output that can result when detection conditions warrant attention. The checkpoint describes the evaluation occurring before that output.",
+ "Indexed events in searchable storage":"Indexed events provide searchable evidence, but storage alone does not perform the defined security-pattern evaluation described here."}},
+ {n:"05",title:"Attention checkpoint",evidence:"The defined security condition qualifies for analyst attention, so ES creates an analyst-visible security item for review.",answer:"Finding created for analyst attention",
+ options:["Analyst queue and investigation work","Finding created for analyst attention","Indexed events in searchable storage","Security data sources & forwarders"],
+ why:{
+ "Finding created for analyst attention":"Correct — when detection conditions warrant attention, ES can surface a finding/notable security item that enters the analyst-facing workflow.",
+ "Analyst queue and investigation work":"Investigation is what the analyst does with surfaced security information. This checkpoint describes creation of the item that precedes that human review.",
+ "Indexed events in searchable storage":"Indexed events are the underlying searchable records. The checkpoint instead describes a security item produced for analyst attention after detection logic evaluates data.",
+ "Security data sources & forwarders":"Sources and forwarders are at the beginning of the data path. They collect/move telemetry rather than create the analyst-visible output described here."}},
+ {n:"06",title:"Human review checkpoint",evidence:"The surfaced security item is now available in the analyst workflow so a security analyst can triage context and investigate what happened.",answer:"Analyst queue and investigation work",
+ options:["Detection logic evaluating patterns","Indexed events in searchable storage","Normalized accelerated data models","Analyst queue and investigation work"],
+ why:{
+ "Analyst queue and investigation work":"Correct — this is the human-facing end of the introductory flow: qualifying security information reaches the analyst workflow for triage and investigation.",
+ "Detection logic evaluating patterns":"Detection logic helps produce the signal before analyst review. It does not represent the analyst’s triage/investigation step itself.",
+ "Indexed events in searchable storage":"Indexed events remain supporting evidence, but the checkpoint describes a human workflow acting on surfaced security information.",
+ "Normalized accelerated data models":"Accelerated data models support efficient analytics. They are an earlier data-organization layer, not the analyst review stage."}}
+];
+
+document.getElementById('routeCases').innerHTML=routeCases.map((c,i)=>`
+<div class="card" style="margin:18px 0">
+ <div class="pill">CHECKPOINT ${c.n}</div>
+ <h3 style="margin-top:12px">${c.title}</h3>
+ <p>${c.evidence}</p>
+ <label for="rte${i}"><b>Which stage best fits this checkpoint?</b></label>
+ <select id="rte${i}" style="width:100%;padding:11px;margin-top:7px">
+  <option value="">Select a workflow stage…</option>${c.options.map(o=>`<option>${o}</option>`).join('')}
+ </select>
+ <div id="rtewhy${i}" class="status"></div>
+</div>`).join('');
+
+function checkDataRouteEnhanced(){
+ let wrong=0,missing=0;
+ routeCases.forEach((c,i)=>{
+   const picked=document.getElementById('rte'+i).value, box=document.getElementById('rtewhy'+i);
+   if(!picked){missing++;box.innerHTML="<b>Not yet routed.</b> Identify what function is occurring at this checkpoint.";return}
+   if(picked===c.answer){
+     box.innerHTML=`<div class="feedback show ok"><b>${c.answer} is correct.</b> ${c.why[c.answer]}
+       <br><br><b>Why the other stages do not fit here:</b><ul>${c.options.filter(o=>o!==c.answer).map(o=>`<li><b>${o}:</b> ${c.why[o]}</li>`).join('')}</ul></div>`;
+   }else{
+     wrong++;
+     box.innerHTML=`<div class="feedback show bad"><b>${picked} does not best fit this checkpoint.</b> ${c.why[picked]}
+       <br><br><b>Reconsider:</b> Is this checkpoint collecting data, making events searchable, organizing data, evaluating a pattern, surfacing an item, or beginning human review? Try again—the correct stage is not revealed.</div>`;
+   }
+ });
+ if(missing||wrong){
+   showFb('routeEnhancedFb',false,`<b>Route not yet verified.</b> ${missing?missing+" checkpoint(s) still need a stage. ":""}${wrong?wrong+" checkpoint(s) need another look.":""} Use the function of each stage rather than its position alone.`);
+   return;
+ }
+ completed.add(current);
+ showFb('routeEnhancedFb',true,`<b>Route verified.</b> The complete introductory relationship is: <b>security sources/forwarders → indexed searchable events → normalized/accelerated data models → detection logic → finding for analyst attention → analyst triage/investigation.</b><br><br><b>Key insight:</b> these are not six names for the same thing. Each stage contributes a different function: collect, store, organize, evaluate, surface, and investigate.`);
+ update();
+}
+
+
+const redFlagCases=[
+ {title:"Sender identity",evidence:"The display name says “Meridian Access Desk,” but the sender domain is meridian-access-support.com.",answer:"Identity mismatch",
+ options:["Routine vendor routing","Identity mismatch","Formatting variation","Neutral message detail"],
+ why:{
+ "Identity mismatch":"Correct — the visible organizational identity and the actual sending domain do not cleanly align. The awareness lesson teaches learners to inspect sender information rather than trust the display name alone.",
+ "Routine vendor routing":"A third-party sender can be legitimate, but the message provides no trusted context establishing this domain as an authorized vendor. Familiar-looking branding is not enough to verify identity.",
+ "Formatting variation":"Formatting differences concern presentation. The security-relevant evidence here is the mismatch between claimed identity and the domain actually sending the message.",
+ "Neutral message detail":"Sender identity is not neutral when the message requests a sensitive action. It becomes important evidence because the claimed organization and sender domain differ."}},
+ {title:"Time pressure",evidence:"The message says action is required before 9:00 AM and warns that access may be restricted.",answer:"Urgency pressure",
+ options:["Service notification","Normal scheduling","Urgency pressure","Account context"],
+ why:{
+ "Urgency pressure":"Correct — the short deadline and consequence are designed to reduce deliberation and push the recipient toward immediate action, a persuasion technique emphasized in the awareness lesson.",
+ "Service notification":"Legitimate services can send notices, but this interpretation ignores how the deadline and threatened loss of access are being used to influence behavior.",
+ "Normal scheduling":"A normal schedule communicates timing without necessarily pressuring a sensitive action. Here the deadline is paired with a consequence to accelerate compliance.",
+ "Account context":"The message discusses an account, but the security significance of this evidence is the pressure created by the deadline and threatened restriction."}},
+ {title:"Requested action",evidence:"The recipient is instructed to sign in with current company credentials through the link in the message.",answer:"Credential request",
+ options:["Identity confirmation","Credential request","Routine sign-in","Profile maintenance"],
+ why:{
+ "Credential request":"Correct — the message explicitly asks the user to enter current organizational credentials through a message-provided destination. That makes verification of the message and destination especially important.",
+ "Identity confirmation":"The stated purpose may be identity confirmation, but that label repeats the sender’s explanation rather than identifying the security-sensitive action the user is being asked to take.",
+ "Routine sign-in":"Employees sign in routinely, but a message-provided link requesting current credentials should not be treated as routine without independent verification.",
+ "Profile maintenance":"Profile maintenance can be legitimate, but this evidence specifically involves submission of authentication credentials, which carries greater security significance."}},
+ {title:"Link destination",evidence:"The visible destination is meridian-verify-login.com rather than Meridian’s normal organizational domain.",answer:"Domain inconsistency",
+ options:["Domain inconsistency","External web service","Alternate login page","Neutral URL detail"],
+ why:{
+ "Domain inconsistency":"Correct — the destination does not match the organization’s expected domain, so the user should not assume the page is trusted simply because the URL contains the organization’s name.",
+ "External web service":"Organizations can use external services, but the message provides no trusted evidence that this destination is an approved service. An external-looking destination must be verified.",
+ "Alternate login page":"A different login page can exist, but similarity in naming does not establish legitimacy. This interpretation assumes trust that the evidence has not earned.",
+ "Neutral URL detail":"A destination is not neutral when the message asks for credentials. The domain is directly relevant to deciding whether the requested sign-in is trustworthy."}},
+ {title:"Greeting",evidence:"The message begins with “Hello Meridian User” instead of the recipient’s name.",answer:"Contextual warning",
+ options:["Contextual warning","Confirmed compromise","Harmless personalization","Proof of automation"],
+ why:{
+ "Contextual warning":"Correct — a generic greeting can contribute to suspicion, especially alongside stronger indicators, but by itself it does not prove phishing. This is why the lesson encourages examining the whole message.",
+ "Confirmed compromise":"A generic greeting is not enough to prove an account or system has been compromised. Treating a weak indicator as proof would overstate the evidence.",
+ "Harmless personalization":"It may be generated by an automated system, but calling it harmless dismisses its value as contextual evidence when other phishing indicators are present.",
+ "Proof of automation":"A generic greeting can occur in automated messages, but it does not prove how the message was generated. The defensible interpretation is that it is a contextual warning cue."}}
+];
+
+document.getElementById('redFlagCases').innerHTML=redFlagCases.map((c,i)=>`
+<div class="card" style="margin:16px 0">
+ <div class="pill">EVIDENCE ${String(i+1).padStart(2,'0')}</div>
+ <h3 style="margin-top:12px">${c.title}</h3>
+ <p>${c.evidence}</p>
+ <label for="rf${i}"><b>Best interpretation</b></label>
+ <select id="rf${i}" style="width:100%;padding:11px;margin-top:7px">
+  <option value="">Select an interpretation…</option>${c.options.map(o=>`<option>${o}</option>`).join('')}
+ </select>
+ <div id="rfwhy${i}" class="status"></div>
+</div>`).join('');
+
+function checkRedFlagEnhanced(){
+ let wrong=0,missing=0;
+ redFlagCases.forEach((c,i)=>{
+  const picked=document.getElementById('rf'+i).value,box=document.getElementById('rfwhy'+i);
+  if(!picked){missing++;box.innerHTML="<b>Not yet interpreted.</b> Consider what this evidence supports—and what it does not prove.";return}
+  if(picked===c.answer){
+   box.innerHTML=`<div class="feedback show ok"><b>${c.answer} is correct.</b> ${c.why[c.answer]}<br><br><b>Why the other interpretations do not fit as well:</b><ul>${c.options.filter(o=>o!==c.answer).map(o=>`<li><b>${o}:</b> ${c.why[o]}</li>`).join('')}</ul></div>`;
+  }else{
+   wrong++;box.innerHTML=`<div class="feedback show bad"><b>${picked} is not the strongest interpretation.</b> ${c.why[picked]}<br><br><b>Reconsider:</b> Ask what this evidence actually supports without assuming the sender’s explanation or overstating what one clue proves. Try again—the correct interpretation is not revealed.</div>`;
+  }
+ });
+ if(missing||wrong){showFb('redFlagEnhancedFb',false,`<b>Message review not yet cleared.</b> ${missing?missing+" evidence record(s) still need an interpretation. ":""}${wrong?wrong+" interpretation(s) need another look.":""}`);return}
+ completed.add(current);
+ showFb('redFlagEnhancedFb',true,`<b>Message review cleared.</b> The strength of the assessment comes from the <em>combination</em> of evidence: sender/domain inconsistency, urgency pressure, a credential request, a questionable destination, and a weaker contextual cue in the greeting.<br><br><b>Expert insight:</b> not every red flag carries equal weight. A generic greeting alone does not prove phishing; a credential request sent to an inconsistent domain is substantially more consequential. The awareness lesson’s safer pattern is to stop, inspect, verify through a trusted channel, and report according to organizational procedure rather than interact with the suspicious message.`);
+ update();
+}
+
+
+const accessDeskCases=[
+ {id:"REQ-17",title:"Triage a surfaced security item",
+  ticket:"A new security item tied to unusual account activity has been surfaced for analyst attention. The responder needs to review context, prioritize the item, and begin investigation work.",
+  answer:"Mission Control / analyst workflow",
+  options:["Security Content / content management","Mission Control / analyst workflow","Search / ad hoc investigation","General Configuration / administration"],
+  why:{
+   "Mission Control / analyst workflow":"Correct — the source lesson presents Mission Control as a central analyst workspace for triage and investigation, including the Analyst Queue and related investigation workflow.",
+   "Security Content / content management":"Security Content is relevant to detections and other security content, but this ticket is about triaging a security item that has already been surfaced for analyst attention.",
+   "Search / ad hoc investigation":"Search can support investigation and exploration, but the ticket specifically asks where the analyst-facing triage workflow begins for a surfaced security item.",
+   "General Configuration / administration":"Configuration supports administrative setup and system management. It is not the primary starting point for analyst triage of a surfaced security item."
+  }},
+ {id:"REQ-24",title:"Review and manage detection content",
+  ticket:"The security team wants to inspect the ES content used to identify suspicious behavior and review the detections available to the environment.",
+  answer:"Security Content / content management",
+  options:["Search / ad hoc investigation","General Configuration / administration","Security Content / content management","Mission Control / analyst workflow"],
+  why:{
+   "Security Content / content management":"Correct — the Security Content area is the source-supported destination for reviewing and managing security content such as detections.",
+   "Search / ad hoc investigation":"Search is useful for exploring data and running searches, but the request is centered on reviewing ES security content rather than investigating one dataset.",
+   "General Configuration / administration":"General Configuration supports broader ES setup and administration. The ticket is specifically about security detection content, which has a more direct destination.",
+   "Mission Control / analyst workflow":"Mission Control centers on analyst triage and investigation. This request concerns the content that helps generate security signals, not the queue where analysts review them."
+  }},
+ {id:"REQ-31",title:"Explore events outside a queued finding",
+  ticket:"An analyst wants to run an exploratory search across available events to answer a question that is not limited to one item already in the analyst queue.",
+  answer:"Search / ad hoc investigation",
+  options:["Mission Control / analyst workflow","Search / ad hoc investigation","Security Content / content management","General Configuration / administration"],
+  why:{
+   "Search / ad hoc investigation":"Correct — the source lesson identifies Search as the place for ad hoc searching and data exploration, including work that may support detection engineering or investigation.",
+   "Mission Control / analyst workflow":"Mission Control is the central analyst workflow for surfaced findings and investigations. The request explicitly calls for exploratory searching beyond a queued item.",
+   "Security Content / content management":"Security Content is for reviewing/managing ES security content. The analyst is asking to explore event data, not manage a detection definition.",
+   "General Configuration / administration":"Configuration concerns administrative settings. It does not serve as the primary workspace for an analyst’s exploratory event search."
+  }},
+ {id:"REQ-46",title:"Adjust an ES administrative setting",
+  ticket:"An authorized administrator needs to change an Enterprise Security setting that affects how the application is configured for the organization.",
+  answer:"General Configuration / administration",
+  options:["Security Content / content management","Mission Control / analyst workflow","Search / ad hoc investigation","General Configuration / administration"],
+  why:{
+   "General Configuration / administration":"Correct — this ticket is explicitly about authorized ES configuration work, which belongs with administrative/configuration responsibilities rather than analyst triage.",
+   "Security Content / content management":"Security Content focuses on security content such as detections. The ticket describes a broader application setting rather than content review.",
+   "Mission Control / analyst workflow":"Mission Control supports analyst triage and investigation. Changing application configuration is an administrative responsibility, not a finding-triage task.",
+   "Search / ad hoc investigation":"Search is used to explore data. It does not provide the administrative configuration function described by this request."
+  }},
+ {id:"REQ-52",title:"Understand the broader security picture",
+  ticket:"A team lead wants a high-level view of current security status and activity rather than opening a specific finding or changing a detection.",
+  answer:"Security Posture / analytics view",
+  options:["Search / ad hoc investigation","Security Posture / analytics view","Mission Control / analyst workflow","Security Content / content management"],
+  why:{
+   "Security Posture / analytics view":"Correct — the source lesson presents Security Posture as a high-level analytics/dashboard view for understanding the broader security picture.",
+   "Search / ad hoc investigation":"Search can answer targeted questions, but the ticket asks for a high-level security-status view rather than an exploratory query.",
+   "Mission Control / analyst workflow":"Mission Control is oriented toward triage and investigation of analyst-visible security items. This request asks for broader status visibility.",
+   "Security Content / content management":"Security Content concerns the rules/content supporting detection. It does not primarily provide the high-level security-status perspective requested here."
+  }}
+];
+
+document.getElementById('accessDeskCases').innerHTML=accessDeskCases.map((c,i)=>`
+ <div class="card" style="margin:18px 0">
+   <div class="pill">${c.id}</div>
+   <h3 style="margin-top:12px">${c.title}</h3>
+   <p>${c.ticket}</p>
+   <label for="access${i}"><b>Best routing destination</b></label>
+   <select id="access${i}" style="width:100%;padding:11px;margin-top:7px">
+    <option value="">Select a destination…</option>
+    ${c.options.map(o=>`<option>${o}</option>`).join('')}
+   </select>
+   <div id="accesswhy${i}" class="status"></div>
+ </div>`).join('');
+
+function checkAccessDesk(){
+ let wrong=0,missing=0;
+ accessDeskCases.forEach((c,i)=>{
+  const picked=document.getElementById('access'+i).value;
+  const box=document.getElementById('accesswhy'+i);
+  if(!picked){
+    missing++;
+    box.innerHTML="<b>Not yet routed.</b> Identify the primary responsibility or workspace described by the ticket.";
+    return;
+  }
+  if(picked===c.answer){
+    box.innerHTML=`<div class="feedback show ok"><b>${c.answer} is correct.</b> ${c.why[c.answer]}
+      <br><br><b>Why the other destinations are not the best fit:</b>
+      <ul>${c.options.filter(o=>o!==c.answer).map(o=>`<li><b>${o}:</b> ${c.why[o]}</li>`).join('')}</ul>
+    </div>`;
+  } else {
+    wrong++;
+    box.innerHTML=`<div class="feedback show bad"><b>${picked} is plausible, but it is not the best starting point.</b> ${c.why[picked]}
+      <br><br><b>Reconsider:</b> Is the request primarily about triage, security content, exploratory search, administration, or high-level security visibility? Try again—the correct destination is not revealed.</div>`;
+  }
+ });
+ if(missing||wrong){
+   showFb('accessDeskFb',false,`<b>Routing desk still open.</b> ${missing?missing+" request(s) still need a destination. ":""}${wrong?wrong+" route(s) need another look.":""} Focus on the primary job being requested rather than every workspace that might be useful later.`);
+   return;
+ }
+ completed.add(current);
+ showFb('accessDeskFb',true,`<b>Routing desk cleared.</b> You distinguished the major responsibilities represented in the introductory ES lesson: <b>Mission Control</b> for analyst triage/investigation, <b>Security Content</b> for security content such as detections, <b>Search</b> for ad hoc exploration, <b>General Configuration</b> for authorized administrative settings, and <b>Security Posture</b> for high-level security visibility.<br><br><b>Expert insight:</b> Real security work can move between these areas. The purpose of routing is not to claim that only one tool will ever be used; it is to recognize the most appropriate starting point based on the responsibility described.`);
+ update();
+}
+
+
+const evidenceBridgeCases=[
+ {id:"CASE 01",evidence:"Maya pauses before using the account-verification link, inspects the sender and destination, and reports the message through the organization’s approved process.",
+  answer:"Awareness Desk",
+  options:[
+   ["Security Operations Desk","Analyst detection and investigation work"],
+   ["Awareness Desk","Employee recognition and safe-response behavior"],
+   ["Evidence Bridge","Human and technical context connecting together"]
+  ],
+  why:{
+   "Awareness Desk":"Correct — the center of this record is Maya’s recognition, judgment, and reporting behavior. Those are the awareness responsibilities emphasized in the source lesson.",
+   "Security Operations Desk":"ES may later help analysts investigate related activity, but this record is specifically describing what the employee notices and does before SOC investigation begins.",
+   "Evidence Bridge":"Reporting can become part of the bridge to security operations, but the primary action described here is still the employee’s awareness behavior itself."
+  }},
+ {id:"CASE 02",evidence:"A detection evaluates available security data for defined suspicious conditions and produces analyst-visible information that can enter triage.",
+  answer:"Security Operations Desk",
+  options:[
+   ["Evidence Bridge","Human and technical context connecting together"],
+   ["Security Operations Desk","Analyst detection and investigation work"],
+   ["Awareness Desk","Employee recognition and safe-response behavior"]
+  ],
+  why:{
+   "Security Operations Desk":"Correct — detections, analyst-visible findings, and triage belong to the Splunk ES security-operations workflow described in the Enterprise Security lesson.",
+   "Awareness Desk":"Awareness teaches people to recognize and respond safely to suspicious situations. It does not describe ES detection logic evaluating machine/security data.",
+   "Evidence Bridge":"This activity contributes to the organization’s broader security picture, but the record itself is centered on ES detection and analyst workflow rather than the connection between employee and technical evidence."
+  }},
+ {id:"CASE 03",evidence:"The employee’s report gives the security team useful context about what was seen, while ES provides related machine data that analysts can review during investigation.",
+  answer:"Evidence Bridge",
+  options:[
+   ["Awareness Desk","Employee recognition and safe-response behavior"],
+   ["Evidence Bridge","Human and technical context connecting together"],
+   ["Security Operations Desk","Analyst detection and investigation work"]
+  ],
+  why:{
+   "Evidence Bridge":"Correct — this record explicitly connects the employee’s report with technical information available to security analysts. It shows how the two lessons complement one another without making their responsibilities identical.",
+   "Awareness Desk":"The employee report is part of the record, but choosing Awareness alone would ignore the technical analyst context that the statement deliberately connects to it.",
+   "Security Operations Desk":"ES and analyst review are part of the record, but choosing Security Operations alone would ignore the employee-provided context that makes this a cross-workflow relationship."
+  }},
+ {id:"CASE 04",evidence:"An employee notices someone attempting to follow another person through a controlled entrance and reports the unusual behavior instead of assuming it is harmless.",
+  answer:"Awareness Desk",
+  options:[
+   ["Evidence Bridge","Human and technical context connecting together"],
+   ["Awareness Desk","Employee recognition and safe-response behavior"],
+   ["Security Operations Desk","Analyst detection and investigation work"]
+  ],
+  why:{
+   "Awareness Desk":"Correct — the source awareness material includes suspicious physical activity and reinforces that individuals should notice and report behavior that does not fit expected conditions.",
+   "Security Operations Desk":"A security team might later investigate the report, but the evidence given here is the employee’s recognition and reporting of suspicious physical behavior.",
+   "Evidence Bridge":"The report could eventually contribute to a broader investigation, but this record does not yet connect it to technical ES evidence; its primary focus remains awareness."
+  }},
+ {id:"CASE 05",evidence:"An analyst opens Mission Control to review a surfaced security item, examine context, prioritize the work, and continue the investigation.",
+  answer:"Security Operations Desk",
+  options:[
+   ["Security Operations Desk","Analyst detection and investigation work"],
+   ["Evidence Bridge","Human and technical context connecting together"],
+   ["Awareness Desk","Employee recognition and safe-response behavior"]
+  ],
+  why:{
+   "Security Operations Desk":"Correct — Mission Control is presented as a central ES analyst workspace for triage and investigation. The record is directly describing analyst workflow.",
+   "Awareness Desk":"Employee awareness does not include operating Mission Control or triaging ES findings. Those are security-operations responsibilities.",
+   "Evidence Bridge":"The investigation may use information that originated with employees, but this record only describes the analyst’s ES workflow, not the relationship between both evidence sources."
+  }},
+ {id:"CASE 06",evidence:"A suspicious message report and related authentication activity are considered together so the security team can understand the event with more context than either signal provides alone.",
+  answer:"Evidence Bridge",
+  options:[
+   ["Security Operations Desk","Analyst detection and investigation work"],
+   ["Awareness Desk","Employee recognition and safe-response behavior"],
+   ["Evidence Bridge","Human and technical context connecting together"]
+  ],
+  why:{
+   "Evidence Bridge":"Correct — the key idea is the relationship between a human-generated report and related technical activity. Together they provide broader context for the security team.",
+   "Security Operations Desk":"Analysts may perform the review, but this classification alone misses the statement’s main teaching point: combining human and technical context.",
+   "Awareness Desk":"The suspicious-message report begins with awareness behavior, but this record goes beyond the employee action by explicitly connecting it with technical authentication activity."
+  }}
+];
+
+const bridgeSelections={};
+
+document.getElementById('bridgeCases').innerHTML=evidenceBridgeCases.map((c,i)=>`
+ <div class="bridge-case" id="bridgeCase${i}">
+  <div class="bridge-head"><span class="pill">${c.id}</span><span class="status">Choose the strongest destination</span></div>
+  <div class="bridge-evidence">${c.evidence}</div>
+  <div class="bridge-choices">
+   ${c.options.map((o,j)=>`<button type="button" class="bridge-choice" id="bridge${i}_${j}" onclick="selectBridge(${i},${j})">
+     <span class="choice-title">${o[0]}</span><span class="choice-note">${o[1]}</span>
+   </button>`).join('')}
+  </div>
+  <div id="bridgeWhy${i}" class="status"></div>
+ </div>`).join('');
+
+function selectBridge(i,j){
+ const c=evidenceBridgeCases[i];
+ bridgeSelections[i]=c.options[j][0];
+ c.options.forEach((o,k)=>document.getElementById(`bridge${i}_${k}`).classList.toggle('selected',k===j));
+ document.getElementById('bridgeWhy'+i).innerHTML="<b>Selection recorded.</b> Validate when you are ready.";
+}
+
+function validateEvidenceBridge(){
+ let missing=0,wrong=0;
+ evidenceBridgeCases.forEach((c,i)=>{
+   const picked=bridgeSelections[i], box=document.getElementById('bridgeWhy'+i);
+   if(!picked){missing++;box.innerHTML="<b>No destination selected yet.</b> Decide what the statement is primarily explaining.";return}
+   if(picked===c.answer){
+     document.getElementById('bridgeCase'+i).classList.add('locked');
+     box.innerHTML=`<div class="feedback show ok"><b>${c.answer} is correct.</b> ${c.why[c.answer]}
+       <br><br><b>Why the other destinations do not fit as well:</b>
+       <ul>${c.options.filter(o=>o[0]!==c.answer).map(o=>`<li><b>${o[0]}:</b> ${c.why[o[0]]}</li>`).join('')}</ul></div>`;
+   }else{
+     wrong++;
+     box.innerHTML=`<div class="feedback show bad"><b>${picked} is plausible, but it is not the strongest classification.</b> ${c.why[picked]}
+       <br><br><b>Try again:</b> Ask whether the record primarily describes employee behavior, ES analyst workflow, or an explicit relationship between human and technical context. The correct destination is not revealed.</div>`;
+     delete bridgeSelections[i];
+     c.options.forEach((o,k)=>document.getElementById(`bridge${i}_${k}`).classList.remove('selected'));
+   }
+ });
+ if(missing||wrong){
+   showFb('bridgeFb',false,`<b>Evidence bridge still in progress.</b> ${missing?missing+" record(s) need a destination. ":""}${wrong?wrong+" record(s) reopened for another attempt.":""}`);
+   return;
+ }
+ completed.add(current);
+ showFb('bridgeFb',true,`<b>Evidence bridge complete.</b> Cybersecurity Awareness and Splunk ES support one security program from different positions. <b>Awareness</b> strengthens recognition, judgment, safe action, and reporting. <b>Splunk ES</b> supports security-data organization, detection, findings, triage, search, and investigation. The <b>bridge</b> appears when human observations and technical security information provide complementary context.<br><br><b>Key insight:</b> reporting a suspicious event does not turn an employee into an analyst, and using ES does not replace employee awareness. The value comes from each role contributing the right information at the right point.`);
+ update();
+}
+
+
+
+
+
+const reconConcepts=[
+ {id:"model",name:"Normalized data model"},
+ {id:"detect",name:"Detection logic"},
+ {id:"finding",name:"Analyst finding"},
+ {id:"mission",name:"Mission Control"},
+ {id:"rba",name:"Risk-based alerting"}
+];
+const reconSlots=[
+ {answer:"model",label:"RELATIONSHIP 01",statement:"_____ gives differently represented security information a consistent analytical structure that ES analytics can use efficiently.",
+ insight:"A normalized/accelerated data model organizes related security information. It supports analytics; it is not the rule evaluating suspicious conditions or the analyst-facing result."},
+ {answer:"detect",label:"RELATIONSHIP 02",statement:"_____ evaluates available security data for defined conditions or patterns associated with suspicious activity.",
+ insight:"Detection logic performs the defined evaluation. It depends on searchable/organized information but is conceptually different from the data structure and from the output shown to analysts."},
+ {answer:"finding",label:"RELATIONSHIP 03",statement:"_____ represents security information surfaced for analyst attention after qualifying activity warrants review.",
+ insight:"A finding is analyst-visible security output. It is not the underlying data organization, the detection logic, or the workspace where the analyst later triages it."},
+ {answer:"mission",label:"RELATIONSHIP 04",statement:"_____ provides the analyst-facing workflow for prioritizing, reviewing context, and continuing investigation work.",
+ insight:"Mission Control is the analyst workflow/workspace. The security item can arrive there for human review, but Mission Control is not itself the detection or finding."},
+ {answer:"rba",label:"RELATIONSHIP 05",statement:"_____ builds context by allowing related behaviors to contribute risk information rather than treating every isolated event as the entire story.",
+ insight:"Risk-based alerting adds behavioral risk context across activity. It complements detections and analyst workflow rather than replacing them."}
+];
+let reconPlacement={};
+
+function renderReconstruction(){
+ const placed=new Set(Object.values(reconPlacement));
+ document.getElementById('reconBank').innerHTML=reconConcepts.filter(c=>!placed.has(c.id)).map(c=>
+  `<div class="recon-token" draggable="true" data-concept="${c.id}" ondragstart="reconDrag(event)" onclick="reconPick('${c.id}')">${c.name}</div>`).join('');
+ document.getElementById('reconBoard').innerHTML=reconSlots.map((slot,i)=>{
+  const cid=reconPlacement[i], c=reconConcepts.find(x=>x.id===cid);
+  return `<div class="recon-slot" id="reconSlot${i}">
+    <div class="recon-drop" data-slot="${i}" ondragover="reconOver(event)" ondragleave="this.classList.remove('over')" ondrop="reconDrop(event,${i})" onclick="reconPlacePicked(${i})">
+      ${c?`<div class="recon-token" draggable="true" data-concept="${c.id}" ondragstart="reconDrag(event)">${c.name}</div>`:`Drop concept record here`}
+    </div>
+    <div class="recon-rel"><span class="pill">${slot.label}</span><p>${slot.statement}</p><div id="reconWhy${i}" class="recon-explain"></div></div>
+  </div>`;
+ }).join('');
+}
+let reconPicked=null;
+function reconPick(id){reconPicked=id}
+function reconPlacePicked(i){if(!reconPicked)return;placeRecon(reconPicked,i);reconPicked=null}
+function reconDrag(e){e.dataTransfer.setData('text/plain',e.currentTarget.dataset.concept)}
+function reconOver(e){e.preventDefault();e.currentTarget.classList.add('over')}
+function reconDrop(e,i){e.preventDefault();placeRecon(e.dataTransfer.getData('text/plain'),i)}
+function placeRecon(id,i){
+ for(const k of Object.keys(reconPlacement)){if(reconPlacement[k]===id)delete reconPlacement[k]}
+ reconPlacement[i]=id; renderReconstruction();
+}
+function resetReconstruction(){
+ reconPlacement={};reconPicked=null;renderReconstruction();
+ document.getElementById('reconFb').className='feedback';document.getElementById('reconFb').innerHTML='';
+}
+function validateReconstruction(){
+ let missing=0,wrong=0;
+ reconSlots.forEach((slot,i)=>{
+  const cid=reconPlacement[i], row=document.getElementById('reconSlot'+i), why=document.getElementById('reconWhy'+i);
+  row.classList.remove('correct','wrong');
+  if(!cid){missing++;why.innerHTML="<b>Relationship incomplete.</b> Place a concept record here.";return}
+  const c=reconConcepts.find(x=>x.id===cid);
+  if(cid===slot.answer){
+   row.classList.add('correct');
+   const alternatives=reconConcepts.filter(x=>x.id!==cid).map(x=>{
+    const otherSlot=reconSlots.find(r=>r.answer===x.id);
+    return `<li><b>${x.name}:</b> ${otherSlot.insight.split('.')[0]}. That function does not complete this relationship.</li>`;
+   }).join('');
+   why.innerHTML=`<div class="feedback show ok"><b>${c.name} completes this relationship.</b> ${slot.insight}<br><br><b>Why the other concepts do not belong here:</b><ul>${alternatives}</ul></div>`;
+  }else{
+   wrong++;row.classList.add('wrong');
+   const actualSlot=reconSlots.find(r=>r.answer===cid);
+   why.innerHTML=`<div class="feedback show bad"><b>${c.name} does not complete this relationship.</b> ${actualSlot.insight}<br><br><b>Reconsider:</b> Compare that function with what this relationship statement is actually describing. Move the record and validate again; the correct concept is not revealed.</div>`;
+  }
+ });
+ if(missing||wrong){
+  showFb('reconFb',false,`<b>Concept model not yet complete.</b> ${missing?missing+" relationship(s) are empty. ":""}${wrong?wrong+" relationship(s) need reconstruction.":""} Move the records using the functional explanations rather than guessing by sequence.`);
+  return;
+ }
+ completed.add(current);
+ showFb('reconFb',true,`<b>Concept model reconstructed.</b> The relationships now form a coherent mental model: <b>data models organize information → detections evaluate defined conditions → findings surface qualifying security information → Mission Control supports analyst triage and investigation</b>. <b>Risk-based alerting</b> adds another relationship by building behavioral risk context across related activity.<br><br><b>Conceptual takeaway:</b> these features cooperate, but each contributes a different function. Understanding those distinctions is more useful than memorizing a list of ES terms.`);
+ update();
+}
+renderReconstruction();
+
+
+const workspaceRegions=[
+ {name:"Mission Control",cue:"The analyst needs to review surfaced security work, prioritize attention, inspect context, and continue investigation from a central workflow.",
+  required:[["analyst","triage","queue","investigat"],["finding","security item","work","attention"]],
+  model:"Mission Control is the central analyst-oriented workspace for triage and investigation, including work such as reviewing analyst-visible security items and their context.",
+  contrasts:"It is different from Search, which supports ad hoc exploration; Security Content, which centers on detections/content; Analytics, which provides broader security visibility; and General Configuration, which supports administration."},
+ {name:"Analytics / Security Posture",cue:"A team lead wants broader visibility into security status and activity rather than opening one specific security item.",
+  required:[["security","posture","status","activity","visibility"],["dashboard","high-level","broader","overview"]],
+  model:"Analytics views such as Security Posture provide broader, high-level visibility into security status and activity through dashboards and related views.",
+  contrasts:"This is not the primary analyst queue, not the place for ad hoc event searching, not detection-content management, and not administrative configuration."},
+ {name:"Security Content",cue:"A detection engineer wants to review the ES content used to identify suspicious behavior and understand what detections are available.",
+  required:[["detection","security content","content"],["suspicious","behavior","identify","rule"]],
+  model:"Security Content is where ES security content—such as detections used to identify suspicious behavior—can be reviewed and managed.",
+  contrasts:"It differs from Mission Control’s analyst workflow, Search’s data exploration, Analytics’ broader visibility, and General Configuration’s application settings."},
+ {name:"Search",cue:"An analyst wants to explore available event data to answer a question that is not limited to one item already in the analyst queue.",
+  required:[["search","explor","query","event","data"],["ad hoc","question","investigat"]],
+  model:"Search supports ad hoc exploration of available data so analysts and other authorized users can ask questions directly of events.",
+  contrasts:"Search may support investigations, but it is conceptually different from the Mission Control queue, Security Content management, high-level dashboards, and application configuration."},
+ {name:"General Configuration",cue:"An authorized administrator needs to adjust an Enterprise Security application setting for the organization.",
+  required:[["config","setting","administr"],["authorized","application","setup","manage"]],
+  model:"General Configuration supports authorized administrative setup and ES application settings.",
+  contrasts:"It is not the primary workspace for analyst triage, ad hoc event exploration, detection-content review, or high-level security-posture viewing."}
+];
+let workspaceNotes=["","","","",""];
+let activeWorkspace=-1;
+
+function openWorkspaceRegion(i){
+ if(activeWorkspace>=0){
+  const old=document.getElementById('workspaceNote');
+  if(old) workspaceNotes[activeWorkspace]=old.value;
+ }
+ activeWorkspace=i;
+ document.querySelectorAll('.ws-hotspot').forEach((b,j)=>b.classList.toggle('active',i===j));
+ const r=workspaceRegions[i];
+ document.getElementById('workspaceInspector').innerHTML=`
+  <div class="pill">REGION ${String(i+1).padStart(2,'0')}</div>
+  <h3>${r.name}</h3>
+  <p><b>Workplace cue:</b> ${r.cue}</p>
+  <label for="workspaceNote"><b>Your annotation:</b> In 1–2 sentences, explain what this area primarily means or supports.</label>
+  <textarea id="workspaceNote" class="annotation-box" placeholder="Explain the purpose in your own words...">${workspaceNotes[i]}</textarea>
+  <div id="workspaceCoach${i}" class="status"></div>`;
+}
+
+function saveActiveWorkspace(){
+ if(activeWorkspace>=0){
+  const el=document.getElementById('workspaceNote');
+  if(el)workspaceNotes[activeWorkspace]=el.value.trim();
+ }
+}
+function containsAny(txt,arr){txt=txt.toLowerCase();return arr.some(k=>txt.includes(k))}
+function validateWorkspaceAnnotations(){
+ saveActiveWorkspace();
+ let incomplete=0,needs=0;
+ workspaceRegions.forEach((r,i)=>{
+  const txt=(workspaceNotes[i]||"").trim();
+  if(txt.length<12){incomplete++;return}
+  const groupsHit=r.required.filter(g=>containsAny(txt,g)).length;
+  if(groupsHit<2)needs++;
+ });
+ if(incomplete||needs){
+  let first=-1;
+  for(let i=0;i<workspaceRegions.length;i++){
+   const txt=(workspaceNotes[i]||"").trim();
+   const hit=txt.length>=12 && workspaceRegions[i].required.filter(g=>containsAny(txt,g)).length>=2;
+   if(!hit){first=i;break}
+  }
+  if(first>=0){
+   openWorkspaceRegion(first);
+   const r=workspaceRegions[first],txt=(workspaceNotes[first]||"").trim();
+   document.getElementById('workspaceCoach'+first).innerHTML=`<div class="feedback show bad"><b>${txt.length<12?"Annotation needs more explanation.":"Your annotation is on the right topic but needs a clearer purpose."}</b><br><br><b>Coaching:</b> ${r.model}<br><br><b>Important distinction:</b> ${r.contrasts}<br><br>Revise this in your own words, then review again.</div>`;
+  }
+  showFb('workspaceFb',false,`<b>Workspace interpretation still in progress.</b> ${incomplete?incomplete+" region(s) need a fuller annotation. ":""}${needs?needs+" annotation(s) need a clearer conceptual explanation.":""} The coaching identifies the missing idea without giving you a selectable answer.`);
+  return;
+ }
+ completed.add(current);
+ showFb('workspaceFb',true,`<b>Workspace walkthrough complete.</b><br><br>
+ <b>Mission Control:</b> ${workspaceRegions[0].model} ${workspaceRegions[0].contrasts}<br><br>
+ <b>Analytics / Security Posture:</b> ${workspaceRegions[1].model} ${workspaceRegions[1].contrasts}<br><br>
+ <b>Security Content:</b> ${workspaceRegions[2].model} ${workspaceRegions[2].contrasts}<br><br>
+ <b>Search:</b> ${workspaceRegions[3].model} ${workspaceRegions[3].contrasts}<br><br>
+ <b>General Configuration:</b> ${workspaceRegions[4].model} ${workspaceRegions[4].contrasts}<br><br>
+ <b>Expert takeaway:</b> These areas can support the same security program, but they represent different information behaviors: analyst triage, broader visibility, content management, data exploration, and administration. Understanding those boundaries prevents the interface from becoming a list of menu names.`);
+ update();
+}
+
+
+
+
+
+const signalConferenceCases=[
+ {id:"REPORT 01",title:"Unexpected account verification message",
+  evidence:["Message claims the account will be disabled soon.","Sender domain and destination link differ from the organization’s normal domain.","Message asks the employee to enter current credentials.","Employee did not expect an account-verification request."],
+  answer:1,
+  options:[
+   {head:"Confirmed account compromise",body:"The message proves the employee account has already been taken over and should be treated as an established compromise.",
+    why:"This overstates the evidence. The message contains phishing indicators, but the source material distinguishes suspicious signs from proof that an account has already been compromised."},
+   {head:"Suspicious phishing indicators",body:"The combined urgency, identity mismatch, unexpected request, and credential prompt justify caution, verification, and reporting.",
+    why:"Correct. Multiple warning signs reinforce one another: urgency creates pressure, domain inconsistencies weaken trust, and a credential request raises the stakes. The evidence supports suspicion and safe reporting without claiming a compromise is already proven."},
+   {head:"Routine authentication notice",body:"The credential request is consistent with ordinary account maintenance because verification messages commonly require users to confirm access.",
+    why:"This normalizes a risky request. Legitimate-looking context does not cancel the mismatched domains, unexpected timing, urgency, and request for current credentials."}]},
+ {id:"REPORT 02",title:"Executive-looking payment request",
+  evidence:["Message appears to come from a senior leader.","Request says the task must remain confidential.","Employee is told to act immediately without the normal review path.","Message emphasizes the leader’s authority and urgency."],
+  answer:2,
+  options:[
+   {head:"Ordinary executive prioritization",body:"The request is mainly an example of senior leadership accelerating work because executives can legitimately assign urgent confidential tasks.",
+    why:"Authority can be legitimate, but the lesson teaches that attackers can exploit authority and urgency. The unusual bypass of normal review makes simple acceptance an unsafe interpretation."},
+   {head:"Technical malware execution",body:"The message demonstrates malware activity because the pressure and secrecy indicate malicious software is already running on the employee’s system.",
+    why:"The evidence describes human influence, not software behavior. Social engineering can be dangerous without malware being present or executed."},
+   {head:"Authority-based social engineering",body:"The request uses perceived authority, secrecy, and time pressure to reduce verification and increase the chance of rapid compliance.",
+    why:"Correct. This interpretation focuses on the manipulation technique supported by the evidence without inventing malware or assuming the executive identity is genuine."}]},
+ {id:"REPORT 03",title:"Unexpected workstation behavior",
+  evidence:["Applications begin behaving differently than expected.","Employee cannot explain the technical cause.","No confirmed malware alert is available in the report.","The behavior is unusual enough to concern the employee."],
+  answer:0,
+  options:[
+   {head:"Suspicious activity worth reporting",body:"The behavior is meaningful enough to report even though the employee cannot determine whether malware or another technical cause is responsible.",
+    why:"Correct. Awareness asks employees to recognize and report unusual conditions; it does not require them to diagnose malware. Reporting preserves the uncertainty while giving the organization a chance to evaluate it."},
+   {head:"Confirmed malware infection",body:"Unexpected application behavior establishes that malicious software is present because normal systems do not change behavior without an infection.",
+    why:"This converts a warning sign into a diagnosis. Unexpected behavior can have many causes, and the awareness lesson does not require or support declaring malware solely from this observation."},
+   {head:"Harmless software variation",body:"Without a confirmed malware alert, the behavior should be considered normal variation and does not provide enough information to justify reporting.",
+    why:"This creates the opposite error: absence of confirmation does not make an unusual condition harmless. Dismissing meaningful warning signs can create a false negative."}]},
+ {id:"REPORT 04",title:"Person follows employee through controlled door",
+  evidence:["Unknown person approaches immediately behind an employee.","Person enters without independently presenting authorization.","The employee does not know whether the person belongs in the area.","No technical alert is involved."],
+  answer:1,
+  options:[
+   {head:"Network intrusion indicator",body:"The event should primarily be interpreted as a network compromise because unauthorized physical entry usually indicates a connected cyberattack.",
+    why:"The event is a physical-security awareness concern. Nothing in the report establishes a network compromise, and adding one goes beyond the evidence."},
+   {head:"Potential tailgating concern",body:"The entry behavior matches a suspicious physical-access pattern that should be noticed and reported without assuming the person’s intent.",
+    why:"Correct. Tailgating is a recognized suspicious activity. The careful interpretation identifies the behavior while avoiding an unsupported claim about the person’s motives."},
+   {head:"Normal workplace courtesy",body:"Following another employee through a controlled entrance is generally acceptable when the first employee has already opened the door.",
+    why:"This overlooks the purpose of controlled access. Courtesy does not establish authorization, and the unknown person’s status remains unresolved."}]},
+ {id:"REPORT 05",title:"Unexpected help offer for login problem",
+  evidence:["Caller offers immediate assistance with an account issue.","Caller asks for information that would help access the account.","Employee did not initiate a support request.","Offer is framed as a quick way to restore productivity."],
+  answer:2,
+  options:[
+   {head:"Routine support convenience",body:"The offer is likely normal help-desk outreach because restoring employee productivity often requires support staff to gather account information quickly.",
+    why:"The context sounds helpful, but an unsolicited offer that seeks access-related information should not be accepted merely because the story is plausible."},
+   {head:"Verified credential theft",body:"The request proves credentials have already been stolen because legitimate support teams never contact employees about account access problems.",
+    why:"This is too certain. The interaction is suspicious, but the evidence does not prove that credentials were already stolen or that every proactive support contact is illegitimate."},
+   {head:"Quid-pro-quo style influence",body:"The offered help creates a benefit in exchange for cooperation, making verification important before sharing access-related information.",
+    why:"Correct. The lesson describes quid pro quo as offering a benefit or service to encourage cooperation. The interpretation identifies the influence pattern while preserving uncertainty about the caller’s identity."}]}
+];
+const signalConferenceSelections={};
+
+document.getElementById('signalReports').innerHTML=signalConferenceCases.map((c,i)=>`
+ <div class="signal-report" id="signalReport${i}">
+  <span class="pill">${c.id}</span><h3>${c.title}</h3>
+  <div class="report-evidence">${c.evidence.map(e=>`<div>${e}</div>`).join('')}</div>
+  <div class="interpretation-grid">
+   ${c.options.map((o,j)=>`<button type="button" class="interpretation-note" id="sigOpt${i}_${j}" onclick="selectSignalInterpretation(${i},${j})"><b>${o.head}</b>${o.body}</button>`).join('')}
+  </div>
+  <div id="signalWhy${i}"></div>
+ </div>`).join('');
+
+function selectSignalInterpretation(i,j){
+ if(document.getElementById('signalReport'+i).classList.contains('locked'))return;
+ signalConferenceSelections[i]=j;
+ signalConferenceCases[i].options.forEach((o,k)=>document.getElementById(`sigOpt${i}_${k}`).classList.toggle('selected',k===j));
+}
+
+function reviewSignalConference(){
+ let missing=0,wrong=0;
+ signalConferenceCases.forEach((c,i)=>{
+  const picked=signalConferenceSelections[i], box=document.getElementById('signalWhy'+i);
+  if(picked===undefined){missing++;box.innerHTML=`<div class="feedback show bad"><b>Conference note incomplete.</b> Compare the three interpretations and select the one that best preserves what the evidence actually supports.</div>`;return}
+  if(picked===c.answer){
+   document.getElementById('signalReport'+i).classList.add('locked');
+   box.innerHTML=`<div class="feedback show ok"><b>${c.options[picked].head} is the strongest interpretation.</b> ${c.options[picked].why}
+   <br><br><b>Why the competing interpretations do not fit as well:</b><ul>${c.options.filter((o,j)=>j!==picked).map(o=>`<li><b>${o.head}:</b> ${o.why}</li>`).join('')}</ul></div>`;
+  }else{
+   wrong++;
+   box.innerHTML=`<div class="feedback show bad"><b>${c.options[picked].head} is plausible at first glance, but it goes beyond or misreads the evidence.</b> ${c.options[picked].why}
+   <br><br><b>Reconsider:</b> Separate what is <em>observed</em> from what is merely <em>possible</em>. Choose the interpretation that explains the warning signs without inventing certainty.</div>`;
+   delete signalConferenceSelections[i];
+   c.options.forEach((o,k)=>document.getElementById(`sigOpt${i}_${k}`).classList.remove('selected'));
+  }
+ });
+ if(missing||wrong){
+  showFb('signalConferenceFb',false,`<b>Conference review still open.</b> ${missing?missing+" report(s) need an interpretation. ":""}${wrong?wrong+" report(s) were reopened for reconsideration.":""}`);
+  return;
+ }
+ completed.add(current);
+ showFb('signalConferenceFb',true,`<b>Human Signal Conference complete.</b><br><br>
+ <b>Expert insight:</b> Awareness is disciplined interpretation. A warning sign can justify caution and reporting without proving a compromise. Social engineering often works by making a request feel believable through authority, urgency, offered benefits, or other human pressures. Suspicious system or physical behavior can also deserve attention even when the employee cannot diagnose the cause.<br><br>
+ <b>Conceptual takeaway:</b> Avoid both extremes: <b>overclaiming</b> (“this proves compromise”) and <b>underreacting</b> (“there is no proof, so ignore it”). The awareness mindset is to recognize meaningful signals, preserve uncertainty, act safely, and report concerns through the appropriate process.`);
+ update();
+}
+
+
+const threatJourneys=[
+ {id:"JOURNEY 01",title:"Attack behavior → security analytics → analyst attention",
+  tiles:[
+   {id:"kill",name:"Cyber Kill Chain / ATT&CK",desc:"Framework language for describing adversary behavior or attack progression."},
+   {id:"detect",name:"Detection logic",desc:"Defined search or analytic logic that evaluates security information for suspicious conditions."},
+   {id:"finding",name:"Finding",desc:"Security information surfaced for analyst attention when qualifying activity warrants review."}
+  ],
+  order:["kill","detect","finding"],answer:1,
+  reasons:[
+   {text:"The framework itself performs the detection, and the finding is simply another name for the same framework stage.",
+    why:"This collapses three different layers. Frameworks help describe or map adversary behavior; detection logic evaluates security information; a finding is analyst-visible output. Their relationship matters precisely because they are not equivalent."},
+   {text:"Frameworks describe behavior; detection logic looks for relevant conditions; qualifying activity can then surface information for analyst review.",
+    why:"Correct. This preserves the conceptual boundary between describing adversary behavior, evaluating security data, and surfacing analyst-visible security information."},
+   {text:"Findings define attack stages first, then frameworks normalize the event data so detections can be created from the analyst queue.",
+    why:"This reverses the conceptual roles. Findings do not define attack stages, and attack frameworks are not the data-normalization layer. The explanation mixes analyst output, frameworks, and data organization."}
+  ],
+  insight:"Frameworks such as the Cyber Kill Chain and MITRE ATT&CK provide ways to understand adversary behavior. ES detection logic evaluates security information for defined conditions, and qualifying activity can produce analyst-visible findings."},
+ {id:"JOURNEY 02",title:"Raw security information → organized model → efficient analytics",
+  tiles:[
+   {id:"events",name:"Indexed security events",desc:"Searchable event information gathered from relevant security data sources."},
+   {id:"model",name:"Accelerated data model",desc:"Organized and normalized security information structured for efficient analytics."},
+   {id:"analytics",name:"ES analytics",desc:"Security searches and analytics that use organized information to identify meaningful conditions."}
+  ],
+  order:["events","model","analytics"],answer:2,
+  reasons:[
+   {text:"Analytics create the source events, data models store analyst findings, and indexing occurs only after a detection identifies suspicious activity.",
+    why:"This inverts the information relationship. Security data is gathered and indexed before analytics can evaluate it; data models organize/normalize information rather than storing analyst findings as their defining purpose."},
+   {text:"Indexed events and data models are equivalent storage layers, while analytics mainly provide a visual dashboard over whichever layer the analyst selects.",
+    why:"This makes the layers too similar. Indexed events are searchable event information; data models organize/normalize related data for efficient use; analytics evaluate information rather than merely displaying it."},
+   {text:"Security events become searchable, data models organize relevant information, and ES analytics can use that structure to evaluate security conditions efficiently.",
+    why:"Correct. This explanation keeps collection/searchability, organization/normalization, and analytical evaluation conceptually distinct while showing how they support one another."}
+  ],
+  insight:"The lesson’s ES data flow connects security data, indexing, normalized/accelerated data models, and analytics. A data model is not itself a detection; it organizes information so analytics can work consistently and efficiently."},
+ {id:"JOURNEY 03",title:"Threat context → detection meaning → analyst investigation",
+  tiles:[
+   {id:"intel",name:"Threat intelligence context",desc:"Known or suspected threat information that can add meaning to security observations."},
+   {id:"signal",name:"Detection / risk context",desc:"Security logic and risk information that help identify and prioritize meaningful behavior."},
+   {id:"mission",name:"Mission Control workflow",desc:"Analyst-facing workspace for triage, context review, and investigation work."}
+  ],
+  order:["intel","signal","mission"],answer:0,
+  reasons:[
+   {text:"Threat context can enrich what security activity means; detections or risk context help surface significance; Mission Control supports the analyst’s review and investigation.",
+    why:"Correct. Threat intelligence contributes context, detection/risk mechanisms help make suspicious activity meaningful for attention, and Mission Control supports the human triage/investigation workflow."},
+   {text:"Mission Control generates threat intelligence first, which then becomes a data model that automatically determines the correct analyst response.",
+    why:"This assigns functions the lesson does not give these concepts. Mission Control is analyst-facing workflow; threat intelligence adds context; neither automatically determines a correct response or becomes a data model."},
+   {text:"Detection logic and threat intelligence are interchangeable sources of evidence, while Mission Control primarily stores the raw events used by both.",
+    why:"This erases important distinctions. Threat intelligence provides contextual information; detections evaluate security conditions; Mission Control is not primarily the raw-event storage layer."}
+  ],
+  insight:"Threat intelligence, detections/risk context, and Mission Control can contribute to one investigation experience, but they contribute different kinds of meaning: contextual knowledge, security significance, and analyst workflow."}
+];
+
+let journeyPlacement={};
+let journeyReason={};
+let journeyDragId=null;
+
+function renderThreatJourneys(){
+ document.getElementById('journeyRoom').innerHTML=threatJourneys.map((j,ji)=>{
+  const placed=new Set(Object.values(journeyPlacement[ji]||{}));
+  return `<div class="journey-strip" id="journey${ji}">
+   <span class="pill">${j.id}</span><h3>${j.title}</h3>
+   <div class="journey-evidence">${j.tiles.filter(t=>!placed.has(t.id)).map(t=>`<div class="journey-tile" draggable="true" data-ji="${ji}" data-id="${t.id}" ondragstart="journeyDrag(event)"><b>${t.name}</b><small>${t.desc}</small></div>`).join('')}</div>
+   <div class="journey-track">
+    ${[0,1,2].map((p)=>{
+      const tid=(journeyPlacement[ji]||{})[p], t=j.tiles.find(x=>x.id===tid);
+      const slot=`<div class="journey-slot" ondragover="journeyOver(event)" ondragleave="this.classList.remove('over')" ondrop="journeyDrop(event,${ji},${p})">${t?`<div class="journey-tile" draggable="true" data-ji="${ji}" data-id="${t.id}" ondragstart="journeyDrag(event)"><b>${t.name}</b><small>${t.desc}</small></div>`:`Position ${p+1}`}</div>`;
+      return p<2?slot+`<div class="journey-arrow">→</div>`:slot;
+    }).join('')}
+   </div>
+   <div><b>Why does this relationship make sense?</b></div>
+   <div class="journey-explain">${j.reasons.map((r,ri)=>`<button type="button" id="jr${ji}_${ri}" class="journey-reason ${journeyReason[ji]===ri?'selected':''}" onclick="selectJourneyReason(${ji},${ri})">${r.text}</button>`).join('')}</div>
+   <div id="journeyWhy${ji}"></div>
+  </div>`;
+ }).join('');
+}
+function journeyDrag(e){journeyDragId=e.currentTarget.dataset.id;e.dataTransfer.setData('text/plain',journeyDragId)}
+function journeyOver(e){e.preventDefault();e.currentTarget.classList.add('over')}
+function journeyDrop(e,ji,pos){
+ e.preventDefault();
+ const id=e.dataTransfer.getData('text/plain')||journeyDragId;
+ if(!journeyPlacement[ji])journeyPlacement[ji]={};
+ for(const k of Object.keys(journeyPlacement[ji]))if(journeyPlacement[ji][k]===id)delete journeyPlacement[ji][k];
+ journeyPlacement[ji][pos]=id;renderThreatJourneys();
+}
+function selectJourneyReason(ji,ri){journeyReason[ji]=ri;renderThreatJourneys()}
+
+function validateThreatJourneys(){
+ let incomplete=0,wrong=0;
+ threatJourneys.forEach((j,ji)=>{
+  const p=journeyPlacement[ji]||{}, why=document.getElementById('journeyWhy'+ji);
+  const full=[0,1,2].every(x=>p[x]);
+  if(!full || journeyReason[ji]===undefined){
+   incomplete++;
+   why.innerHTML=`<div class="feedback show bad"><b>Journey incomplete.</b> Place all three evidence tiles and select the explanation that best describes the relationship.</div>`;
+   return;
+  }
+  const orderCorrect=j.order.every((id,pos)=>p[pos]===id);
+  const reasonCorrect=journeyReason[ji]===j.answer;
+  if(orderCorrect && reasonCorrect){
+   document.getElementById('journey'+ji).classList.add('locked');
+   const chosen=j.reasons[j.answer];
+   why.innerHTML=`<div class="feedback show ok"><b>Journey reconstructed correctly.</b> ${j.insight}<br><br><b>Why your explanation works:</b> ${chosen.why}<br><br><b>Why the alternatives break the mental model:</b><ul>${j.reasons.filter((r,ri)=>ri!==j.answer).map(r=>`<li>${r.why}</li>`).join('')}</ul></div>`;
+  }else{
+   wrong++;
+   const chosen=j.reasons[journeyReason[ji]];
+   let msg=`<b>This journey needs another pass.</b> `;
+   if(!orderCorrect) msg+=`The tiles are not yet arranged in the conceptual relationship supported by the lesson. `;
+   if(!reasonCorrect) msg+=`${chosen.why} `;
+   msg+=`<br><br><b>Reconstruct the model:</b> distinguish what describes or contextualizes behavior, what organizes/evaluates security information, and what becomes visible or useful to the analyst. The correct sequence and explanation are not revealed.`;
+   why.innerHTML=`<div class="feedback show bad">${msg}</div>`;
+  }
+ });
+ if(incomplete||wrong){
+  showFb('journeyFb',false,`<b>Journey Room still in progress.</b> ${incomplete?incomplete+" journey(s) are incomplete. ":""}${wrong?wrong+" journey(s) need reconstruction.":""}`);
+  return;
+ }
+ completed.add(current);
+ showFb('journeyFb',true,`<b>Threat Journey Room complete.</b><br><br><b>Expert synthesis:</b> Attack frameworks help describe adversary behavior; indexed and modeled security data provide organized information; detections evaluate defined conditions; findings and risk context help surface meaningful security information; threat intelligence can enrich interpretation; and Mission Control supports analyst triage and investigation.<br><br><b>Keep this mental model:</b> these concepts participate in a connected security workflow, but they do not represent the same layer or perform the same function.`);
+ update();
+}
+renderThreatJourneys();
+
+
+const shiftNotes=[
+ {title:"Shared Responsibility",text:"Cybersecurity awareness treats security as a shared responsibility. Everyday choices can affect organizational risk, so employees contribute through informed behavior rather than assuming security belongs only to a technical team."},
+ {title:"Suspicious Activity",text:"Employees can notice phishing clues, social-engineering pressure, unusual system behavior, tailgating, strange devices, or other suspicious activity without being expected to prove the technical cause."},
+ {title:"Reporting",text:"Reporting gives the organization visibility into concerns that an individual may not be able to evaluate alone. Recognition and reporting are connected, but reporting is not the same thing as completing an investigation."},
+ {title:"Security Data",text:"Splunk Enterprise Security functions as a SIEM that helps security teams work with security data. Indexed information and normalized or accelerated data models support consistent and efficient security analytics."},
+ {title:"Detections & Findings",text:"Detection logic evaluates defined activity or conditions. When activity warrants analyst attention, security information can be surfaced as a finding; the detection and the analyst-visible result are related but not identical concepts."},
+ {title:"Analyst Workflow",text:"Mission Control supports analyst triage and investigation work. Dashboards and other ES views organize security information for useful perspectives, but they do not replace analyst reasoning."}
+];
+
+function openShiftNote(i){
+ document.querySelectorAll('.packet-note').forEach((b,j)=>b.classList.toggle('active',i===j));
+ const n=shiftNotes[i];
+ document.getElementById('shiftNoteViewer').innerHTML=`<span class="pill">SOURCE NOTE ${String(i+1).padStart(2,'0')}</span><h3>${n.title}</h3><p>${n.text}</p>`;
+}
+
+const shiftBriefLines=[
+ {label:"LINE 01 • HUMAN LAYER",prompt:"What does the awareness perspective contribute?",answer:1,
+  choices:[
+   {text:"Employees provide the organization’s first security detection layer by confirming threats before technical security tools begin evaluating related activity.",
+    why:"This sounds coordinated, but it gives employees a detection and confirmation role the awareness material does not assign. Employees recognize warning signs and act/report safely; they are not required to confirm threats before technical systems can detect activity."},
+   {text:"Employees contribute by recognizing suspicious situations, making safer choices, protecting information, and reporting concerns even when they cannot diagnose the cause.",
+    why:"Correct. This preserves the awareness course’s emphasis on shared responsibility, recognition, safe behavior, and reporting without turning employees into investigators or requiring technical diagnosis."},
+   {text:"Employees reduce security risk mainly by following authentication rules, while suspicious messages and unusual behavior become the security team’s responsibility once noticed.",
+    why:"This captures one useful behavior but narrows awareness too far. The course connects authentication with phishing, social engineering, suspicious activity, sensitive information, safe decisions, and reporting—not authentication alone."}
+  ]},
+ {label:"LINE 02 • ENTERPRISE SECURITY LAYER",prompt:"What does the ES perspective contribute?",answer:2,
+  choices:[
+   {text:"Enterprise Security primarily presents dashboards that summarize incidents already confirmed elsewhere, allowing analysts to document outcomes after investigation is complete.",
+    why:"Dashboards are part of ES, but this description reduces ES to presentation and post-investigation documentation. The course also connects security data, data models, detections, findings, risk context, search, triage, and investigation workflows."},
+   {text:"Enterprise Security automatically converts indexed events into confirmed incidents, using Mission Control to determine the appropriate response without additional analyst interpretation.",
+    why:"This overstates automation and certainty. ES helps surface and organize security information for analysts; findings and workflows support investigation, but they do not automatically prove an incident or replace analyst reasoning."},
+   {text:"Enterprise Security organizes security data, supports detections and findings, adds useful context, and gives analysts workflows for triage, search, and investigation.",
+    why:"Correct. This captures the ES lesson’s connected model while keeping the functions distinct: data organization supports analytics, detections evaluate conditions, findings surface information, and analysts interpret that information through investigation workflows."}
+  ]},
+ {label:"LINE 03 • CONNECTION",prompt:"How do the two perspectives fit together?",answer:0,
+  choices:[
+   {text:"Human observations and technical security information can provide complementary context: employees report what they notice while ES helps analysts examine related security signals.",
+    why:"Correct. The courses meet at context rather than equivalence. Human reporting can contribute observations; ES provides technical security information and analyst workflows. Together they can broaden understanding without making either perspective a substitute for the other."},
+   {text:"Employee reports become findings in Enterprise Security, so awareness reporting and ES detection are two names for the same security process viewed from different roles.",
+    why:"The connection is plausible, but the concepts are not interchangeable. An employee report is a human observation; a detection evaluates security information; a finding is analyst-visible security information. They may contribute to the same broader investigation without being the same process."},
+   {text:"Enterprise Security validates employee reports by checking technical data, which means human awareness is useful mainly when ES can confirm that the reported concern was malicious.",
+    why:"This makes awareness depend on later technical confirmation. Safe recognition and reporting are valuable even when a concern is ultimately benign; awareness is about informed behavior under uncertainty, not only reports that become confirmed malicious activity."}
+  ]}
+];
+
+const shiftSelections={};
+
+function renderShiftBrief(){
+ document.getElementById('briefBuilder').innerHTML=shiftBriefLines.map((b,i)=>`
+  <div class="brief-line" id="briefLine${i}">
+   <div class="brief-line-head"><div><span class="pill">${b.label}</span><h3>${b.prompt}</h3></div><small>Choose the line that preserves the source meaning.</small></div>
+   <div class="draft-grid">${b.choices.map((c,j)=>`<button type="button" id="shift${i}_${j}" class="draft-choice ${shiftSelections[i]===j?'selected':''}" onclick="selectShiftLine(${i},${j})">${c.text}</button>`).join('')}</div>
+   <div id="shiftWhy${i}"></div>
+  </div>`).join('');
+}
+function selectShiftLine(i,j){
+ if(document.getElementById('briefLine'+i).classList.contains('locked'))return;
+ shiftSelections[i]=j; renderShiftBrief();
+}
+function validateShiftBrief(){
+ let missing=0,wrong=0;
+ shiftBriefLines.forEach((b,i)=>{
+  const picked=shiftSelections[i], box=document.getElementById('shiftWhy'+i);
+  if(picked===undefined){
+   missing++;
+   box.innerHTML=`<div class="feedback show bad"><b>Briefing line incomplete.</b> Compare the three drafts against the source packet before choosing a line.</div>`;
+   return;
+  }
+  if(picked===b.answer){
+   document.getElementById('briefLine'+i).classList.add('locked');
+   box.innerHTML=`<div class="feedback show ok"><b>This line preserves the source meaning.</b> ${b.choices[picked].why}<br><br><b>Why the other drafts do not fit as well:</b><ul>${b.choices.filter((c,j)=>j!==picked).map(c=>`<li>${c.why}</li>`).join('')}</ul></div>`;
+  }else{
+   wrong++;
+   box.innerHTML=`<div class="feedback show bad"><b>This draft sounds professional, but its meaning drifts from the source.</b> ${b.choices[picked].why}<br><br><b>Reconsider:</b> Check whether the draft narrows the concept too far, turns suspicion into certainty, or makes two related security functions interchangeable. The strongest line is not revealed.</div>`;
+   delete shiftSelections[i];
+  }
+ });
+ renderShiftBrief();
+ // restore feedback after rerender
+ shiftBriefLines.forEach((b,i)=>{
+   const picked=shiftSelections[i];
+   if(picked===b.answer){
+     document.getElementById('briefLine'+i).classList.add('locked');
+     document.getElementById('shiftWhy'+i).innerHTML=`<div class="feedback show ok"><b>This line preserves the source meaning.</b> ${b.choices[picked].why}<br><br><b>Why the other drafts do not fit as well:</b><ul>${b.choices.filter((c,j)=>j!==picked).map(c=>`<li>${c.why}</li>`).join('')}</ul></div>`;
+   }
+ });
+ if(missing||wrong){
+   showFb('shiftBriefFb',false,`<b>Shift-change brief still in revision.</b> ${missing?missing+" line(s) still need a draft. ":""}${wrong?wrong+" line(s) were returned for revision.":""}`);
+   return;
+ }
+ completed.add(current);
+ showFb('shiftBriefFb',true,`<b>Shift-change brief approved.</b><br><br>
+ <b>Human layer:</b> People recognize suspicious situations, make safer choices, protect information, and report concerns without needing to diagnose the technical cause.<br><br>
+ <b>Enterprise Security layer:</b> ES organizes security information and supports detections, findings, context, triage, search, and analyst investigation workflows.<br><br>
+ <b>The connection:</b> Human observations and technical security signals can contribute complementary context. Reporting is not detection, a detection is not a finding, and a dashboard is not an investigation. Keeping those boundaries clear creates a stronger mental model of how people and security operations contribute to organizational security.`);
+ update();
+}
+renderShiftBrief();
+
+function goTitle(title){const i=screens.findIndex(s=>s.dataset.title===title);if(i>=0)go(i)}
+function go(i){completed.add(current);current=i;screens.forEach((s,j)=>s.classList.toggle('active',j===i));renderNav();update();window.scrollTo({top:0,behavior:'smooth'});if(i===12)renderChecklist()}
+function renderNav(){const nav=document.getElementById('nav');nav.innerHTML=screens.map((s,i)=>`<button class="nav ${i===current?'active':''} ${completed.has(i)?'done':''}" onclick="go(${i})">${String(i+1).padStart(2,'0')} · ${s.dataset.title}</button>`).join('')}
+function update(){const pct=Math.round(completed.size/screens.length*100);document.getElementById('bar').style.width=pct+'%';document.getElementById('pct').textContent=pct+'% complete';renderNav()}
+function saveText(){window._reflection={r1:r1.value,r2:r2.value,r3:r3.value};if(r1.value.trim()&&r2.value.trim()&&r3.value.trim())completed.add(11);update()}
+function renderChecklist(){const items=[["Welcome completed",completed.has(0)],["Learning Objectives reviewed",completed.has(1)],["Essential Vocabulary reviewed",seen.size===vocab.length],["Reporter phase completed",["Reporter • Signal Catalog","Reporter • Data Route","Reporter • Red Flag Markup","Reporter • Access Desk"].every(t=>{let i=screens.findIndex(s=>s.dataset.title===t);return completed.has(i)})],["Translator phase completed",["Translator • Evidence Bridge","Translator • Detection Story","Translator • Interface Meaning","Translator • Awareness Decisions","Translator • Incident Framework","Translator • Workflow Bridge"].every(t=>{let i=screens.findIndex(s=>s.dataset.title===t);return completed.has(i)})],["Final Reflection completed",!!(r1.value.trim()&&r2.value.trim()&&r3.value.trim())]];document.getElementById('checklist').innerHTML=items.map(x=>`<div class="checkline"><span>${x[1]?'☑':'☐'}</span><span>${x[0]}</span></div>`).join('');if(items.every(x=>x[1]))completed.add(12);update()}
+renderNav();update();
+</script>
+</body></html>
