@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Harborlight Museum | Nightfall Security Practicum</title>
+<style>
+:root{--ink:#142638;--muted:#617487;--paper:#f2f7fa;--card:#ffffff;--line:#d4e1e8;--accent:#146c94;--accent2:#20a4a8;--ok:#2b7a5b;--warn:#a66b18;--bad:#a94747;--shadow:0 12px 32px rgba(24,67,88,.09)}
+*{box-sizing:border-box} body{margin:0;font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--paper);color:var(--ink)}
+button,input,textarea,select{font:inherit}.app{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+aside{position:sticky;top:0;height:100vh;background:linear-gradient(180deg,#092f45 0%,#0b4058 52%,#0d5267 100%);color:#fff;padding:18px;overflow:auto;transition:.25s}
+.app.sidebar-collapsed{grid-template-columns:74px minmax(0,1fr)}aside.collapsed{width:74px}.brand{display:flex;gap:10px;align-items:center}.mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#43c6c8,#4d8fc5);display:grid;place-items:center;font-weight:800}
+.brandText{font-weight:800}.sub{font-size:12px;color:#b7c4cf}.collapse{float:right;background:#14556d;color:#fff;border:0;border-radius:8px;padding:7px 10px;cursor:pointer}
+nav{margin-top:18px;display:grid;gap:6px}.navbtn{width:100%;text-align:left;border:0;background:transparent;color:#dfe8ef;padding:10px;border-radius:9px;cursor:pointer}.navbtn:hover,.navbtn.active{background:#17627c}.navbtn small{display:block;color:#9fb0bd}
+aside.collapsed .brandText,aside.collapsed .sub,aside.collapsed .navtxt,aside.collapsed .coverage,aside.collapsed .free-stage-note{display:none}aside.collapsed{padding:14px 10px;overflow:hidden}aside.collapsed .brand{justify-content:center}aside.collapsed .mark{display:none}aside.collapsed .collapse{float:none;display:block;margin:0 auto 16px}aside.collapsed nav{margin-top:0}aside.collapsed .navbtn{height:36px;padding:6px;text-align:center}aside.collapsed .navbtn::before{content:"•";font-size:20px}aside.collapsed .navbtn.active::before{color:#63dce0}
+main{min-width:0}.topbar{position:sticky;top:0;z-index:5;background:rgba(242,247,250,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 24px;display:flex;gap:14px;align-items:center}
+.progress{height:9px;background:#dfe5eb;border-radius:99px;overflow:hidden;flex:1}.progress>div{height:100%;background:linear-gradient(90deg,#20a4a8,#146c94);width:0}.pct{font-weight:700;font-size:13px}
+.stage{display:none;max-width:1180px;margin:auto;padding:34px 28px 80px}.stage.active{display:block}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:800;color:var(--accent)}
+h1{font-size:clamp(30px,4vw,54px);line-height:1.06;margin:.2em 0}h2{font-size:30px;margin:0 0 12px}h3{margin:0 0 8px}.lead{font-size:19px;color:#46535e;max-width:900px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow)}.span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}
+.pill{display:inline-block;padding:4px 9px;border-radius:99px;background:#e8f2f6;font-size:12px;font-weight:750;margin:2px}.artifact{background:#f8fcfd;border-left:5px solid var(--accent2)}.artifact .meta{font:12px ui-monospace,SFMono-Regular,Consolas,monospace;color:#61717e}
+.callout{border:1px solid #bcdde5;background:#edf9fb;border-radius:14px;padding:16px;margin:14px 0}.warning{border-color:#ead3ad;background:#fff9ee}.success{border-color:#bddfc8;background:#f1fbf4}.danger{border-color:#e8bcbc;background:#fff4f4}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:750;cursor:pointer;background:#124d68;color:#fff}.btn.secondary{background:#e5f0f4;color:#142638}.btn.accent{background:var(--accent)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.choice{border:1px solid #ccd6df;background:white;border-radius:12px;padding:13px;cursor:pointer;text-align:left;width:100%;margin:7px 0}.choice:hover{border-color:#7f94a7}.choice.selected{outline:3px solid #9edce0}.choice.correct{border-color:var(--ok);background:#f1fbf4}.choice.wrong{border-color:var(--bad);background:#fff4f4}
+.feedback{display:none;margin-top:12px;padding:14px;border-radius:12px;background:#edf4f7}.feedback.show{display:block}.workspace{border:1px dashed #aab8c5;border-radius:14px;padding:15px;background:#f7fbfc}.note{width:100%;min-height:120px;border:1px solid #bdc9d3;border-radius:10px;padding:12px;resize:vertical}
+.termgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.term{border:1px solid var(--line);border-radius:12px;padding:13px;background:#fff}.term b{display:block;margin-bottom:5px}
+.timeline{display:flex;flex-wrap:wrap;gap:7px}.step{padding:9px 11px;border-radius:10px;background:#e4f1f5;font-weight:700}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:720px}th,td{padding:11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#e7f1f5}
+.kpi{font-size:28px;font-weight:850}.muted{color:var(--muted)}details{border:1px solid var(--line);border-radius:12px;background:#ffffff;padding:12px;margin:10px 0}summary{font-weight:800;cursor:pointer}
+.coverage{margin-top:20px;padding-top:15px;border-top:1px solid #334553;font-size:12px;color:#aebdca}.checkline{display:flex;gap:9px;align-items:flex-start;margin:7px 0}
+input[type=checkbox]{width:18px;height:18px;margin-top:3px}.tag{font-size:11px;background:#e5f0f4;border-radius:5px;padding:2px 5px}
+.phasebanner{border-radius:18px;padding:22px;color:white;background:linear-gradient(120deg,#0c5c78,#168c99);margin-bottom:18px}
+.guide{position:fixed;inset:0;z-index:50;background:rgba(4,35,52,.78);display:none;padding:24px;overflow:auto}.guide.open{display:block}.guidepanel{max-width:1100px;margin:auto;background:var(--paper);border-radius:20px;padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.3)}.guidehead{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;position:sticky;top:0;background:var(--paper);padding-bottom:12px;z-index:2}
+@media(max-width:850px){.app,.app.sidebar-collapsed{grid-template-columns:minmax(0,1fr)}aside{position:fixed;z-index:20;width:280px;transform:translateX(-100%)}aside.open{transform:translateX(0)}aside.collapsed{width:280px}.mobile{display:block!important}.span4,.span6,.span8{grid-column:span 12}.stage{padding:24px 16px 70px}}.mobile{display:none}
+@media print{aside,.topbar,.no-print{display:none!important}.stage{display:block!important;padding:10px;page-break-after:always}.card{box-shadow:none}}
+.expert-review{display:none;margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--soft)} .expert-review.show{display:block}.expert-review h4{margin:0 0 8px}.expert-review .review-item{padding:9px 0;border-top:1px solid var(--line)} .expert-review .review-item:first-of-type{border-top:0}
+
+.intake-status{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.intake-status>div{background:#e9f4f7;border:1px solid var(--line);border-radius:13px;padding:12px}.status-label{display:block;font-size:11px;letter-spacing:.08em;font-weight:800;color:var(--muted);margin-bottom:4px}.case-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.case-state{white-space:nowrap;border-radius:999px;background:#e8f0f4;padding:5px 9px;font-size:12px;font-weight:800;color:#506576}.case-state.ready{background:#e8f5ef;color:var(--ok)}.case-state.revise{background:#fff1e2;color:#8d5a12}.evidence-strip{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.evidence-strip span{border:1px solid #cbdce4;background:#f3f9fb;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:700}.intake-case.needs-revision{border-color:#d9a75f;box-shadow:0 0 0 3px rgba(217,167,95,.12)}.intake-review-panel{margin-top:18px;border:2px solid #9fc8d7;background:#f7fcfd}@media(max-width:700px){.intake-status{grid-template-columns:1fr}.case-head{display:block}.case-state{display:inline-block;margin-top:8px}}
+
+/* Immersive Security Intake Desk */
+.intake-console{margin:18px 0;border:1px solid rgba(30,90,120,.22);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#f8fcfe,#eef7fa);box-shadow:0 14px 34px rgba(13,62,86,.08)}
+.console-top{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:16px 18px;background:#123f59;color:#fff}
+.console-top strong{display:block;font-size:1.05rem;margin-top:3px}.console-top .status-label{color:#bfe6ef}.console-clock{font-weight:800;letter-spacing:.08em;font-size:.78rem;background:rgba(255,255,255,.12);padding:9px 11px;border-radius:10px}
+.case-queue{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.queue-item{appearance:none;border:0;border-right:1px solid #d8e8ee;background:transparent;padding:14px;text-align:left;cursor:pointer;color:#244957;min-height:82px;transition:.18s ease}
+.queue-item:last-child{border-right:0}.queue-item:hover{background:#fff}.queue-item.active{background:#fff;box-shadow:inset 0 -3px 0 #147d91}
+.queue-item span{display:inline-grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#dceef3;font-weight:800;font-size:.72rem;margin-right:6px}.queue-item b{font-size:.88rem}.queue-item small{display:block;margin:7px 0 0 31px;color:#6b7f88;font-weight:700}
+.queue-item.decided small{color:#176b59}.queue-item.revision small{color:#a04a27}.queue-item.approved small{color:#176b59}
+.intake-case.case-hidden{display:none}.intake-case.active-case{display:block;animation:caseIn .22s ease}
+@keyframes caseIn{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
+.decision-brief{margin:13px 0 15px;padding:12px 14px;border-left:4px solid #147d91;background:#edf8fa;border-radius:0 10px 10px 0;line-height:1.55}
+.intake-case .choice{position:relative;padding-left:44px;text-align:left}
+.intake-case .choice:before{content:"";position:absolute;left:16px;top:50%;transform:translateY(-50%);width:15px;height:15px;border:2px solid #88a8b5;border-radius:50%;background:#fff}
+.intake-case .choice.selected:before{border-color:#147d91;box-shadow:inset 0 0 0 4px #fff;background:#147d91}
+.intake-case.needs-revision{outline:2px solid rgba(173,84,43,.28)}
+@media(max-width:760px){.case-queue{grid-template-columns:1fr 1fr}.queue-item:nth-child(2){border-right:0}.console-top{align-items:flex-start;flex-direction:column}.console-clock{align-self:flex-start}}
+
+</style>
+<style>
+.morningDesk{margin:18px 0;border:1px solid #c8dce4;border-radius:18px;overflow:hidden;background:#f8fbfc}.deskTop{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:18px;background:linear-gradient(135deg,#123f59,#177184);color:#fff}.deskTop span{font-size:.7rem;font-weight:900;letter-spacing:.1em;color:#bce4ec}.deskTop h3{margin:4px 0}.deskTop small{color:#d6edf2}.queueList{display:grid;grid-template-columns:1fr 1fr}.ticket{display:grid;grid-template-columns:35px 1fr auto;gap:10px;align-items:center;border:0;border-right:1px solid #dbe8ed;border-bottom:1px solid #dbe8ed;background:#fff;padding:14px;text-align:left;cursor:pointer;color:#173d4a}.ticket:nth-child(2n){border-right:0}.ticket.active{background:#eef9fa;box-shadow:inset 4px 0 #16849a}.ticket i{font-style:normal;font-weight:900}.ticket span b,.ticket span small{display:block}.ticket span small{margin-top:3px;color:#71868e}.ticket em{font-style:normal;font-size:.66rem;font-weight:900;background:#edf2f4;padding:5px 7px;border-radius:999px}.ticket.done em{background:#e0f3eb;color:#176a55}.ticket.returned em{background:#fff0e8;color:#994a28}.meter{height:6px;background:#dbe8ec}.meter span{display:block;height:100%;width:0;background:#16869b;transition:.2s}.morningDesk>p{margin:10px 15px 13px;color:#667d86;font-size:.8rem;font-weight:800}
+.caseWork{display:none;margin:20px 0;padding:20px;border:1px solid #cbdde4;border-radius:17px;background:#fff}.caseWork.active{display:block}.caseHead{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid #e2ebee;padding-bottom:13px}.caseHead small,.task>small{font-weight:900;letter-spacing:.08em;color:#14788d}.caseHead h3{margin:4px 0}.caseHead>b{font-size:.76rem;background:#edf6f8;padding:7px 9px;border-radius:8px;height:max-content}.tabs{display:flex;gap:7px;margin:15px 0 9px}.ev,.help{border:1px solid #cbdde4;background:#f7fafb;padding:8px 11px;border-radius:8px;cursor:pointer;font-weight:800;color:#315965}.ev.active{background:#176879;color:#fff}.ePanel{display:none;padding:13px;background:#f2f8fa;border:1px solid #d6e6ea;border-radius:10px}.ePanel.active{display:block}.task{margin-top:17px;padding-top:15px;border-top:1px dashed #cfdee3}.factGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.factGrid button,.choices button,.sequence button{border:1px solid #cbdde4;background:#fff;border-radius:10px;padding:12px;text-align:left;cursor:pointer;color:#173d49;line-height:1.4}.factGrid button.selected,.choices button.selected,.sequence button.selected{border-color:#147d91;background:#eaf7f9;box-shadow:inset 0 0 0 1px #147d91}.choices,.sequence{display:grid;gap:8px}.help{margin-top:14px;background:transparent;color:#126f83}.helpBox{display:none;margin-top:8px;padding:12px;border-left:4px solid #d6a744;background:#fff9e8;border-radius:0 9px 9px 0}.helpBox.open{display:block}.record{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #e2ebee}.record span{font-size:.8rem;font-weight:800;color:#697e86}.miniGrid,.signals{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:15px 0}.miniGrid>div,.signals>div{padding:12px;background:#f4f8fa;border:1px solid #d7e5e9;border-radius:10px}.miniGrid small,.miniGrid b{display:block}.seqOut{padding:10px;background:#f2f7f9;border-radius:8px;color:#60747c}.supervisor{margin:20px 0;padding:19px;border-radius:16px;background:#102f40;color:#fff}.supervisor small{color:#a9dbe5;font-weight:900;letter-spacing:.08em}.supervisor p{color:#d3e5eb}.supervisor #reviewMsg{margin-top:11px;padding:10px;background:rgba(255,255,255,.08);border-radius:8px}.expert{display:none;margin:20px 0;padding:18px;border:1px solid #bcdad3;border-radius:16px;background:#f2fbf7}.expert.open{display:block}.expert details{margin:9px 0;padding:11px;border:1px solid #cfe2dc;border-radius:9px;background:#fff}.expert summary{font-weight:900;cursor:pointer}
+@media(max-width:760px){.queueList,.factGrid,.miniGrid,.signals{grid-template-columns:1fr}.ticket{border-right:0}.deskTop,.caseHead,.record{flex-direction:column;align-items:stretch}}
+</style>
+<style>
+.free-nav-note{margin:12px 0 18px;padding:12px 14px;border:1px solid #b9dce4;border-radius:11px;background:#edf9fb;color:#244d5a;line-height:1.5}
+.case-jump{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;padding-top:13px;border-top:1px dashed #cbdce2}
+.case-jump span{font-size:.78rem;font-weight:800;color:#71848b}
+.jumpCase{border:1px solid #b8d4dc;background:#f3fafb;color:#126d80;border-radius:9px;padding:8px 11px;font-weight:800;cursor:pointer}
+.jumpCase:hover{background:#e5f5f8;border-color:#6faab7}
+@media(max-width:600px){.case-jump{flex-direction:column;align-items:stretch}.jumpCase{text-align:left}}
+</style>
+<style>
+.free-stage-note{margin:14px 10px;padding:11px 12px;border-radius:10px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);font-size:.76rem;line-height:1.45}
+.free-stage-note b{color:#fff}
+</style><style>
+.detDesk{margin:18px 0;border:1px solid #c7dce4;border-radius:18px;overflow:hidden;background:#f8fbfc}
+.detTop{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px;background:linear-gradient(135deg,#153e58,#1a7180);color:#fff}
+.detTop span{font-size:.7rem;font-weight:900;letter-spacing:.1em;color:#bde4eb}.detTop h3{margin:4px 0}.detTop small{color:#d5edf2}
+.detQueue{display:grid;grid-template-columns:1fr 1fr}.detTicket{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;padding:14px;border:0;border-right:1px solid #dce8ec;border-bottom:1px solid #dce8ec;background:#fff;text-align:left;cursor:pointer;color:#173d49}
+.detTicket:nth-child(2n){border-right:0}.detTicket.active{background:#edf9fa;box-shadow:inset 4px 0 #16869a}.detTicket i{font-style:normal;font-weight:900}.detTicket span b,.detTicket span small{display:block}.detTicket span small{margin-top:3px;color:#71858d}.detTicket em{font-style:normal;font-size:.66rem;font-weight:900;background:#edf2f4;padding:5px 7px;border-radius:999px}.detTicket.done em{background:#e0f3eb;color:#176a55}.detTicket.returned em{background:#fff0e8;color:#984a28}
+.detMeter{height:6px;background:#dce8ec}.detMeter span{display:block;height:100%;width:0;background:#16869b;transition:.2s}.detDesk>p{margin:10px 15px 13px;color:#667d86;font-size:.8rem;font-weight:800}
+.detWork{display:none;margin:20px 0;padding:20px;border:1px solid #cbdde4;border-radius:17px;background:#fff}.detWork.active{display:block}.detHead{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid #e1ebee;padding-bottom:13px}.detHead small,.task>small{font-weight:900;letter-spacing:.08em;color:#14788d}.detHead h3{margin:4px 0}.detHead>b{font-size:.75rem;background:#edf6f8;padding:7px 9px;border-radius:8px;height:max-content}
+.pipelinePool,.detChoices{display:grid;gap:8px;margin:14px 0}.pipelinePool button,.detChoices button,.routeChoices button,.evidenceRow button{border:1px solid #cbdde4;background:#fff;border-radius:10px;padding:12px;text-align:left;cursor:pointer;color:#173d49;line-height:1.4}.pipelinePool button b,.pipelinePool button span{display:block}.pipelinePool button span{margin-top:4px;color:#6f838b;font-size:.82rem}.pipelinePool button.selected,.detChoices button.selected,.routeChoices button.selected,.evidenceRow button.selected{border-color:#147d91;background:#eaf7f9;box-shadow:inset 0 0 0 1px #147d91}.pipelinePool button.selected{opacity:.58}
+.sequenceReadout{padding:11px;background:#f2f7f9;border-radius:9px;color:#5f747c;font-size:.84rem}.detLink,.detHelp{border:0;background:transparent;color:#126f83;font-weight:900;cursor:pointer;padding:8px 0}.detHelpBox{display:none;margin-top:8px;padding:12px;border-left:4px solid #d6a744;background:#fff9e8;border-radius:0 9px 9px 0}.detHelpBox.open{display:block}
+.detRecord{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #e1ebee}.detRecord span{font-size:.8rem;font-weight:800;color:#687d85}.detJump{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px;padding-top:12px;border-top:1px dashed #ccdce2}.detJump button{border:1px solid #b9d4dc;background:#f3fafb;color:#126d80;border-radius:9px;padding:8px 11px;font-weight:800;cursor:pointer}.detJump span{font-size:.78rem;color:#71858c;font-weight:800}
+.routeRow{display:grid;grid-template-columns:.8fr 1.4fr;gap:14px;padding:14px 0;border-bottom:1px solid #e6edef}.routeRow>div:first-child small,.routeRow>div:first-child b{display:block}.routeRow>div:first-child small{font-weight:900;color:#14788d;margin-bottom:4px}.routeChoices{display:grid;gap:7px}
+.findingArtifact,.searchBrief{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:15px 0}.findingArtifact>div,.searchBrief>div{padding:12px;background:#f4f8fa;border:1px solid #d7e5e9;border-radius:10px}.findingArtifact small,.findingArtifact b,.searchBrief small{display:block}.findingArtifact small,.searchBrief small{font-weight:900;color:#14788d;margin-bottom:4px}
+.evidenceRows{display:grid;gap:9px}.evidenceRow{padding:13px;border:1px solid #d5e3e8;border-radius:11px;background:#fbfdfe}.evidenceRow>span{display:block;margin-bottom:9px;font-weight:700}.evidenceRow>div{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.evidenceRow button{text-align:center;padding:9px}
+.detReview{margin:20px 0;padding:19px;border-radius:16px;background:#102f40;color:#fff}.detReview small{color:#a9dbe5;font-weight:900;letter-spacing:.08em}.detReview p{color:#d3e5eb}.detReview #detReviewMsg{margin-top:11px;padding:10px;background:rgba(255,255,255,.08);border-radius:8px}
+.detExpert{display:none;margin:20px 0;padding:18px;border:1px solid #bcdad3;border-radius:16px;background:#f2fbf7}.detExpert.open{display:block}.detExpert details{margin:9px 0;padding:11px;border:1px solid #cfe2dc;border-radius:9px;background:#fff}.detExpert summary{font-weight:900;cursor:pointer}
+@media(max-width:760px){.detQueue,.findingArtifact,.searchBrief{grid-template-columns:1fr}.routeRow{grid-template-columns:1fr}.evidenceRow>div{grid-template-columns:1fr}.detTop,.detHead,.detRecord,.detJump{flex-direction:column;align-items:stretch}.detTicket{border-right:0}}
+</style><style>
+.judgeDesk{margin:18px 0;border:1px solid #c7dce4;border-radius:18px;overflow:hidden;background:#f8fbfc}.judgeTop{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px;background:linear-gradient(135deg,#183e57,#1a7180);color:#fff}.judgeTop span{font-size:.7rem;font-weight:900;letter-spacing:.1em;color:#bde4eb}.judgeTop h3{margin:4px 0}.judgeTop small{color:#d5edf2}.judgeQueue{display:grid;grid-template-columns:1fr 1fr}.judgeTicket{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:14px;border:0;border-right:1px solid #dce8ec;border-bottom:1px solid #dce8ec;background:#fff;text-align:left;cursor:pointer;color:#173d49}.judgeTicket:nth-child(2n){border-right:0}.judgeTicket.active{background:#edf9fa;box-shadow:inset 4px 0 #16869a}.judgeTicket i{font-style:normal;font-weight:900}.judgeTicket span b,.judgeTicket span small{display:block}.judgeTicket span small{margin-top:3px;color:#71858d}.judgeTicket em{font-style:normal;font-size:.66rem;font-weight:900;background:#edf2f4;padding:5px 7px;border-radius:999px}.judgeTicket.done em{background:#e0f3eb;color:#176a55}.judgeTicket.returned em{background:#fff0e8;color:#984a28}.judgeMeter{height:6px;background:#dce8ec}.judgeMeter span{display:block;height:100%;width:0;background:#16869b}.judgeDesk>p{margin:10px 15px 13px;color:#667d86;font-size:.8rem;font-weight:800}
+.judgeWork{display:none;margin:20px 0;padding:20px;border:1px solid #cbdde4;border-radius:17px;background:#fff}.judgeWork.active{display:block}.judgeHead{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid #e1ebee;padding-bottom:13px}.judgeHead small{font-weight:900;letter-spacing:.08em;color:#14788d}.judgeHead h3{margin:4px 0}.judgeHead>b{font-size:.75rem;background:#edf6f8;padding:7px 9px;border-radius:8px;height:max-content}
+.boundaryRows,.ownerRows,.judgeChoices{display:grid;gap:9px;margin:14px 0}.boundaryRow,.ownerRow{padding:13px;border:1px solid #d5e3e8;border-radius:11px;background:#fbfdfe}.boundaryRow>span{display:block;font-weight:700;margin-bottom:9px}.boundaryRow>div,.ownerRow>div:last-child{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.boundaryRow button,.ownerRow button,.judgeChoices button{border:1px solid #cbdde4;background:#fff;border-radius:10px;padding:11px;text-align:left;cursor:pointer;color:#173d49;line-height:1.4}.boundaryRow button.selected,.ownerRow button.selected,.judgeChoices button.selected{border-color:#147d91;background:#eaf7f9;box-shadow:inset 0 0 0 1px #147d91}.ownerRow{display:grid;grid-template-columns:.8fr 1.4fr;gap:14px}.ownerRow small,.ownerRow b{display:block}.ownerRow small{font-weight:900;color:#14788d;margin-bottom:4px}.ownerRow button{text-align:center}
+.decisionContext{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:15px 0}.decisionContext>div{padding:12px;background:#f4f8fa;border:1px solid #d7e5e9;border-radius:10px}.decisionContext small,.decisionContext b{display:block}.decisionContext small{font-weight:900;color:#14788d;margin-bottom:4px}
+.judgeHelp{border:0;background:transparent;color:#126f83;font-weight:900;cursor:pointer;padding:8px 0}.judgeHelpBox{display:none;margin-top:8px;padding:12px;border-left:4px solid #d6a744;background:#fff9e8;border-radius:0 9px 9px 0}.judgeHelpBox.open{display:block}.judgeRecord{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #e1ebee}.judgeRecord span{font-size:.8rem;font-weight:800;color:#687d85}.judgeJump{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px;padding-top:12px;border-top:1px dashed #ccdce2}.judgeJump button{border:1px solid #b9d4dc;background:#f3fafb;color:#126d80;border-radius:9px;padding:8px 11px;font-weight:800;cursor:pointer}.judgeJump span{font-size:.78rem;color:#71858c;font-weight:800}
+.judgeReview{margin:20px 0;padding:19px;border-radius:16px;background:#102f40;color:#fff}.judgeReview small{color:#a9dbe5;font-weight:900;letter-spacing:.08em}.judgeReview p{color:#d3e5eb}.judgeReview #judgeReviewMsg{margin-top:11px;padding:10px;background:rgba(255,255,255,.08);border-radius:8px}.judgeExpert{display:none;margin:20px 0;padding:18px;border:1px solid #bcdad3;border-radius:16px;background:#f2fbf7}.judgeExpert.open{display:block}.judgeExpert details{margin:9px 0;padding:11px;border:1px solid #cfe2dc;border-radius:9px;background:#fff}.judgeExpert summary{font-weight:900;cursor:pointer}
+@media(max-width:760px){.judgeQueue,.decisionContext{grid-template-columns:1fr}.ownerRow{grid-template-columns:1fr}.boundaryRow>div,.ownerRow>div:last-child{grid-template-columns:1fr}.judgeTop,.judgeHead,.judgeRecord,.judgeJump{flex-direction:column;align-items:stretch}.judgeTicket{border-right:0}}
+</style></head>
+<body>
+<div class="app">
+<aside id="side">
+<button class="collapse" id="collapse" aria-label="Collapse navigation">☰</button>
+<div class="brand"><div class="mark">HM</div><div><div class="brandText">Harborlight Museum of Science & Culture</div><div class="sub">Nightfall Gala Security Practicum</div></div></div>
+<nav id="nav"></nav>
+<div class="coverage"><b>Full-source coverage</b><br>Cybersecurity Awareness: 6-lesson arc represented<br>Enterprise Security: 8-lesson arc represented<br><br>Responses persist in this browser session.</div><div class="free-stage-note"><b>Free navigation enabled</b><br>You may jump to any briefing, work section, debrief, or summary at any time. Completion status is preserved, but navigation is not locked.</div>
+</aside>
+<main>
+<div class="topbar"><button class="btn secondary mobile" id="menu">Menu</button><button class="btn secondary" id="openGuide">Field Guide</button><div class="progress"><div id="bar"></div></div><div class="pct" id="pct">0%</div></div>
+
+<section class="stage active" data-title="Welcome">
+<div class="eyebrow">Welcome</div><h1>Tonight, Harborlight opens its most ambitious exhibition. Before the doors open, a chain of small anomalies begins to surface.</h1>
+<p class="lead">You are supporting Harborlight Museum of Science & Culture during the opening of a new research museum event floor. Your job is to protect people, information, facilities, and systems while helping the security team turn raw activity into useful Splunk Enterprise Security intelligence.</p>
+<div class="grid">
+<div class="card span4"><div class="kpi">Apply</div><b>Operator</b><p>Recognize risk, handle suspicious requests, and produce usable reports.</p></div>
+<div class="card span4"><div class="kpi">Analyze</div><b>Detective</b><p>Follow the data path, examine findings, and connect evidence.</p></div>
+<div class="card span4"><div class="kpi">Evaluate</div><b>Judge</b><p>Decide how the organization should respond while preserving evidence and access boundaries.</p></div>
+</div>
+<div class="callout"><b>Course boundary:</b> This is an introductory learning experience. It develops security awareness and introductory Splunk ES workflow understanding; it does not replace a full production SOC analyst course.</div>
+<div class="actions"><button class="btn accent next">Begin</button></div>
+</section>
+
+
+<section class="stage" data-title="Mission Briefing">
+<div class="eyebrow">Mission Briefing</div><h2>Harborlight enters the final hours before the After Dark gala</h2>
+<div class="phasebanner"><b>Your role:</b> Evening Security Readiness Coordinator. The After Dark event brings together public ticketing systems, donor services, exhibit-control workstations, temporary vendor devices, badge-controlled collection areas, guest Wi-Fi, proxy services, and new security-monitoring feeds. Thousands of visitors are expected, so normal activity will be unusually noisy. The event cannot be disrupted because of vague suspicion, but Harborlight also cannot dismiss weak signals simply because each one appears harmless alone. Your responsibility is to separate observation from assumption and create evidence the SOC can actually use.</div>
+<div class="grid">
+<div class="card span6"><h3>Human security lens</h3><p>Security awareness means recognizing conditions that could increase risk and choosing actions that protect people, information, systems, and facilities. During the gala, an employee observation may become the first useful evidence available to the security team.</p></div>
+<div class="card span6"><h3>Enterprise security lens</h3><p>Splunk Enterprise Security helps analysts turn large volumes of machine data into security context for detection, investigation, and response. The important connection in this mission is that a careful human report can give analysts context they would not get from telemetry alone.</p></div>
+<div class="card span12"><h3>Your mission outcomes</h3><div class="checkline">✓ <span><b>Apply:</b> recognize social-engineering pressure, phishing indicators, suspicious access requests, malware indicators, and other conditions that deserve verification or reporting.</span></div><div class="checkline">✓ <span><b>Analyze:</b> trace security data through Splunk ES, distinguish findings from supporting evidence, and connect human observations to machine context.</span></div><div class="checkline">✓ <span><b>Evaluate:</b> choose a defensible response that respects uncertainty, evidence quality, and role boundaries.</span></div></div>
+</div>
+<div class="grid">
+<div class="card span6 artifact"><div class="meta">EVENT BRIEF · NIGHTFALL-318</div><h3>Operational change</h3><p>Harborlight is activating temporary ticketing stations, exhibit-control workstations, badge readers, vendor network access, proxy routes, donor-service systems, and additional monitoring feeds. Museum employees, caterers, exhibit technicians, volunteers, and outside partners are working side by side. Some security signals will begin as human observations before corresponding machine evidence appears, so the quality of the initial report matters.</p></div>
+<div class="card span6 artifact"><div class="meta">SOC HANDOFF · MISSION CONTROL</div><h3>What the SOC needs</h3><p>The SOC needs precise observations, reliable machine data, normalized context, detections, findings, and defensible analyst judgment. Reporting something suspicious is not the same as declaring an incident. A useful report states what was observed, what was verified, and what remains unknown so analysts can investigate without inheriting the reporter’s assumptions.</p></div>
+</div>
+<details><summary>Concept foundation: vulnerability → threat → exploit → risk</summary>
+<div class="termgrid">
+<div class="term"><b>Vulnerability</b>A weakness, condition, or exposure that could be used by a threat. A vulnerability does not mean harm has already occurred; it describes an opportunity for harm if a capable threat can reach and exploit it. Examples in the source include an email server without spam filtering, an unpatched computer, and a weak password on a critical system.</div>
+<div class="term"><b>Threat</b>A person, group, event, or condition with the capability to take advantage of a vulnerability and cause harm. A threat can exist even when no exploitation has occurred; examples include a phisher, ransomware gang, or military cyber organization.</div>
+<div class="term"><b>Exploit</b>The technique, action, or mechanism used to take advantage of a vulnerability. Think of the vulnerability as the weakness and the exploit as the way the weakness is actually used; examples include a successful phishing email, a trojan hidden in media, or a virus manipulating logs.</div>
+<div class="term"><b>Risk</b>The potential for loss or harm when a valuable asset is exposed to a threat through a vulnerability. Risk asks what could happen and why it matters to the organization; natural risks also exist. Examples include ransomware lockout and loss of trust in manipulated logs.</div>
+</div></details>
+<div class="actions"><button class="btn next">Enter Operator Phase</button></div>
+</section>
+
+<section class="stage" data-title="Operator Briefing">
+<div class="eyebrow">Operator Briefing · Apply</div><h2>Before the doors open</h2>
+<p class="lead">During the Operator phase, you are closest to the people and systems involved in the gala preparation. Your task is to recognize conditions that deserve verification and reporting without overreacting. You will examine social-engineering pressure, credential and physical-access requests, and possible malware indicators. The goal is to produce a high-quality Security Intake Record: factual enough for an analyst to use, but careful enough not to label unconfirmed activity as malicious.</p>
+<div class="callout warning"><b>Reading strategy:</b> Ask who is making the request, whether the situation feels consistent, what the request is trying to make you do, whether time pressure or authority is being used, and what can be verified through another channel.</div>
+<div class="actions"><button class="btn next">Start Operator Work</button></div>
+</section>
+
+<section class="stage" data-title="Operator Work" id="operatorWork">
+<div class="eyebrow">Operator Professional Work · Harborlight Security Readiness Desk</div>
+<h2>Build the Security Intake Record</h2>
+<div class="phasebanner"><b>Morning assignment — MIR-318:</b> Harborlight opens in 47 minutes. Four reports have reached the readiness desk. Work the queue like an intake operator: inspect the evidence, perform the case-specific task, record a defensible action, and finish all four case files before supervisor review.</div>
+<div class="callout"><b>How to work the queue:</b> Open a case → examine its evidence → complete its intake task → record the case. You may move freely between the four case activities at any time, even if a case is unfinished. Your work stays in place when you switch cases. Nothing is graded while you work. After all four cases are recorded, route MIR-318 for review. Returned cases must be revised without the correct answer being revealed. The Detective phase stays locked until the entire record passes.</div>
+<div class="free-nav-note"><b>Free Case Navigation:</b> Select any case in the Morning Intake Queue whenever you want. You do not have to complete Case 01 before opening Cases 02, 03, or 04.</div>
+
+<div class="morningDesk">
+ <div class="deskTop"><div><span>HARBORLIGHT SECURITY READINESS DESK</span><h3>Morning Intake Queue</h3><small>MIR-318 · Opening readiness</small></div><b>GALA T−47 MIN</b></div>
+ <div class="queueList">
+  <button class="ticket active" data-open="q1"><i>01</i><span><b>Event Access</b><small>Event Operations · Email + employee report</small></span><em id="st1">NEW</em></button>
+  <button class="ticket" data-open="q2"><i>02</i><span><b>Finance Access</b><small>Finance · Temporary access request</small></span><em id="st2">NEW</em></button>
+  <button class="ticket" data-open="q3"><i>03</i><span><b>Collections Entry</b><small>Collections · Controlled-door report</small></span><em id="st3">NEW</em></button>
+  <button class="ticket" data-open="q4"><i>04</i><span><b>Exhibit System</b><small>Exhibit Technology · Workstation observations</small></span><em id="st4">NEW</em></button>
+ </div>
+ <div class="meter"><span id="meterFill"></span></div><p id="queueStatus">0 of 4 case files recorded</p>
+</div>
+
+<div class="caseWork active" id="q1">
+ <div class="caseHead"><div><small>CASE 01 · EVENT ACCESS</small><h3>Inspect the incoming message</h3></div><b>Source: Event Operations</b></div>
+ <div class="tabs"><button class="ev active" data-panel="p11">Message</button><button class="ev" data-panel="p12">Sender</button><button class="ev" data-panel="p13">Context</button></div>
+ <div class="ePanel active" id="p11"><b>8:11 AM</b><p>“Your gala access profile will be suspended unless you confirm it before 9:00 AM. Use the access-review link below to keep your event credentials active.” The employee has not opened the link.</p></div>
+ <div class="ePanel" id="p12"><b>Sender details</b><p>The display name resembles Harborlight Event Access, but the sender domain differs from the museum’s normal internal domain. The message supplies its own review link.</p></div>
+ <div class="ePanel" id="p13"><b>Known context</b><p>Event Operations is making legitimate last-minute access changes today, and the employee does require gala access.</p></div>
+ <div class="task"><small>INTAKE TASK A · FACT OR CONCLUSION</small><p>Select the <b>three observations</b> that belong in the record. Do not record an unproven conclusion as fact.</p>
+  <div class="factGrid" id="facts1"><button data-ok="1">The message requests action before 9:00 AM.</button><button data-ok="0">An attacker is attempting credential theft.</button><button data-ok="1">The sender domain differs from the normal museum domain.</button><button data-ok="1">The employee reports that the link has not been opened.</button><button data-ok="0">The gala access system has already been compromised.</button></div>
+ </div>
+ <div class="task"><small>INTAKE TASK B · RECORD THE ACTION</small><p>Choose the action you would place in MIR-318.</p>
+  <div class="choices" id="dec1"><button data-ok="0">Forward the message to Event Operations and ask whether its access link is legitimate before taking further action.</button><button data-ok="1">Preserve the message, avoid its link, verify through a trusted museum channel, and report it for review.</button><button data-ok="0">Open the review page without entering credentials, then judge legitimacy from the page and certificate details.</button><button data-ok="0">Delete the message, leave current access unchanged, and wait for Event Operations to contact the employee again.</button></div>
+ </div>
+ <button class="help" data-help="h1">Need a reference?</button><div class="helpBox" id="h1"><b>Field Guide</b><p><b>Observation</b> is something seen, reported, or recorded. <b>Conclusion</b> interprets what evidence means. <b>Independent verification</b> uses a trusted path the requester did not supply or control.</p></div>
+ <div class="record"><button class="btn accent rec" data-case="1">Record Case 01</button><span id="r1">Not yet recorded</span></div><div class="case-jump"><span>Case navigation</span><button class="jumpCase" data-jump="q2">Next: Finance Access →</button></div>
+</div>
+
+<div class="caseWork" id="q2">
+ <div class="caseHead"><div><small>CASE 02 · FINANCE ACCESS</small><h3>Complete the access-request intake</h3></div><b>Source: Finance</b></div>
+ <div class="miniGrid"><div><small>REQUEST</small><b>Complete donor reconciliation before noon</b></div><div><small>CONSTRAINT</small><b>Assigned analyst is locked out</b></div><div><small>WORKAROUND OFFERED</small><b>Coworker offers an active account</b></div><div><small>IMPACT</small><b>Delay may affect gala closeout</b></div></div>
+ <div class="task"><small>INTAKE TASK · ACCOUNTABILITY</small><p>Choose the response that addresses both the legitimate deadline and identity accountability.</p>
+  <div class="choices" id="dec2"><button data-ok="0">Allow the active account for this task, document both employees, and require a password change after reconciliation.</button><button data-ok="0">Have the coworker enter credentials when needed so the locked-out analyst never learns or stores the password.</button><button data-ok="1">Keep identities separate, record the access problem, and use the approved restoration or authorization process.</button><button data-ok="0">Have the coworker perform the transactions while the locked-out analyst verbally directs each required action.</button></div>
+ </div>
+ <button class="help" data-help="h2">Need a reference?</button><div class="helpBox" id="h2"><b>Field Guide</b><p><b>Accountability</b> means an action can be associated with the identity that actually performed it. A real deadline is an operational constraint, not a reason to make the audit trail inaccurate.</p></div>
+ <div class="record"><button class="btn accent rec" data-case="2">Record Case 02</button><span id="r2">Not yet recorded</span></div><div class="case-jump"><button class="jumpCase" data-jump="q1">← Event Access</button><button class="jumpCase" data-jump="q3">Next: Collections Entry →</button></div>
+</div>
+
+<div class="caseWork" id="q3">
+ <div class="caseHead"><div><small>CASE 03 · COLLECTIONS ENTRY</small><h3>Reconstruct the controlled-entry process</h3></div><b>Source: Collections</b></div>
+ <p>A person carrying an equipment case followed a badged employee toward a controlled collections door. Select the cards in the order the access process should occur.</p>
+ <div class="sequence" id="seq3"><button data-step="3">Proceed through the controlled door only after authorization is confirmed.</button><button data-step="1">Pause entry instead of allowing the visitor to follow another person’s badge.</button><button data-step="4">Record or report the access concern according to museum procedure.</button><button data-step="2">Verify the visitor through the approved badge, host, or visitor-access process.</button></div>
+ <p class="seqOut" id="seqOut">Your sequence: —</p><button class="help" id="resetSeq">Reset sequence</button>
+ <button class="help" data-help="h3">Need a reference?</button><div class="helpBox" id="h3"><b>Field Guide</b><p><b>Tailgating</b> is entering a controlled area by following an authorized person without independently completing the required access process. Courtesy, familiarity, or an escort claim does not itself create authorization.</p></div>
+ <div class="record"><button class="btn accent rec" data-case="3">Record Case 03</button><span id="r3">Not yet recorded</span></div><div class="case-jump"><button class="jumpCase" data-jump="q2">← Finance Access</button><button class="jumpCase" data-jump="q4">Next: Exhibit System →</button></div>
+</div>
+
+<div class="caseWork" id="q4">
+ <div class="caseHead"><div><small>CASE 04 · EXHIBIT SYSTEM</small><h3>Correlate workstation observations</h3></div><b>Source: Exhibit Technology</b></div>
+ <div class="signals"><div><b>A · Command window</b><p>Unexpected command window appeared during startup; not part of the expected startup procedure.</p></div><div><b>B · Slowdown</b><p>System slowed for 20 seconds; similar slowdowns occurred during approved content syncs.</p></div><div><b>C · Antimalware</b><p>A new antimalware alert appeared within minutes of the command window.</p></div><div><b>D · Browser change</b><p>Home page changed after an approved kiosk update documented in deployment notes.</p></div></div>
+ <div class="task"><small>INTAKE TASK · CORROBORATION</small><p>Choose the record that best identifies the strongest corroborated concern without treating an indicator as automatic proof.</p>
+  <div class="choices" id="dec4"><button data-ok="0">Record the slowdown and browser change as the primary concern because both affect normal workstation behavior.</button><button data-ok="1">Record the unexplained command window and new antimalware alert as corroborating indicators requiring prompt review.</button><button data-ok="0">Record the browser change and antimalware alert as confirmation that the approved kiosk update introduced malware.</button><button data-ok="0">Record all four observations as equally suspicious because any unexpected system behavior can indicate compromise.</button></div>
+ </div>
+ <button class="help" data-help="h4">Need a reference?</button><div class="helpBox" id="h4"><b>Field Guide</b><p>An <b>indicator</b> is an observable condition worth evaluating, not proof by itself. <b>Corroboration</b> occurs when separate observations support the same concern. Known approved changes can reduce the significance of a symptom.</p></div>
+ <div class="record"><button class="btn accent rec" data-case="4">Record Case 04</button><span id="r4">Not yet recorded</span></div><div class="case-jump"><button class="jumpCase" data-jump="q3">← Collections Entry</button><span>End of queue</span></div>
+</div>
+
+<div class="supervisor"><small>SHIFT SUPERVISOR REVIEW · MIR-318</small><h3>Route the completed Morning Intake Record</h3><p>All four case files are reviewed together. Returned cases identify where the decision is not yet supportable, but the correct response remains hidden.</p><button class="btn accent" id="reviewMIR" disabled>Route MIR-318 for Review</button><div id="reviewMsg">Complete all four case files to enable review.</div></div>
+
+<div class="expert" id="expertMIR"><div class="eyebrow">MIR-318 APPROVED</div><h3>Expert Case Review</h3><p>Now compare your reasoning with the professional rationale.</p>
+<details><summary>Case 01 · Event Access</summary><p><b>Correct:</b> Preserve the message, avoid the supplied link, verify independently, and report it. This protects the employee and retains evidence without allowing the message to control both the request and its supposed proof.</p><p><b>Forward it:</b> verification is sensible, but forwarding suspicious content can propagate it and may bypass the approved reporting path.</p><p><b>Open without credentials:</b> avoiding credential entry reduces one risk, but opening an untrusted link is unnecessary to verify legitimacy.</p><p><b>Delete and wait:</b> avoids interaction but discards evidence and delays review.</p><p><b>Fact task:</b> urgency, domain mismatch, and the employee’s non-interaction are observations. Credential theft and system compromise are conclusions not yet proven.</p></details>
+<details><summary>Case 02 · Finance Access</summary><p><b>Correct:</b> preserve separate identities and use the approved restoration/authorization process. This addresses the deadline without attributing one person’s work to another identity.</p><p><b>Temporary shared use:</b> documentation and a later password change do not repair the accountability loss during use.</p><p><b>Coworker enters credentials:</b> hiding the password does not solve the identity attribution problem.</p><p><b>Coworker performs directed work:</b> this changes who performs the task and may create a separate authorization issue.</p></details>
+<details><summary>Case 03 · Collections Entry</summary><p><b>Correct sequence:</b> pause entry → verify authorization → permit entry only after verification → record/report. Verifying after entry would defeat the controlled-access boundary, while reporting without first addressing the immediate entry condition leaves the exposure active.</p></details>
+<details><summary>Case 04 · Exhibit System</summary><p><b>Correct:</b> the unexplained command window and new antimalware alert are separate, temporally close observations not explained by the documented change.</p><p><b>Slowdown + browser change:</b> both have plausible known operational explanations in this context.</p><p><b>Browser change + alert proves malware:</b> the alert warrants review, but the documented browser change does not corroborate malware and neither item proves infection.</p><p><b>All equally suspicious:</b> intake preserves observations but still uses context to prioritize meaningful signals.</p></details>
+</div>
+
+<div class="card span12"><h3>Operator Performance Note</h3><p>What changed in your reasoning when you had to separate observations, conclusions, operational constraints, and corroborating evidence?</p><textarea id="operatorNote" rows="4" placeholder="Explain the evidence or reasoning that changed your intake decisions..."></textarea></div>
+<div class="actions"><button class="btn back">Back</button><button class="btn accent next" id="operatorNext" disabled>Continue to Detective</button></div>
+</section>
+<section class="stage" data-title="Detective Briefing">
+<div class="eyebrow">Detective Briefing · Analyze</div><h2>Your report changed what the SOC can see</h2>
+<div class="phasebanner">Your Security Intake Record reaches the SOC and changes the investigation: analysts now know which identities, systems, times, and behaviors deserve comparison. In the Detective phase, new telemetry becomes available. You will trace how machine data reaches Splunk, how CIM and data models make different sources easier to analyze, how detections create findings or intermediate findings, and how analysts use Mission Control, risk context, assets, identities, and frameworks to test—not merely confirm—the initial suspicion.</div>
+<div class="grid">
+<div class="card span6"><h3>What ES contributes</h3><p>Splunk ES uses built-in security content and intelligence to identify suspicious activity, create findings, connect related events during investigations, provide dashboard views of security posture, and support compliance information. It can integrate with Splunk SOAR for orchestration/automation, Threat Intelligence Management for threat context, and UEBA for anomalous user/entity behavior.</p></div>
+<div class="card span6"><h3>Framework context</h3><p>ES aligns with the <b>Cyber Kill Chain</b>, <b>MITRE ATT&CK</b>, <b>CIS Controls</b>, plus NIST and PCI frameworks. These provide structured context for attacker tactics/techniques/procedures or governance controls.</p></div>
+</div>
+<div class="actions"><button class="btn next">Open the ES Workbench</button></div>
+</section>
+
+<section class="stage" data-title="Detective Work" id="detectiveWork">
+<div class="eyebrow">Detective Investigation · ES Investigation Workbench</div>
+<h2>Investigate MIR-318 without forcing the conclusion</h2>
+
+<div class="phasebanner"><b>Situation update — 09:06:</b> The Operator’s intake record has reached the SOC. Splunk ES now shows authentication failures, unusual proxy activity, and intermediate risk activity associated with MER-WKS-18 and a temporary exhibit-support identity. Your job is to reconstruct how the evidence reached ES, route work to the appropriate surface and role, correlate the finding with human context, and decide what the evidence supports.</div>
+
+<div class="callout"><b>How this investigation works:</b> Complete all four workbench stations in any order. Each station uses a different investigation task. Your selections are recorded but are <b>not graded while you work</b>. When all four stations are complete, submit the investigation for SOC quality review. If a station is returned, revisit it and change your decision. The review will not reveal the correct answer. Once every station is correct, the Expert Investigation Review unlocks and the normal Continue button becomes available. <b>The application sidebar remains free-navigation if you choose to skip ahead.</b></div>
+
+<div class="detDesk">
+  <div class="detTop">
+    <div><span>HARBORLIGHT SOC · INVESTIGATION MIR-318</span><h3>Detective Workbench</h3><small>Evidence correlation · Splunk Enterprise Security</small></div>
+    <b>CASE STATE: ACTIVE</b>
+  </div>
+  <div class="detQueue">
+    <button class="detTicket active" data-det-open="det1"><i>01</i><span><b>Pipeline Reconstruction</b><small>Trace machine data into usable evidence</small></span><em id="dst1">OPEN</em></button>
+    <button class="detTicket" data-det-open="det2"><i>02</i><span><b>Role & Surface Routing</b><small>Send work to the right ES location</small></span><em id="dst2">OPEN</em></button>
+    <button class="detTicket" data-det-open="det3"><i>03</i><span><b>Evidence Correlation Board</b><small>Test the working hypothesis</small></span><em id="dst3">OPEN</em></button>
+    <button class="detTicket" data-det-open="det4"><i>04</i><span><b>Risk & Search Decision</b><small>Interpret what ES can support</small></span><em id="dst4">OPEN</em></button>
+  </div>
+  <div class="detMeter"><span id="detMeterFill"></span></div>
+  <p id="detQueueStatus">0 of 4 investigation stations recorded</p>
+</div>
+
+<!-- Station 1 -->
+<article class="detWork active" id="det1">
+  <div class="detHead"><div><small>STATION 01 · PIPELINE RECONSTRUCTION</small><h3>Rebuild the evidence path</h3></div><b>Task type: Sequencing</b></div>
+  <p>The finding is useful only because raw machine data moved through a chain that made it searchable and meaningful. Select the cards in the order that best represents the path from originating telemetry to analyst investigation.</p>
+  <div class="pipelinePool" id="pipelinePool">
+    <button data-step="4"><b>Detection evaluates normalized/searchable data</b><span>Security logic identifies activity that may warrant attention.</span></button>
+    <button data-step="2"><b>Forwarder sends machine data</b><span>Collected telemetry is sent into the Splunk environment.</span></button>
+    <button data-step="6"><b>Analyst investigates the finding</b><span>Human analysis tests what the evidence means in context.</span></button>
+    <button data-step="1"><b>Security source produces telemetry</b><span>A server, firewall, proxy, IDS, or other source generates data.</span></button>
+    <button data-step="5"><b>Finding or intermediate finding is created</b><span>Detection output enters the appropriate ES workflow or risk context.</span></button>
+    <button data-step="3"><b>Indexer stores events; CIM/data models organize context</b><span>Events become searchable and standardized for analysis.</span></button>
+  </div>
+  <div class="sequenceReadout" id="pipeOut">Investigation sequence: —</div>
+  <button class="detLink" id="resetPipe">Reset sequence</button>
+  <button class="detHelp" data-det-help="dh1">Need an evidence reference?</button>
+  <div class="detHelpBox" id="dh1"><b>Evidence reference</b><p>Forwarders gather and send machine data. Indexers store events. CIM helps normalize fields, while data models organize standardized data. Detections evaluate data and can create findings or intermediate findings that analysts investigate.</p></div>
+  <div class="detRecord"><button class="btn accent detRec" data-det-case="1">Record Station 01</button><span id="dr1">Not yet recorded</span></div>
+  <div class="detJump"><span>Workbench navigation</span><button data-det-jump="det2">Next: Role & Surface Routing →</button></div>
+</article>
+
+<!-- Station 2 -->
+<article class="detWork" id="det2">
+  <div class="detHead"><div><small>STATION 02 · ROLE & SURFACE ROUTING</small><h3>Route three investigation needs</h3></div><b>Task type: Professional routing</b></div>
+  <p>For each need, choose the ES surface or role that fits the work without granting unnecessary administrative access. Record all three routes.</p>
+
+  <div class="routeRow">
+    <div><small>NEED A</small><b>Review the active finding, assign ownership, and update investigation status.</b></div>
+    <div class="routeChoices" data-route="a">
+      <button data-ok="1">Mission Control with an <b>ess_analyst</b> workflow</button>
+      <button data-ok="0">Configure with an <b>ess_admin</b> workflow</button>
+      <button data-ok="0">Analytics with an <b>ess_user</b> workflow</button>
+    </div>
+  </div>
+  <div class="routeRow">
+    <div><small>NEED B</small><b>Pivot beyond a fixed dashboard and ask a new question of indexed event data.</b></div>
+    <div class="routeChoices" data-route="b">
+      <button data-ok="0">Security Content with an <b>ess_admin</b> workflow</button>
+      <button data-ok="1">Search with an investigation-capable analyst workflow</button>
+      <button data-ok="0">ES Home with a user-level dashboard workflow</button>
+    </div>
+  </div>
+  <div class="routeRow">
+    <div><small>NEED C</small><b>Change ES deployment configuration or administrative settings.</b></div>
+    <div class="routeChoices" data-route="c">
+      <button data-ok="0">Mission Control with an <b>ess_analyst</b> workflow</button>
+      <button data-ok="0">Search with an <b>ess_user</b> workflow</button>
+      <button data-ok="1">Configure with an <b>ess_admin</b> workflow</button>
+    </div>
+  </div>
+
+  <button class="detHelp" data-det-help="dh2">Need an evidence reference?</button>
+  <div class="detHelpBox" id="dh2"><b>Evidence reference</b><p><b>Mission Control</b> supports finding and investigation work. <b>Search</b> supports flexible questions of indexed data. <b>Configure</b> contains administrative settings. The source distinguishes <b>ess_user</b>, <b>ess_analyst</b>, and <b>ess_admin</b> so analyst work does not require unnecessary administrative rights.</p></div>
+  <div class="detRecord"><button class="btn accent detRec" data-det-case="2">Record Station 02</button><span id="dr2">Not yet recorded</span></div>
+  <div class="detJump"><button data-det-jump="det1">← Pipeline Reconstruction</button><button data-det-jump="det3">Next: Evidence Correlation →</button></div>
+</article>
+
+<!-- Station 3 -->
+<article class="detWork" id="det3">
+  <div class="detHead"><div><small>STATION 03 · EVIDENCE CORRELATION BOARD</small><h3>Test the hypothesis instead of proving it</h3></div><b>Task type: Evidence classification + decision</b></div>
+
+  <div class="findingArtifact">
+    <div><small>ANALYST QUEUE · 09:06</small><b>Repeated authentication failures followed by unusual proxy activity</b></div>
+    <div><small>ENTITY</small><b>MER-WKS-18 / temporary exhibit-support account</b></div>
+    <div><small>HUMAN CONTEXT</small><b>MIR-318 contains a suspicious account-verification message</b></div>
+    <div><small>RISK CONTEXT</small><b>Intermediate findings also exist for the entity</b></div>
+  </div>
+
+  <p><b>Classify each evidence item</b> according to what it contributes to the investigation. The same case can contain support, contradiction, and unresolved context at the same time.</p>
+  <div class="evidenceRows">
+    <div class="evidenceRow" data-evidence-row="1"><span>Authentication failures occur before the unusual proxy activity.</span><div><button data-val="support" data-ok="1">Supports concern</button><button data-val="contradict" data-ok="0">Weakens concern</button><button data-val="unknown" data-ok="0">Still unknown</button></div></div>
+    <div class="evidenceRow" data-evidence-row="2"><span>The employee reports that the suspicious message link was not opened.</span><div><button data-val="support" data-ok="0">Supports concern</button><button data-val="contradict" data-ok="1">Weakens one path</button><button data-val="unknown" data-ok="0">Still unknown</button></div></div>
+    <div class="evidenceRow" data-evidence-row="3"><span>The available evidence does not yet establish how the account activity began.</span><div><button data-val="support" data-ok="0">Supports concern</button><button data-val="contradict" data-ok="0">Weakens concern</button><button data-val="unknown" data-ok="1">Still unknown</button></div></div>
+  </div>
+
+  <div class="task">
+    <small>WORKING HYPOTHESIS</small>
+    <p>After classifying the evidence, choose the most defensible investigation position.</p>
+    <div class="detChoices" id="hypChoices">
+      <button data-ok="0">The human report establishes the likely entry path, so the remaining work is to document how the proxy activity followed the phishing attempt.</button>
+      <button data-ok="1">The combined evidence justifies continued investigation, but the entry path and relationship between the message and machine activity remain unconfirmed.</button>
+      <button data-ok="0">The employee’s non-interaction with the link outweighs the machine evidence, so the account activity should be treated as unrelated unless another alert fires.</button>
+      <button data-ok="0">The intermediate findings establish compromise because accumulated risk is designed to convert several lower-confidence events into a confirmed incident.</button>
+    </div>
+  </div>
+
+  <button class="detHelp" data-det-help="dh3">Need an evidence reference?</button>
+  <div class="detHelpBox" id="dh3"><b>Evidence reference</b><p>A finding is investigation input, not automatic proof. Intermediate findings can accumulate risk for an entity. Human reports and machine telemetry can be correlated, but correlation should test the hypothesis rather than force unrelated observations into one confirmed story.</p></div>
+  <div class="detRecord"><button class="btn accent detRec" data-det-case="3">Record Station 03</button><span id="dr3">Not yet recorded</span></div>
+  <div class="detJump"><button data-det-jump="det2">← Role & Surface Routing</button><button data-det-jump="det4">Next: Risk & Search Decision →</button></div>
+</article>
+
+<!-- Station 4 -->
+<article class="detWork" id="det4">
+  <div class="detHead"><div><small>STATION 04 · RISK & SEARCH DECISION</small><h3>Choose the next analytical move</h3></div><b>Task type: Investigation planning</b></div>
+  <div class="searchBrief">
+    <div><small>KNOWN</small><p>The entity has an Analyst Queue finding plus intermediate risk activity.</p></div>
+    <div><small>NEED TO KNOW</small><p>Whether the activity is accumulating across the same entity and which detection sources contribute to that risk.</p></div>
+    <div><small>CONSTRAINT</small><p>You need investigation context; you are not being asked to edit the data model or change a detection.</p></div>
+  </div>
+  <p>Choose the next analytical move that best fits the need and constraint.</p>
+  <div class="detChoices" id="riskChoices">
+    <button data-ok="0">Open data-model administration and change the accelerated dataset so only events tied to MER-WKS-18 remain available to the investigation.</button>
+    <button data-ok="0">Treat the Analyst Queue finding as sufficient and avoid Risk Analysis because intermediate findings are intended only for detection-engineering maintenance.</button>
+    <button data-ok="1">Use Risk Analysis and related entity context to inspect accumulated risk and contributing detection sources, then pivot to Search when deeper event detail is needed.</button>
+    <button data-ok="0">Restrict the investigation to summariesonly=true so all available raw and summarized events are guaranteed to appear in the same result set.</button>
+  </div>
+  <button class="detHelp" data-det-help="dh4">Need an evidence reference?</button>
+  <div class="detHelpBox" id="dh4"><b>Evidence reference</b><p>Risk Analysis can show risk by entity and active detection sources. Search supports deeper event investigation. <b>summariesonly=true</b> restricts results to accelerated summaries and can omit data outside the summary range; it does not guarantee inclusion of all raw events.</p></div>
+  <div class="detRecord"><button class="btn accent detRec" data-det-case="4">Record Station 04</button><span id="dr4">Not yet recorded</span></div>
+  <div class="detJump"><button data-det-jump="det3">← Evidence Correlation</button><span>End of workbench</span></div>
+</article>
+
+<div class="detReview">
+  <small>SOC QUALITY REVIEW · MIR-318</small>
+  <h3>Submit the completed investigation</h3>
+  <p>The SOC reviews all four stations together. Incorrect stations are returned for revision without revealing the correct selection.</p>
+  <button class="btn accent" id="detReviewBtn" disabled>Submit Investigation for Review</button>
+  <div id="detReviewMsg">Complete and record all four investigation stations to enable review.</div>
+</div>
+
+<div class="detExpert" id="detExpert">
+  <div class="eyebrow">SOC QUALITY REVIEW · PASSED</div>
+  <h3>Expert Investigation Review</h3>
+  <p>All four investigation stations are correct. The explanations below now show why each response is appropriate or inappropriate in this situation.</p>
+
+  <details><summary>Station 01 · Pipeline Reconstruction</summary>
+    <p><b>Correct sequence:</b> Security source → Forwarder → Indexer/events with CIM/data-model context → Detection → Finding/intermediate finding → Analyst investigation.</p>
+    <p><b>Why:</b> Telemetry must first exist, then be collected and stored before normalized/searchable context can be evaluated by detection logic. A finding is an output that gives an analyst something to investigate; it does not precede the underlying events.</p>
+  </details>
+
+  <details><summary>Station 02 · Role & Surface Routing</summary>
+    <p><b>Need A — Mission Control + ess_analyst:</b> Correct because ownership, status, and investigation work belong in the analyst-centered workflow. <b>Configure + ess_admin</b> grants unnecessary administrative capability. <b>Analytics + ess_user</b> is useful for viewing posture but is not the best fit for active finding ownership and status work.</p>
+    <p><b>Need B — Search + analyst workflow:</b> Correct because the task requires a new question of indexed data beyond a fixed dashboard. <b>Security Content + ess_admin</b> is oriented toward maintaining security content rather than this investigation pivot. <b>ES Home + ess_user</b> is an entry/navigation surface, not the flexible evidence-query surface.</p>
+    <p><b>Need C — Configure + ess_admin:</b> Correct because deployment and administrative settings require administrative capability. <b>Mission Control + ess_analyst</b> supports investigation rather than platform configuration. <b>Search + ess_user</b> does not provide the required administrative control.</p>
+  </details>
+
+  <details><summary>Station 03 · Evidence Correlation Board</summary>
+    <p><b>Authentication failures followed by unusual proxy activity — Supports concern:</b> The temporal relationship gives the analyst a concrete machine-data pattern worth investigating, although it does not prove compromise.</p>
+    <p><b>Employee did not open the message link — Weakens one path:</b> This reduces support for the specific theory that the employee followed that link, but it does not explain away the separate account and proxy activity.</p>
+    <p><b>How the activity began — Still unknown:</b> The evidence supplied does not establish the initial access path. Treating an unknown as confirmed would overstate the case.</p>
+    <p><b>Correct hypothesis:</b> Continue investigating while leaving the entry path and the relationship between human and machine evidence unconfirmed.</p>
+    <p><b>Why the alternatives fail:</b> The first turns correlation into a predetermined phishing story. The third lets one contradictory fact erase other relevant evidence. The fourth incorrectly treats accumulated risk as proof of compromise rather than context for prioritization and investigation.</p>
+  </details>
+
+  <details><summary>Station 04 · Risk & Search Decision</summary>
+    <p><b>Correct — Risk Analysis, then Search as needed:</b> Risk Analysis directly addresses accumulated entity risk and contributing detection sources; Search supports deeper event-level pivots.</p>
+    <p><b>Edit the data model:</b> This changes administrative data-model behavior when the task only requires investigation and could affect dependent content.</p>
+    <p><b>Avoid Risk Analysis:</b> Incorrect because intermediate findings are specifically useful for understanding accumulated risk and entity context.</p>
+    <p><b>summariesonly=true guarantees everything:</b> Incorrect. It restricts results to accelerated summaries and can exclude data outside the summary range.</p>
+  </details>
+</div>
+
+<div class="card"><h3>Detective Investigation Note</h3><p>What does the combined human and ES evidence mean, and what remains unconfirmed after your investigation?</p><textarea class="note persist" data-key="detectiveNote" placeholder="Distinguish observation, confirmed evidence, competing explanations, and remaining uncertainty..."></textarea></div>
+
+<div class="actions"><button class="btn back">Back</button><button class="btn accent next" id="detectiveNext" disabled>Continue to Judge Briefing</button></div>
+</section>
+
+<section class="stage" data-title="Judge Briefing">
+<div class="eyebrow">Judge Briefing · Evaluate</div><h2>The evidence now requires a defensible decision</h2>
+<div class="phasebanner">The investigation now contains both human observations and ES evidence, but important uncertainty remains. In the Judge phase, the question is no longer “Does this look suspicious?” It is “What action is justified by the evidence we actually have?” You will evaluate response choices against four constraints: preserve evidence, avoid unnecessary access, distinguish suspicion from confirmation, and route work to the appropriate SOC role and ES workflow while Harborlight prepares to admit guests safely.</div>
+<div class="actions"><button class="btn next">Evaluate response options</button></div>
+</section>
+
+<section class="stage" data-title="Judge Work" id="judgeWork">
+<div class="eyebrow">Judge Professional Judgment · Response Authorization Board</div>
+<h2>Authorize a defensible response to MIR-318</h2>
+<div class="phasebanner"><b>Decision point — 09:24:</b> The investigation has enough evidence to justify action, but not enough to collapse every report into one confirmed incident. The gala is approaching opening. As the Judge, you must convert the investigation into a response package that protects Harborlight without overstating what is known, granting unnecessary access, or disrupting operations without evidence.</div>
+<div class="callout"><b>How this works:</b> Complete all four authorization stations in any order. Your choices are recorded but are not graded while you work. After every station is recorded, submit the full response package for approval. Incorrect stations are returned for revision without revealing the correct response. Once every station is correct, the Expert Decision Review unlocks and the normal Continue button becomes available. <b>The sidebar still allows free navigation if you intentionally choose to skip ahead.</b></div>
+
+<div class="judgeDesk">
+ <div class="judgeTop"><div><span>HARBORLIGHT SOC · MIR-318</span><h3>Response Authorization Board</h3><small>Evidence → ownership → containment → communication</small></div><b>OPENING WINDOW ACTIVE</b></div>
+ <div class="judgeQueue">
+  <button class="judgeTicket active" data-jopen="jw1"><i>01</i><span><b>Response Boundary</b><small>Separate confirmed, supported, and unconnected work</small></span><em id="jst1">OPEN</em></button>
+  <button class="judgeTicket" data-jopen="jw2"><i>02</i><span><b>Ownership Map</b><small>Assign work without over-privileging</small></span><em id="jst2">OPEN</em></button>
+  <button class="judgeTicket" data-jopen="jw3"><i>03</i><span><b>Containment Package</b><small>Balance evidence preservation and operations</small></span><em id="jst3">OPEN</em></button>
+  <button class="judgeTicket" data-jopen="jw4"><i>04</i><span><b>Executive Handoff</b><small>Communicate certainty and next action</small></span><em id="jst4">OPEN</em></button>
+ </div>
+ <div class="judgeMeter"><span id="judgeMeterFill"></span></div><p id="judgeStatus">0 of 4 authorization stations recorded</p>
+</div>
+
+<article class="judgeWork active" id="jw1">
+ <div class="judgeHead"><div><small>STATION 01 · RESPONSE BOUNDARY</small><h3>Build the incident boundary</h3></div><b>Task type: Evidence mapping</b></div>
+ <p>Place each item into the response position that best matches the evidence available <b>right now</b>. Do not let a suspicious detail become a confirmed fact simply because it fits the story.</p>
+ <div class="boundaryRows">
+  <div class="boundaryRow"><span>Suspicious account-verification message reported by an employee.</span><div data-jgroup="b1"><button data-ok="1">Preserve as relevant evidence</button><button data-ok="0">Declare confirmed entry path</button><button data-ok="0">Remove from case</button></div></div>
+  <div class="boundaryRow"><span>Authentication failures and unusual proxy activity associated with the investigated entity.</span><div data-jgroup="b2"><button data-ok="0">Treat as unrelated noise</button><button data-ok="1">Keep in active investigation</button><button data-ok="0">Declare complete compromise</button></div></div>
+  <div class="boundaryRow"><span>Collections controlled-door report with no evidence currently linking it to the account/system activity.</span><div data-jgroup="b3"><button data-ok="0">Merge into the cyber incident</button><button data-ok="0">Discard because it is physical</button><button data-ok="1">Track separately unless evidence connects it</button></div></div>
+ </div>
+ <button class="judgeHelp" data-jhelp="jh1">Need a decision reference?</button><div class="judgeHelpBox" id="jh1"><b>Decision reference</b><p>A defensible judgment distinguishes what is observed, what is supported, and what remains unconfirmed. Correlation is useful when evidence connects events; it should not be used to force unrelated reports into one narrative.</p></div>
+ <div class="judgeRecord"><button class="btn accent jrec" data-jcase="1">Record Station 01</button><span id="jr1">Not yet recorded</span></div>
+ <div class="judgeJump"><span>Board navigation</span><button data-jjump="jw2">Next: Ownership Map →</button></div>
+</article>
+
+<article class="judgeWork" id="jw2">
+ <div class="judgeHead"><div><small>STATION 02 · OWNERSHIP MAP</small><h3>Route work to the appropriate professional role</h3></div><b>Task type: Workflow assignment</b></div>
+ <p>Assign each work package to the role that best fits the responsibility. Choose the role needed to perform the work—not the role with the broadest access.</p>
+ <div class="ownerRows">
+  <div class="ownerRow"><div><small>WORK PACKAGE A</small><b>Validate the finding, maintain case status, and perform first-line triage.</b></div><div data-jgroup="o1"><button data-ok="1">Tier 1 SOC Analyst</button><button data-ok="0">Detection Engineer</button><button data-ok="0">SOC Manager</button></div></div>
+  <div class="ownerRow"><div><small>WORK PACKAGE B</small><b>Perform deeper timeline reconstruction and test competing hypotheses after escalation.</b></div><div data-jgroup="o2"><button data-ok="0">Threat Hunter</button><button data-ok="1">Tier 2 SOC Analyst</button><button data-ok="0">SOC Manager</button></div></div>
+  <div class="ownerRow"><div><small>WORK PACKAGE C</small><b>Review whether detection logic needs tuning after the incident work establishes what happened.</b></div><div data-jgroup="o3"><button data-ok="0">Incident Responder</button><button data-ok="0">Tier 1 SOC Analyst</button><button data-ok="1">Detection Engineer</button></div></div>
+ </div>
+ <button class="judgeHelp" data-jhelp="jh2">Need a decision reference?</button><div class="judgeHelpBox" id="jh2"><b>Decision reference</b><p>Tier 1 supports validation and triage; Tier 2 handles escalated investigation and deeper reconstruction; Detection Engineers create and tune detection logic. Appropriate ownership preserves separation of responsibilities and avoids granting administrative capability simply because a case is urgent.</p></div>
+ <div class="judgeRecord"><button class="btn accent jrec" data-jcase="2">Record Station 02</button><span id="jr2">Not yet recorded</span></div>
+ <div class="judgeJump"><button data-jjump="jw1">← Response Boundary</button><button data-jjump="jw3">Next: Containment Package →</button></div>
+</article>
+
+<article class="judgeWork" id="jw3">
+ <div class="judgeHead"><div><small>STATION 03 · CONTAINMENT PACKAGE</small><h3>Choose the response package</h3></div><b>Task type: Decision-building</b></div>
+ <div class="decisionContext">
+  <div><small>EVIDENCE</small><b>Suspicious authentication/proxy behavior remains under investigation.</b></div>
+  <div><small>BUSINESS CONDITION</small><b>Gala operations are opening; unnecessary disruption has real cost.</b></div>
+  <div><small>REQUIREMENT</small><b>Preserve evidence, reduce exposure, and keep uncertainty explicit.</b></div>
+  <div><small>BOUNDARY</small><b>Physical-access report is not yet connected to the cyber evidence.</b></div>
+ </div>
+ <p>Select the response package that best balances those conditions.</p>
+ <div class="judgeChoices" id="containChoices">
+  <button data-ok="0">Close the cyber finding, leave the account and workstation unchanged, and reopen only if a second employee reports the same message or another high-severity alert occurs.</button>
+  <button data-ok="1">Keep the finding active, preserve evidence, apply approved account/system safeguards proportionate to the observed risk, route deeper analysis appropriately, and track the physical report separately.</button>
+  <button data-ok="0">Disable all event-support identities, isolate every exhibit workstation, and merge the physical-access report into the same incident so no potentially related evidence is overlooked.</button>
+  <button data-ok="0">Grant the readiness liaison administrative access to detections and data models so the team can immediately modify security content while the investigation continues.</button>
+ </div>
+ <button class="judgeHelp" data-jhelp="jh3">Need a decision reference?</button><div class="judgeHelpBox" id="jh3"><b>Decision reference</b><p>Response should be proportional to evidence and organizational procedure. Evidence preservation, appropriate safeguards, least-necessary access, and clear separation of unconnected reports support action without turning uncertainty into certainty.</p></div>
+ <div class="judgeRecord"><button class="btn accent jrec" data-jcase="3">Record Station 03</button><span id="jr3">Not yet recorded</span></div>
+ <div class="judgeJump"><button data-jjump="jw2">← Ownership Map</button><button data-jjump="jw4">Next: Executive Handoff →</button></div>
+</article>
+
+<article class="judgeWork" id="jw4">
+ <div class="judgeHead"><div><small>STATION 04 · EXECUTIVE HANDOFF</small><h3>Approve the language leadership receives</h3></div><b>Task type: Structured communication</b></div>
+ <p>The SOC Manager needs a concise update for event leadership. Choose the statement that communicates action, evidence, and uncertainty without minimizing the concern or declaring facts the investigation has not established.</p>
+ <div class="judgeChoices" id="commChoices">
+  <button data-ok="0">Security confirmed a credential-phishing compromise affecting the exhibit environment; the physical-access report is part of the same incident and containment is underway.</button>
+  <button data-ok="0">Security has no confirmed incident because the employee did not open the reported link; event operations may continue normally unless additional alerts are generated.</button>
+  <button data-ok="1">Security is investigating suspicious account and proxy activity alongside a reported social-engineering message; safeguards and deeper analysis are in progress, while the initial access path and any connection to the physical report remain unconfirmed.</button>
+  <button data-ok="0">Security observed several unrelated anomalies and has escalated them for routine review; there is currently insufficient evidence to justify protective action against the affected account or system.</button>
+ </div>
+ <button class="judgeHelp" data-jhelp="jh4">Need a decision reference?</button><div class="judgeHelpBox" id="jh4"><b>Decision reference</b><p>Professional security communication should distinguish observed evidence from conclusions, state what action is underway, and identify meaningful uncertainty. “Unconfirmed” does not mean “unimportant,” and “under investigation” does not mean “confirmed compromise.”</p></div>
+ <div class="judgeRecord"><button class="btn accent jrec" data-jcase="4">Record Station 04</button><span id="jr4">Not yet recorded</span></div>
+ <div class="judgeJump"><button data-jjump="jw3">← Containment Package</button><span>End of authorization board</span></div>
+</article>
+
+<div class="judgeReview">
+ <small>RESPONSE AUTHORIZATION GATE · MIR-318</small><h3>Submit the full response package</h3>
+ <p>All four stations are reviewed together. A returned station must be corrected before the normal Practitioner Cycle completion button unlocks. The review does not disclose the replacement answer.</p>
+ <button class="btn accent" id="judgeReviewBtn" disabled>Submit Response Package for Approval</button>
+ <div id="judgeReviewMsg">Complete and record all four authorization stations to enable approval review.</div>
+</div>
+
+<div class="judgeExpert" id="judgeExpert">
+ <div class="eyebrow">RESPONSE PACKAGE · APPROVED</div><h3>Expert Decision Review</h3>
+ <p>Every authorization decision is now correct. Review why each choice is appropriate or inappropriate in this situation.</p>
+ <details><summary>Station 01 · Response Boundary</summary>
+  <p><b>Suspicious message — Preserve as relevant evidence:</b> The report is directly relevant to the investigation, but it does not prove that the message caused the account activity. <b>Declare confirmed entry path</b> overstates the evidence. <b>Remove from case</b> discards useful context merely because causation is not established.</p>
+  <p><b>Authentication/proxy activity — Keep in active investigation:</b> The machine evidence is sufficiently meaningful to continue analysis. <b>Treat as unrelated noise</b> minimizes relevant evidence. <b>Declare complete compromise</b> converts suspicious activity into a conclusion the available evidence does not establish.</p>
+  <p><b>Collections report — Track separately unless connected:</b> This preserves the report without forcing correlation. <b>Merge into the cyber incident</b> assumes a relationship. <b>Discard because physical</b> ignores that physical security reports can still matter to enterprise security.</p>
+ </details>
+ <details><summary>Station 02 · Ownership Map</summary>
+  <p><b>Tier 1 SOC Analyst:</b> Correct for first-line validation, triage, case status, and initial ES workflow. A Detection Engineer focuses on security content; a SOC Manager oversees operations rather than performing routine first-line triage.</p>
+  <p><b>Tier 2 SOC Analyst:</b> Correct for an escalated case requiring deeper searches, timeline reconstruction, and hypothesis testing. A Threat Hunter proactively searches for unknown threats and may contribute, but the described work is an escalated case investigation. A SOC Manager provides oversight rather than being the primary investigator.</p>
+  <p><b>Detection Engineer:</b> Correct when the question becomes whether detection logic or security content should be created or tuned. An Incident Responder focuses on incident response, while Tier 1 is not the primary owner for engineering detection logic.</p>
+ </details>
+ <details><summary>Station 03 · Containment Package</summary>
+  <p><b>Correct package:</b> It keeps the finding active, preserves evidence, uses proportionate approved safeguards, routes deeper work correctly, and keeps the unconnected physical report separate. It acts without pretending the investigation is complete.</p>
+  <p><b>Close and wait:</b> The absence of link interaction does not explain the authentication and proxy evidence; waiting for a second high-severity event could create a false-negative posture.</p>
+  <p><b>Disable/isolate everything and merge reports:</b> This maximizes disruption and assumes relationships the evidence has not established. Aggressiveness is not the same as accuracy.</p>
+  <p><b>Grant broad administrative access:</b> Urgency does not justify unnecessary privileges. Investigation and response do not require giving a liaison authority to alter detections and data models.</p>
+ </details>
+ <details><summary>Station 04 · Executive Handoff</summary>
+  <p><b>Correct statement:</b> It identifies the suspicious activity, explains that safeguards and analysis are underway, and clearly states what remains unconfirmed.</p>
+  <p><b>Confirmed phishing compromise + physical linkage:</b> This presents two unresolved conclusions as facts.</p>
+  <p><b>No incident because no click:</b> This allows one piece of contradictory evidence to erase separate machine evidence that still requires investigation.</p>
+  <p><b>Routine unrelated anomalies/no protective action:</b> This understates the correlated account/proxy evidence and incorrectly treats uncertainty as a reason to avoid proportionate safeguards.</p>
+ </details>
+</div>
+
+<div class="card"><h3>Judge Decision Note</h3><p>Defend the approved response in your own words. Address evidence quality, uncertainty, least-necessary access, operational impact, and the difference between a reported suspicion and a confirmed incident.</p><textarea class="note persist" data-key="judgeNote" placeholder="Explain why the response is proportionate and defensible..."></textarea></div>
+<div class="actions"><button class="btn back">Back</button><button class="btn accent next" id="judgeNext" disabled>Complete Practitioner Cycle</button></div>
+</section>
+
+<section class="stage" data-title="Final Debrief">
+<div class="eyebrow">Final Debrief & Reflection</div><h2>From awareness to actionable intelligence</h2>
+<p class="lead">The case began with people noticing what did not look right. It became more useful when those observations were reported, correlated with machine telemetry, normalized into searchable context, evaluated by detections, and investigated by people with the appropriate role.</p>
+<div class="card"><h3>Final Reflection</h3><p>What is the most important connection between an employee's security-aware behavior and a SOC analyst's ability to investigate effectively?</p><textarea class="note persist" data-key="finalReflection" placeholder="Connect human reporting, data quality, ES detections/findings, and professional judgment..."></textarea></div>
+<div class="actions"><button class="btn next">Participation Summary</button></div>
+</section>
+
+<section class="stage" data-title="Participation Summary">
+<div class="eyebrow">Participation Summary</div><h2>Your practitioner record</h2>
+<div class="grid">
+<div class="card span4"><h3>Operator Performance Note</h3><p id="sumOp" class="muted">No response yet.</p></div>
+<div class="card span4"><h3>Detective Investigation Note</h3><p id="sumDet" class="muted">No response yet.</p></div>
+<div class="card span4"><h3>Judge Decision Note</h3><p id="sumJudge" class="muted">No response yet.</p></div>
+<div class="card span12"><h3>Final Reflection</h3><p id="sumFinal" class="muted">No response yet.</p></div>
+</div>
+<div class="actions no-print"><button class="btn" onclick="window.print()">Print / Save Summary</button><button class="btn secondary" id="reset">Reset session</button><button class="btn next">Professional Next Steps</button></div>
+</section>
+
+<section class="stage" data-title="Professional Next Steps">
+<div class="eyebrow">Professional Next Steps</div><h2>Carry the model forward</h2>
+<div class="card"><p><b>Awareness:</b> notice, verify, protect, report. <b>Enterprise Security:</b> collect, index, normalize, detect, contextualize, investigate, respond. The professional connection is disciplined evidence handling: a useful observation becomes more powerful when it enters a workflow that preserves context and supports defensible action.</p>
+<p class="muted">Completion of this application indicates participation in the learning experience; it is not a Splunk certification or production authorization.</p></div>
+</section>
+
+<div id="fieldGuide" class="guide" aria-hidden="true"><div class="guidepanel"><div class="guidehead"><div><div class="eyebrow">On-Demand Reference</div><h2>Security Field Guide</h2></div><button class="btn secondary" id="closeGuide">Close</button></div>
+<p class="lead">Open this reference whenever you need additional vocabulary or concept support. It preserves the instructional coverage without interrupting the Harborlight storyline.</p>
+<div class="grid">
+<div class="card span6"><h3>Cybersecurity Awareness — complete concept map</h3>
+<details open><summary>Security Awareness & terminology</summary><p>Security awareness; responsibility; vulnerability, threat, exploit, risk; weaknesses can include technical states and human awareness; threats are possible actors/actions; exploits manipulate vulnerabilities; risk can include cyber and natural conditions.</p></details>
+<details><summary>Social engineering & phishing</summary><p>CEO/invoice-style deception; human-needs framing; self-actualization, esteem, belonging, safety, physiological needs; quid pro quo, urgency, authority, bandwagoning; sender verification; “does it feel right?”; spelling/cadence; unverified phone numbers; impersonal salutations; “what is the ask?”; urgent deadlines; improper addresses; suspicious/typosquatted URLs; authority cues; report phishing regardless of interaction; use organizational criteria/process; if interaction occurred, promptly contact IT/IT Security/management as policy requires.</p></details>
+<details><summary>Recognizing malware</summary><p>Malware is complex; myths about “safe” websites, antimalware infallibility, and being too unimportant to target; possible indicators include sudden popups/adware, startup command-line windows, periodic versus massive sudden slowdowns, browser behavior changes, antimalware alerts, and firewall-change requests; involve IT when context is uncertain.</p></details>
+<details><summary>Suspicious activities & practice</summary><p>Security spans physical and information assets. Report what seems out of place using organizational mechanisms. Examples include tailgating, strange devices, and unusual behavior. Practice scenarios reinforce never sharing passwords/accounts, helping coworkers obtain legitimate access instead, refusing unauthenticated facility entry while offering an approved help path, and reporting reasonable concerns. Information security, physical security, and cybersecurity work together; security is everyone's job.</p></details>
+</div>
+<div class="card span6"><h3>Enterprise Security — complete concept map</h3>
+<details open><summary>ES purpose, APTs & frameworks</summary><p>ES is a SIEM-oriented security application on Splunk. It helps detect, investigate, and respond; supports security posture/compliance context; integrates with SOAR, Threat Intelligence Management, and UEBA. APTs are prolonged targeted adversary activity. Frameworks include Cyber Kill Chain, MITRE ATT&CK, CIS Controls, NIST, and PCI.</p></details>
+<details><summary>Interface & access</summary><p>Access ES from Splunk Enterprise Apps/applications; ES Home links key tools. Mission Control, Analytics dashboards, Security Content, Configure, and Search serve different functions. Content Management exposes detection/security objects; administrative changes are role-limited. Roles include ess_user, ess_analyst, and ess_admin with progressively broader capabilities.</p></details>
+<details><summary>Data, CIM, models & KV Store</summary><p>Forwarders gather diverse machine data; indexers store events. CIM normalizes fields; data models organize data; acceleration speeds dependent searches/dashboards/reports/alerts. Data-model editing is administrative. KV Store maintains workflow/status/comments/lookups/assets/identities/threat-intel collections and is important to ES operation.</p></details>
+<details><summary>Detections, findings & risk</summary><p>Predefined/custom detections can run scheduled or real-time. Findings (formerly notable events) can reach the Analyst Queue/notable index; intermediate findings (formerly risk events) accumulate in the risk index. Security Posture and Risk Analysis help analysts view findings/risk. Asset/identity priority can affect urgency. Findings can be owned, status-updated, annotated, and grouped into investigations.</p></details>
+<details><summary>Search examples</summary><p>Search can explore index=notable and refine by fields/source. Data-model searching may use from or tstats. tstats supports efficient accelerated-model analysis with count/FROM/WHERE/BY concepts; object-qualified fields matter. summariesonly can restrict work to accelerated summaries, improving speed while excluding data outside the summary range.</p></details>
+<details><summary>SOC roles & workflows</summary><p>Tier 1, Tier 2, SOC Manager, Threat Hunter, Detection Engineer, and Incident Responder have different responsibilities. Workflows include Triage, Investigation, Hunting, Detection, and Threat Intelligence. The Security Use Cases Library is presented as a resource for applying ES features to practical detection, investigation, and response use cases.</p></details>
+</div></div>
+
+</div></div>
+</main></div>
+<script>
+const stages=[...document.querySelectorAll('.stage')], nav=document.getElementById('nav');
+let current=Number(sessionStorage.getItem('ns_stage')||0);
+function renderNav(){nav.innerHTML=''; stages.forEach((s,i)=>{let b=document.createElement('button');b.className='navbtn'+(i===current?' active':'');let t=s.dataset.title;let phase=t.includes('Operator')?'Apply':t.includes('Detective')?'Analyze':t.includes('Judge')?'Evaluate':(t.includes('Debrief')||t.includes('Summary')||t.includes('Next'))?'Integrate':'Prepare';b.innerHTML=`<span class="navtxt">${i+1}. ${t}</span><small class="navtxt">${phase}</small>`;b.onclick=()=>show(i);nav.appendChild(b)})}
+function show(i){current=Math.max(0,Math.min(stages.length-1,i));stages.forEach((s,j)=>s.classList.toggle('active',j===current));sessionStorage.setItem('ns_stage',current);renderNav();let p=Math.round(current/(stages.length-1)*100);document.getElementById('bar').style.width=p+'%';document.getElementById('pct').textContent=p+'%';updateSummary();window.scrollTo({top:0,behavior:'smooth'});document.getElementById('side').classList.remove('open')}
+document.querySelectorAll('.next').forEach(b=>b.onclick=()=>show(current+1));
+document.getElementById('collapse').onclick=()=>{const side=document.getElementById('side');if(window.matchMedia('(max-width:850px)').matches){side.classList.remove('open');return;}const collapsed=side.classList.toggle('collapsed');document.querySelector('.app').classList.toggle('sidebar-collapsed',collapsed);document.getElementById('collapse').setAttribute('aria-expanded',String(!collapsed));document.getElementById('collapse').setAttribute('aria-label',collapsed?'Expand navigation':'Collapse navigation');};
+document.getElementById('menu').onclick=()=>document.getElementById('side').classList.toggle('open');
+window.addEventListener('resize',()=>{if(window.innerWidth<=850){document.querySelector('.app').classList.remove('sidebar-collapsed');document.getElementById('side').classList.remove('collapsed');}});
+const guide=document.getElementById('fieldGuide');
+document.getElementById('openGuide').onclick=()=>{guide.classList.add('open');guide.setAttribute('aria-hidden','false')};
+document.getElementById('closeGuide').onclick=()=>{guide.classList.remove('open');guide.setAttribute('aria-hidden','true')};
+guide.addEventListener('click',e=>{if(e.target===guide){guide.classList.remove('open');guide.setAttribute('aria-hidden','true')}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&guide.classList.contains('open')){guide.classList.remove('open');guide.setAttribute('aria-hidden','true')}});
+
+
+document.querySelectorAll('.choice').forEach(c=>c.onclick=()=>{if(c.disabled)return;let box=c.parentElement;[...box.querySelectorAll('.choice')].forEach(x=>x.classList.remove('selected','wrong','correct'));c.classList.add('selected');updateIntakeDraft();syncQueue()});
+const intakeGroups=['phishChoices','acctChoices','doorChoices','malChoices'];
+let intakeApproved=sessionStorage.getItem('intakeApproved')==='1';
+function updateIntakeDraft(){let n=intakeGroups.filter(id=>document.getElementById(id)?.querySelector('.selected')).length;let cc=document.getElementById('caseCount');if(cc)cc.textContent=n+' / 4';intakeGroups.forEach(id=>{let st=document.getElementById(id+'State'),sel=document.getElementById(id)?.querySelector('.selected');if(st&&!st.classList.contains('revise')&&!intakeApproved){st.textContent=sel?'Decision recorded':'Awaiting decision'}})}
+function expertReview(id){let box=document.getElementById(id),review=document.getElementById(id+'Review');if(!box||!review)return;let items=[...box.querySelectorAll('.choice')].map((x,i)=>'<div class="review-item"><b>Option '+(i+1)+' — '+(x.dataset.correct==='1'?'Strongest response':'Why this is weaker')+':</b> '+x.dataset.why+'</div>').join('');review.innerHTML='<h4>Expert case review</h4>'+items;review.classList.add('show')}
+function approveIntake(){intakeApproved=true;sessionStorage.setItem('intakeApproved','1');document.getElementById('intakeStatus').textContent='Approved for SOC';document.getElementById('handoffStatus').textContent='Available';document.getElementById('qcState').textContent='Approved';document.getElementById('qcState').className='case-state ready';document.getElementById('intakeFeedback').textContent='MIR-318 passed quality control. All four decisions are supportable. Expert review is now unlocked for every case so you can compare the strongest response with each realistic alternative.';document.getElementById('intakeFeedback').className='feedback show success';intakeGroups.forEach(id=>{let box=document.getElementById(id),sel=box.querySelector('.selected'),st=document.getElementById(id+'State');sel.classList.add('correct');[...box.querySelectorAll('.choice')].forEach(x=>x.disabled=true);st.textContent='Resolved';st.className='case-state ready';document.getElementById(id+'Feedback').textContent='Case accepted into MIR-318. See the expert review below.';document.getElementById(id+'Feedback').className='feedback show success';expertReview(id)});document.getElementById('checkIntake').disabled=true;document.getElementById('operatorNext').disabled=false;queueButtons.forEach(q=>{q.classList.remove('revision');q.classList.add('approved');const l=document.getElementById('q-'+q.dataset.openCase);if(l)l.textContent='Approved'});document.getElementById('operatorOutput').innerHTML='<b>Phase output:</b> MIR-318 is approved. The suspicious message, access-control decisions, physical-entry verification, and workstation observations are now structured human-generated evidence ready for SOC correlation with machine telemetry.';updateIntakeDraft();syncQueue()}
+
+const queueButtons=[...document.querySelectorAll('.queue-item')];
+function openIntakeCase(id){
+  document.querySelectorAll('.intake-case').forEach(card=>{
+    const on=card.dataset.case===id;
+    card.classList.toggle('case-hidden',!on);
+    card.classList.toggle('active-case',on);
+  });
+  queueButtons.forEach(b=>b.classList.toggle('active',b.dataset.openCase===id));
+  const target=document.querySelector(`.intake-case[data-case="${id}"]`);
+  if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
+}
+queueButtons.forEach(b=>b.addEventListener('click',()=>openIntakeCase(b.dataset.openCase)));
+function syncQueue(){
+  intakeGroups.forEach(id=>{
+    const q=document.querySelector(`.queue-item[data-open-case="${id}"]`);
+    const label=document.getElementById('q-'+id);
+    const box=document.getElementById(id);
+    const selected=box?.querySelector('.selected');
+    const returned=box?.closest('.intake-case')?.classList.contains('needs-revision');
+    q?.classList.toggle('decided',!!selected&&!returned);
+    q?.classList.toggle('revision',!!returned);
+    if(label) label.textContent=returned?'Revision required':selected?'Decision recorded':'Unreviewed';
+  });
+}
+
+document.getElementById('checkIntake')?.addEventListener('click',()=>{let missing=intakeGroups.filter(id=>!document.getElementById(id).querySelector('.selected'));let fb=document.getElementById('intakeFeedback');if(missing.length){fb.textContent='The record is incomplete. Make a decision in all four case files before running quality control. '+missing.length+' case'+(missing.length>1?'s are':' is')+' still awaiting a decision.';fb.className='feedback show danger';return}let wrong=[];intakeGroups.forEach(id=>{let box=document.getElementById(id),sel=box.querySelector('.selected'),card=box.closest('.intake-case'),st=document.getElementById(id+'State'),cf=document.getElementById(id+'Feedback');card.classList.remove('needs-revision');st.classList.remove('revise');cf.className='feedback';cf.textContent='';if(sel.dataset.correct!=='1'){wrong.push(id);card.classList.add('needs-revision');st.textContent='Returned for revision';st.className='case-state revise';cf.textContent='Quality control returned this case. Re-examine the evidence, compare the operational constraint with the security principle, and select a different response. The correct answer remains hidden.';cf.className='feedback show warning';sel.classList.add('wrong')}});if(wrong.length){document.getElementById('intakeStatus').textContent='Revision required';document.getElementById('qcState').textContent='Returned';document.getElementById('qcState').className='case-state revise';fb.textContent=wrong.length+' of 4 case files need revision. The quality check has identified the affected sections but has not revealed the correct decisions. Return to each highlighted case, reconsider the evidence, and submit MIR-318 again.';fb.className='feedback show warning';wrong.forEach(id=>{let box=document.getElementById(id);box.querySelectorAll('.choice').forEach(x=>x.disabled=false)});syncQueue();openIntakeCase(wrong[0]);return}approveIntake()});
+if(intakeApproved){setTimeout(approveIntake,0)}else{updateIntakeDraft();syncQueue()}
+document.querySelectorAll('.persist').forEach(t=>{t.value=sessionStorage.getItem(t.dataset.key)||'';t.addEventListener('input',()=>{sessionStorage.setItem(t.dataset.key,t.value);updateSummary()})});
+function updateSummary(){[['sumOp','operatorNote'],['sumDet','detectiveNote'],['sumJudge','judgeNote'],['sumFinal','finalReflection']].forEach(([id,key])=>{let e=document.getElementById(id);if(e)e.textContent=sessionStorage.getItem(key)||'No response yet.'})}
+document.getElementById('reset').onclick=()=>{if(confirm('Reset all saved responses and progress for this session?')){sessionStorage.clear();location.reload()}};
+renderNav();show(current);
+</script>
+<script>
+(function(){
+const rec={1:false,2:false,3:false,4:false}, seq=[];
+function openQ(id){document.querySelectorAll('.caseWork').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.ticket').forEach(x=>x.classList.toggle('active',x.dataset.open===id));}
+document.querySelectorAll('.ticket').forEach(b=>b.onclick=()=>openQ(b.dataset.open));
+document.querySelectorAll('.jumpCase').forEach(b=>b.onclick=()=>openQ(b.dataset.jump));
+document.querySelectorAll('.ev').forEach(b=>b.onclick=()=>{let c=b.closest('.caseWork');c.querySelectorAll('.ev').forEach(x=>x.classList.remove('active'));b.classList.add('active');c.querySelectorAll('.ePanel').forEach(x=>x.classList.remove('active'));document.getElementById(b.dataset.panel).classList.add('active')});
+document.querySelectorAll('#facts1 button').forEach(b=>b.onclick=()=>b.classList.toggle('selected'));
+document.querySelectorAll('.choices').forEach(g=>g.querySelectorAll('button').forEach(b=>b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')}));
+document.querySelectorAll('.help[data-help]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.help).classList.toggle('open'));
+document.querySelectorAll('#seq3 button').forEach(b=>b.onclick=()=>{if(b.classList.contains('selected'))return;b.classList.add('selected');seq.push(b.dataset.step);document.getElementById('seqOut').textContent='Your sequence: '+seq.join(' → ')});
+document.getElementById('resetSeq').onclick=()=>{seq.length=0;document.querySelectorAll('#seq3 button').forEach(x=>x.classList.remove('selected'));document.getElementById('seqOut').textContent='Your sequence: —'};
+function update(){let n=Object.values(rec).filter(Boolean).length;document.getElementById('meterFill').style.width=(n*25)+'%';document.getElementById('queueStatus').textContent=n+' of 4 case files recorded';document.getElementById('reviewMIR').disabled=n!==4;if(n!==4)document.getElementById('reviewMsg').textContent='Complete all four case files to enable review.'}
+document.querySelectorAll('.rec').forEach(b=>b.onclick=()=>{let n=+b.dataset.case,ready=n===1?(document.querySelectorAll('#facts1 .selected').length===3&&!!document.querySelector('#dec1 .selected')):n===2?!!document.querySelector('#dec2 .selected'):n===3?seq.length===4:!!document.querySelector('#dec4 .selected');if(!ready){document.getElementById('r'+n).textContent='Complete the case task before recording it.';return}rec[n]=true;document.getElementById('r'+n).textContent='Recorded in MIR-318';let t=document.querySelector('.ticket[data-open="q'+n+'"]');t.classList.add('done');t.classList.remove('returned');document.getElementById('st'+n).textContent='RECORDED';update()});
+function ok(n){if(n===1){let f=[...document.querySelectorAll('#facts1 .selected')];return f.length===3&&f.every(x=>x.dataset.ok==='1')&&document.querySelector('#dec1 .selected')?.dataset.ok==='1'}if(n===2)return document.querySelector('#dec2 .selected')?.dataset.ok==='1';if(n===3)return seq.join(',')==='1,2,3,4';return document.querySelector('#dec4 .selected')?.dataset.ok==='1'}
+document.getElementById('reviewMIR').onclick=()=>{let wrong=[1,2,3,4].filter(n=>!ok(n));if(wrong.length){wrong.forEach(n=>{rec[n]=false;let t=document.querySelector('.ticket[data-open="q'+n+'"]');t.classList.remove('done');t.classList.add('returned');document.getElementById('st'+n).textContent='RETURNED';document.getElementById('r'+n).textContent='Returned for revision'});update();document.getElementById('reviewMsg').innerHTML='<b>Returned for revision:</b> '+wrong.map(n=>'Case 0'+n).join(', ')+'. Reexamine the evidence. The correct response has not been revealed.';openQ('q'+wrong[0]);return}document.getElementById('reviewMsg').innerHTML='<b>MIR-318 APPROVED.</b> Expert Case Review is now unlocked.';document.getElementById('expertMIR').classList.add('open');document.getElementById('operatorNext').disabled=false;[1,2,3,4].forEach(n=>document.getElementById('st'+n).textContent='APPROVED')};
+update();
+})();
+</script><script>
+(function(){
+const done={1:false,2:false,3:false,4:false}, pipe=[];
+function openDet(id){document.querySelectorAll('.detWork').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.detTicket').forEach(x=>x.classList.toggle('active',x.dataset.detOpen===id));}
+document.querySelectorAll('.detTicket').forEach(b=>b.addEventListener('click',()=>openDet(b.dataset.detOpen)));
+document.querySelectorAll('[data-det-jump]').forEach(b=>b.addEventListener('click',()=>openDet(b.dataset.detJump)));
+document.querySelectorAll('.detHelp').forEach(b=>b.addEventListener('click',()=>document.getElementById(b.dataset.detHelp)?.classList.toggle('open')));
+
+document.querySelectorAll('#pipelinePool button').forEach(b=>b.addEventListener('click',()=>{
+ if(b.classList.contains('selected'))return;
+ b.classList.add('selected'); pipe.push(b.dataset.step);
+ document.getElementById('pipeOut').textContent='Investigation sequence: '+pipe.join(' → ');
+}));
+document.getElementById('resetPipe')?.addEventListener('click',()=>{
+ pipe.length=0;document.querySelectorAll('#pipelinePool button').forEach(x=>x.classList.remove('selected'));document.getElementById('pipeOut').textContent='Investigation sequence: —';
+});
+
+document.querySelectorAll('.routeChoices,.detChoices,.evidenceRow').forEach(g=>g.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+ g.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');
+})));
+
+function ready(n){
+ if(n===1)return pipe.length===6;
+ if(n===2)return [...document.querySelectorAll('.routeChoices')].every(g=>g.querySelector('.selected'));
+ if(n===3)return [...document.querySelectorAll('.evidenceRow')].every(g=>g.querySelector('.selected')) && !!document.querySelector('#hypChoices .selected');
+ if(n===4)return !!document.querySelector('#riskChoices .selected');
+ return false;
+}
+function correct(n){
+ if(n===1)return pipe.join(',')==='1,2,3,4,5,6';
+ if(n===2)return [...document.querySelectorAll('.routeChoices')].every(g=>g.querySelector('.selected')?.dataset.ok==='1');
+ if(n===3)return [...document.querySelectorAll('.evidenceRow')].every(g=>g.querySelector('.selected')?.dataset.ok==='1') && document.querySelector('#hypChoices .selected')?.dataset.ok==='1';
+ if(n===4)return document.querySelector('#riskChoices .selected')?.dataset.ok==='1';
+ return false;
+}
+function updateDet(){
+ const n=Object.values(done).filter(Boolean).length;
+ document.getElementById('detMeterFill').style.width=(n*25)+'%';
+ document.getElementById('detQueueStatus').textContent=n+' of 4 investigation stations recorded';
+ document.getElementById('detReviewBtn').disabled=n!==4;
+ if(n!==4)document.getElementById('detReviewMsg').textContent='Complete and record all four investigation stations to enable review.';
+}
+document.querySelectorAll('.detRec').forEach(b=>b.addEventListener('click',()=>{
+ const n=+b.dataset.detCase;
+ if(!ready(n)){document.getElementById('dr'+n).textContent='Complete every task in this station before recording it.';return;}
+ done[n]=true;
+ const t=document.querySelector('.detTicket[data-det-open="det'+n+'"]');t.classList.add('done');t.classList.remove('returned');
+ document.getElementById('dst'+n).textContent='RECORDED';document.getElementById('dr'+n).textContent='Station recorded for SOC review';updateDet();
+}));
+document.getElementById('detReviewBtn')?.addEventListener('click',()=>{
+ const wrong=[1,2,3,4].filter(n=>!correct(n));
+ if(wrong.length){
+   wrong.forEach(n=>{done[n]=false;const t=document.querySelector('.detTicket[data-det-open="det'+n+'"]');t.classList.remove('done');t.classList.add('returned');document.getElementById('dst'+n).textContent='RETURNED';document.getElementById('dr'+n).textContent='Returned for revision';});
+   updateDet();
+   document.getElementById('detReviewMsg').innerHTML='<b>Returned for revision:</b> '+wrong.map(n=>'Station 0'+n).join(', ')+'. Reexamine the evidence, requirement, and constraints. The correct response has not been revealed.';
+   openDet('det'+wrong[0]);return;
+ }
+ [1,2,3,4].forEach(n=>document.getElementById('dst'+n).textContent='APPROVED');
+ document.getElementById('detReviewMsg').innerHTML='<b>INVESTIGATION APPROVED.</b> Expert Investigation Review is now unlocked.';
+ document.getElementById('detExpert').classList.add('open');
+ document.getElementById('detectiveNext').disabled=false;
+ try{sessionStorage.setItem('detectiveApproved','1')}catch(e){}
+ document.getElementById('detExpert').scrollIntoView({behavior:'smooth',block:'start'});
+});
+updateDet();
+})();
+</script><script>
+(function(){
+const done={1:false,2:false,3:false,4:false};
+function openJ(id){document.querySelectorAll('.judgeWork').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.judgeTicket').forEach(x=>x.classList.toggle('active',x.dataset.jopen===id));}
+document.querySelectorAll('.judgeTicket').forEach(b=>b.addEventListener('click',()=>openJ(b.dataset.jopen)));
+document.querySelectorAll('[data-jjump]').forEach(b=>b.addEventListener('click',()=>openJ(b.dataset.jjump)));
+document.querySelectorAll('.judgeHelp').forEach(b=>b.addEventListener('click',()=>document.getElementById(b.dataset.jhelp)?.classList.toggle('open')));
+document.querySelectorAll('[data-jgroup],.judgeChoices').forEach(g=>g.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{g.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')})));
+function ready(n){if(n===1)return [...document.querySelectorAll('#jw1 [data-jgroup]')].every(g=>g.querySelector('.selected'));if(n===2)return [...document.querySelectorAll('#jw2 [data-jgroup]')].every(g=>g.querySelector('.selected'));if(n===3)return !!document.querySelector('#containChoices .selected');return !!document.querySelector('#commChoices .selected')}
+function correct(n){if(n===1)return [...document.querySelectorAll('#jw1 [data-jgroup]')].every(g=>g.querySelector('.selected')?.dataset.ok==='1');if(n===2)return [...document.querySelectorAll('#jw2 [data-jgroup]')].every(g=>g.querySelector('.selected')?.dataset.ok==='1');if(n===3)return document.querySelector('#containChoices .selected')?.dataset.ok==='1';return document.querySelector('#commChoices .selected')?.dataset.ok==='1'}
+function update(){let n=Object.values(done).filter(Boolean).length;document.getElementById('judgeMeterFill').style.width=(n*25)+'%';document.getElementById('judgeStatus').textContent=n+' of 4 authorization stations recorded';document.getElementById('judgeReviewBtn').disabled=n!==4;if(n!==4)document.getElementById('judgeReviewMsg').textContent='Complete and record all four authorization stations to enable approval review.'}
+document.querySelectorAll('.jrec').forEach(b=>b.addEventListener('click',()=>{let n=+b.dataset.jcase;if(!ready(n)){document.getElementById('jr'+n).textContent='Complete every decision in this station before recording it.';return}done[n]=true;let t=document.querySelector('.judgeTicket[data-jopen="jw'+n+'"]');t.classList.add('done');t.classList.remove('returned');document.getElementById('jst'+n).textContent='RECORDED';document.getElementById('jr'+n).textContent='Station recorded for authorization review';update()}));
+document.getElementById('judgeReviewBtn')?.addEventListener('click',()=>{let wrong=[1,2,3,4].filter(n=>!correct(n));if(wrong.length){wrong.forEach(n=>{done[n]=false;let t=document.querySelector('.judgeTicket[data-jopen="jw'+n+'"]');t.classList.remove('done');t.classList.add('returned');document.getElementById('jst'+n).textContent='RETURNED';document.getElementById('jr'+n).textContent='Returned for revision'});update();document.getElementById('judgeReviewMsg').innerHTML='<b>Returned for revision:</b> '+wrong.map(n=>'Station 0'+n).join(', ')+'. Reconsider the evidence, role, constraint, and security principle. The correct response has not been revealed.';openJ('jw'+wrong[0]);return}[1,2,3,4].forEach(n=>document.getElementById('jst'+n).textContent='APPROVED');document.getElementById('judgeReviewMsg').innerHTML='<b>RESPONSE PACKAGE APPROVED.</b> Expert Decision Review is now unlocked.';document.getElementById('judgeExpert').classList.add('open');document.getElementById('judgeNext').disabled=false;try{sessionStorage.setItem('judgeApproved','1')}catch(e){};document.getElementById('judgeExpert').scrollIntoView({behavior:'smooth',block:'start'})});
+update();
+})();
+</script></body></html>
