@@ -1,0 +1,1497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Asterion Security Atlas | Complete Source Edition</title>
+<style>
+:root{
+ --ink:#24303a; --muted:#66737d; --paper:#f4f0e7; --sheet:#fffdf8; --line:#c9c0af;
+ --rust:#a64b2a; --sage:#547261; --ochre:#c58a32; --blue:#426b7b; --ok:#2f6d4f; --bad:#9b3f35;
+ --shadow:0 14px 35px rgba(45,38,28,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;background:
+ linear-gradient(90deg,rgba(70,58,42,.04) 1px,transparent 1px),
+ linear-gradient(rgba(70,58,42,.04) 1px,transparent 1px);background-size:28px 28px}
+.top{position:sticky;top:0;z-index:30;background:rgba(244,240,231,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar{max-width:1280px;margin:auto;padding:12px 22px;display:flex;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:10px;min-width:250px}
+.mark{width:34px;height:34px;border:2px solid var(--rust);transform:rotate(45deg);display:grid;place-items:center}
+.mark:after{content:"";width:12px;height:12px;border:2px solid var(--sage)}
+.brand b{letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+.brand small{display:block;color:var(--muted);letter-spacing:.03em}
+.progress{flex:1;height:8px;background:#ddd5c6;overflow:hidden}
+.progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rust),var(--ochre));transition:.3s}
+.pct{font-size:12px;font-weight:700;min-width:42px;text-align:right}
+.shell{max-width:1280px;margin:auto;display:grid;grid-template-columns:260px 1fr;gap:28px;padding:26px 22px 60px}
+.nav{position:sticky;top:84px;align-self:start;border-left:3px solid var(--ink);padding-left:12px;max-height:calc(100vh - 110px);overflow:auto}
+.nav button{width:100%;text-align:left;border:0;background:transparent;padding:9px 8px;color:var(--muted);border-bottom:1px dotted #cfc6b8;font-size:13px}
+.nav button.active{color:var(--rust);font-weight:800;background:rgba(166,75,42,.07)}
+.nav button.done:after{content:" ✓";color:var(--ok);font-weight:900}
+.nav .phase{margin:16px 8px 5px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink);font-weight:800}
+.main{min-width:0}
+.screen{display:none;animation:rise .25s ease}
+.screen.active{display:block}
+@keyframes rise{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+.kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--rust);font-weight:900;margin-bottom:8px}
+h1{font-family:Georgia,serif;font-size:clamp(34px,5vw,66px);line-height:.95;margin:0 0 18px;font-weight:500}
+h2{font-family:Georgia,serif;font-size:34px;margin:0 0 12px;font-weight:500}
+h3{font-size:16px;letter-spacing:.03em;margin:0 0 8px}
+.lead{font-family:Georgia,serif;font-size:20px;line-height:1.5;max-width:820px;color:#3f4a51}
+.hero{background:var(--sheet);border:1px solid var(--line);box-shadow:var(--shadow);padding:48px;position:relative;overflow:hidden}
+.hero:after{content:"FIELD RECORD 204";position:absolute;right:-20px;top:30px;border:2px solid rgba(166,75,42,.28);color:rgba(166,75,42,.45);padding:8px 24px;transform:rotate(7deg);font-weight:900;letter-spacing:.12em}
+.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:30px}
+.meta>div{background:var(--sheet);padding:18px}
+.meta b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:6px}
+.paper{background:var(--sheet);border:1px solid var(--line);box-shadow:var(--shadow);padding:34px;margin-bottom:20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.note{border-left:4px solid var(--ochre);padding:12px 16px;background:#fbf3df;margin:18px 0}
+.source-note{font-size:12px;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px;margin-top:18px}
+.btn{border:1px solid var(--ink);background:var(--ink);color:white;padding:11px 16px;font-weight:800}
+.btn.secondary{background:transparent;color:var(--ink)}
+.btn.rust{background:var(--rust);border-color:var(--rust)}
+.actions{display:flex;justify-content:space-between;gap:12px;margin-top:22px}
+.objective{border-top:3px solid var(--sage);padding:16px 4px}
+.objective span{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.1em}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.flip{height:300px;perspective:1000px;background:transparent;border:0;padding:0;text-align:left}
+.flipin{position:relative;width:100%;height:100%;transition:.45s;transform-style:preserve-3d}
+.flip.flipped .flipin{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--line);padding:18px;background:var(--sheet);box-shadow:0 5px 16px rgba(50,40,25,.08);display:flex;flex-direction:column;justify-content:flex-start;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable;line-height:1.55}
+.face.back{transform:rotateY(180deg);background:#f7f2e7;border-top:5px solid var(--sage)}
+.face::-webkit-scrollbar{width:10px}.face::-webkit-scrollbar-track{background:#eee8dc}.face::-webkit-scrollbar-thumb{background:#8c8a84;border-radius:8px;border:2px solid #eee8dc}.face{scrollbar-width:auto;scrollbar-color:#8c8a84 #eee8dc}.face .hint{margin-top:auto;padding-top:12px}
+.term{font-family:Georgia,serif;font-size:22px}
+.tap{font-size:11px;color:var(--rust);font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.brief{display:grid;grid-template-columns:120px 1fr;gap:25px;align-items:start}
+.big-no{font-family:Georgia,serif;font-size:86px;line-height:.8;color:var(--rust)}
+.activity{background:var(--sheet);border:1px solid var(--line);box-shadow:var(--shadow);padding:30px}
+.instruction{background:#eef0e9;border-left:4px solid var(--sage);padding:14px 16px;margin:14px 0 22px;line-height:1.45}
+.choice{display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fffdf8;padding:13px 15px;margin:8px 0;transition:.15s}
+.choice:hover{transform:translateX(3px);border-color:var(--blue)}
+.choice.selected{border:2px solid var(--blue);background:#edf5f7}
+.choice.correct{border-color:var(--ok);background:#eaf4ed}
+.choice.wrong{border-color:var(--bad);background:#f8e9e6}
+.feedback{display:none;margin-top:16px;padding:16px;border:1px solid var(--line);background:#f8f5ed;line-height:1.5}
+.feedback.show{display:block}
+.feedback strong{color:var(--rust)}
+.slotrow{display:grid;grid-template-columns:160px 1fr;gap:12px;align-items:center;padding:9px 0;border-bottom:1px dotted var(--line)}
+select{width:100%;padding:10px;border:1px solid var(--line);background:white}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.pill{border:1px solid var(--line);background:white;padding:9px 12px}
+.pill.used{opacity:.35}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bucket{min-height:150px;border:2px dashed var(--line);padding:14px;background:#faf7f0}
+.bucket h3{color:var(--rust)}
+.item{padding:10px;background:white;border:1px solid var(--line);margin:7px 0;cursor:pointer}
+.item.selected{outline:3px solid var(--ochre)}
+.metric{display:grid;grid-template-columns:140px 1fr;gap:10px;margin:9px 0;align-items:center}
+.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.step{border-top:5px solid var(--rust);background:#faf7ef;padding:12px;min-height:125px}
+.step b{font-family:Georgia,serif;font-size:24px}
+textarea{width:100%;min-height:110px;border:1px solid var(--line);padding:12px;background:#fff}
+.checkline{display:flex;gap:10px;padding:12px 0;border-bottom:1px dotted var(--line)}
+.badge{display:inline-block;padding:5px 8px;border:1px solid var(--sage);color:var(--sage);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.toast{position:fixed;right:22px;bottom:22px;background:var(--ink);color:white;padding:13px 16px;box-shadow:var(--shadow);display:none;z-index:50}
+.toast.show{display:block}
+.mobileNav{display:none}
+@media(max-width:850px){
+ .shell{grid-template-columns:1fr;padding:16px}
+ .nav{display:none}
+ .mobileNav{display:block;width:100%;padding:10px;margin-bottom:12px}
+ .topbar{flex-wrap:wrap}.brand{min-width:0}.progress{order:3;flex-basis:100%}
+ .grid2,.grid3,.board,.timeline{grid-template-columns:1fr}
+ .hero,.paper,.activity{padding:22px}
+ .brief{grid-template-columns:1fr}.big-no{font-size:56px}
+ .slotrow,.metric{grid-template-columns:1fr}
+}
+
+/* Activity viewport fix: each screen can scroll independently in embedded viewers. */
+.screen.active{
+  display:block;
+  max-height:calc(100vh - 150px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  padding-right:10px;
+  padding-bottom:28px;
+}
+.screen.active::-webkit-scrollbar{width:11px}
+.screen.active::-webkit-scrollbar-track{background:#eee8dc}
+.screen.active::-webkit-scrollbar-thumb{background:#85827c;border-radius:8px;border:2px solid #eee8dc}
+.screen.active{scrollbar-width:auto;scrollbar-color:#85827c #eee8dc}
+@media(max-width:760px){
+  .screen.active{max-height:calc(100vh - 120px);padding-right:5px}
+}
+
+
+.expert-ticket{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);line-height:1.65}
+.feedback.show{display:block!important;visibility:visible!important;opacity:1!important}
+.feedback.good{border-left:5px solid var(--ok);padding:14px;margin-top:12px}
+.feedback.bad{border-left:5px solid var(--bad);padding:14px;margin-top:12px}
+
+
+/* SOC Timing Evidence Board — drag-and-drop routing */
+.metric-bank{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.metric-evidence{border:1px solid var(--line);border-left:5px solid var(--ochre);background:#fffdf7;padding:15px;display:flex;flex-direction:column;gap:7px;cursor:grab;box-shadow:0 4px 12px rgba(50,40,25,.07)}
+.metric-evidence:active{cursor:grabbing}
+.metric-evidence.selected{outline:3px solid var(--rust);outline-offset:2px}
+.metric-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}
+.metric-lane{border:1px solid var(--line);background:#f7f2e7;padding:14px;min-height:190px}
+.lane-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
+.lane-head b{font-size:1.2rem}
+.lane-head span{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.metric-drop{min-height:105px;border:2px dashed #aaa08e;padding:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);background:rgba(255,255,255,.45)}
+.metric-drop.over{border-style:solid;outline:3px solid rgba(141,82,51,.18)}
+.metric-drop .metric-evidence{width:100%;margin:0;text-align:left}
+@media(max-width:760px){.metric-bank,.metric-board{grid-template-columns:1fr}}
+
+
+/* SSE Content Intake Desk */
+.sse-bank{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:20px 0}
+.sse-action{border:1px solid var(--line);border-left:5px solid var(--blue);background:#fffdf7;padding:13px;display:flex;flex-direction:column;gap:6px;cursor:grab;box-shadow:0 4px 11px rgba(50,40,25,.06);min-height:135px}
+.sse-action:active{cursor:grabbing}.sse-action.selected{outline:3px solid var(--rust);outline-offset:2px}
+.sse-action span:last-child{font-size:.9rem;color:var(--muted);line-height:1.4}
+.sse-routing-board{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.sse-lane{border:1px solid var(--line);background:#f7f2e7;padding:14px}
+.sse-drop{min-height:250px;border:2px dashed #aaa08e;padding:10px;display:grid;gap:9px;align-content:start;background:rgba(255,255,255,.42)}
+.sse-drop.over{border-style:solid;outline:3px solid rgba(141,82,51,.18)}
+.sse-drop .sse-action{min-height:auto;margin:0}
+.drop-placeholder{color:var(--muted);text-align:center;padding:22px 8px}
+@media(max-width:900px){.sse-bank{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.sse-bank,.sse-routing-board{grid-template-columns:1fr}}
+
+
+/* Translator Security Posture Briefing Room */
+.posture-bank{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.posture-fragment{border:1px solid var(--line);border-left:5px solid var(--sage);background:#fffdf7;padding:15px;display:flex;flex-direction:column;gap:7px;cursor:grab;box-shadow:0 4px 11px rgba(50,40,25,.06);min-height:145px}
+.posture-fragment:active{cursor:grabbing}.posture-fragment.selected{outline:3px solid var(--rust);outline-offset:2px}
+.posture-model{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0}
+.posture-zone{border:1px solid var(--line);background:#f7f2e7;padding:14px;min-height:210px}
+.posture-drop{min-height:120px;border:2px dashed #aaa08e;padding:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.42)}
+.posture-drop.over{border-style:solid;outline:3px solid rgba(141,82,51,.18)}
+.posture-drop .posture-fragment{width:100%;min-height:auto;margin:0}
+.relationship-strip{border-left:5px solid var(--ochre);background:#f2ead9;padding:14px;margin:18px 0;line-height:1.6}
+@media(max-width:700px){.posture-bank,.posture-model{grid-template-columns:1fr}}
+
+
+/* Security Posture Field Manual — completion/reconstruction */
+.manual-sheet{border:1px solid var(--line);background:#fffdf7;margin:20px 0}
+.manual-row{display:grid;grid-template-columns:60px 1fr;gap:14px;padding:18px;border-bottom:1px solid var(--line)}
+.manual-row:last-child{border-bottom:0}.manual-num{font-family:Georgia,serif;font-size:1.45rem;color:var(--rust);font-weight:bold}
+.manual-row p{line-height:1.8;margin-bottom:0}
+.posture-entry{width:180px;max-width:100%;padding:8px 10px;border:0;border-bottom:2px solid var(--rust);background:#f7f2e7;font:inherit;font-weight:bold}
+.posture-entry:focus{outline:2px solid rgba(141,82,51,.2);outline-offset:2px}
+.posture-entry.entry-good{border-bottom-color:var(--ok);background:#edf5ea}
+.posture-entry.entry-bad{border-bottom-color:var(--bad);background:#faece8}
+@media(max-width:600px){.manual-row{grid-template-columns:42px 1fr}.posture-entry{width:100%;display:block;margin:6px 0}}
+
+
+/* Security Posture Operations Brief */
+.posture-case{border:1px solid var(--line);background:#fffdf7;padding:18px;margin:18px 0;box-shadow:0 4px 12px rgba(50,40,25,.05)}
+.case-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.posture-case>p{line-height:1.65}
+.posture-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.posture-choices label{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--line);padding:12px;background:#f8f3e8;cursor:pointer;min-height:88px}
+.posture-choices label:has(input:checked){outline:2px solid var(--rust);background:#fffaf0}
+.posture-choices small{display:block;color:var(--muted);line-height:1.35;margin-top:3px}
+@media(max-width:700px){.posture-choices{grid-template-columns:1fr}}
+
+/* SOC Disposition Review */
+.disposition-case{border:1px solid var(--line);background:#fffdf7;padding:18px;margin:18px 0;box-shadow:0 4px 12px rgba(50,40,25,.05)}
+.evidence-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.evidence-pair>div{border-left:4px solid var(--sage);background:#f5f0e5;padding:12px}
+.evidence-pair small{font-weight:bold;letter-spacing:.08em;color:var(--muted)}.evidence-pair p{margin:5px 0 0;line-height:1.5}
+.disp-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}.disp-choice button{border:1px solid var(--line);background:#f8f3e8;padding:12px;font:inherit;font-weight:bold;cursor:pointer}
+.disp-choice button.selected{outline:2px solid var(--rust);background:#fff6e8}@media(max-width:700px){.evidence-pair,.disp-choice{grid-template-columns:1fr}}
+
+
+/* SSE Use-Case Review Board */
+.detect-record{border:1px solid var(--line);background:#fffdf7;padding:18px;margin:18px 0;box-shadow:0 4px 12px rgba(50,40,25,.05)}
+.record-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.record-snapshot{border-left:5px solid var(--blue);background:#f1f2ed;padding:13px;display:grid;gap:5px;line-height:1.5}
+.record-snapshot b{font-size:.76rem;letter-spacing:.08em;color:var(--muted)}
+.analyst-note{margin:14px 0 9px}
+.detect-options{display:grid;gap:9px}
+.detect-options button{border:1px solid var(--line);background:#f8f3e8;padding:12px 14px;text-align:left;font:inherit;line-height:1.45;cursor:pointer}
+.detect-options button.selected{outline:2px solid var(--rust);background:#fff6e8}
+
+
+/* SSE Content Discovery Console */
+.artifact{border:1px solid var(--line);border-left:6px solid var(--ochre);background:#fffaf0;padding:16px;margin:18px 0}
+.filter-stage{display:grid;grid-template-columns:58px 1fr;gap:14px;border:1px solid var(--line);background:#fffdf7;padding:16px;margin:13px 0}
+.stage-num{font:700 1.35rem Georgia,serif;color:var(--rust)}
+.stage-body>p{line-height:1.55}.filter-options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.filter-options button{border:1px solid var(--line);background:#f6f0e5;padding:11px;font:inherit;font-weight:bold;cursor:pointer}
+.filter-options button.selected{outline:2px solid var(--rust);background:#fff6e8}
+@media(max-width:700px){.filter-stage{grid-template-columns:42px 1fr}.filter-options{grid-template-columns:1fr}}
+
+
+/* Analyst Search Canvas — Complete + Reconstruct */
+.search-canvas{border:1px solid var(--line);background:#fffdf7;margin:18px 0}
+.canvas-row{display:grid;grid-template-columns:52px 1fr;gap:14px;padding:17px;border-bottom:1px solid var(--line)}
+.canvas-row:last-child{border-bottom:0}.canvas-code{font:700 1.35rem Georgia,serif;color:var(--rust)}
+.canvas-row p{line-height:1.55}.filter-entry{width:220px;max-width:100%;padding:8px 10px;border:0;border-bottom:2px solid var(--rust);background:#f6f0e5;font:inherit;font-weight:bold}
+.filter-entry.entry-good{border-bottom-color:var(--ok);background:#edf5ea}.filter-entry.entry-bad{border-bottom-color:var(--bad);background:#faece8}
+@media(max-width:600px){.canvas-row{grid-template-columns:38px 1fr}.filter-entry{width:100%;display:block;margin-top:5px}}
+
+
+/* Content Narrowing Route — realistic request workbench */
+.route-case{border:1px solid var(--line);background:#fffdf7;padding:18px;margin:18px 0;box-shadow:0 4px 12px rgba(50,40,25,.05)}
+.route-case>p{line-height:1.6}.route-options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
+.route-options button{border:1px solid var(--line);background:#f7f1e6;padding:12px;font:inherit;font-weight:bold;cursor:pointer;min-height:48px}
+.route-options button.selected{outline:2px solid var(--rust);background:#fff6e8}
+@media(max-width:650px){.route-options{grid-template-columns:1fr}}
+
+
+/* Continuous Monitoring Relay */
+.cycle-relay{margin:18px 0}.relay-stage{border:1px solid var(--line);background:#fffdf7;padding:17px;margin:14px 0;box-shadow:0 4px 12px rgba(50,40,25,.05)}
+.relay-head{display:flex;align-items:center;gap:13px;margin-bottom:13px}.relay-head small{display:block;color:var(--muted);margin-top:3px}
+.relay-num{display:grid;place-items:center;width:44px;height:44px;border:2px solid var(--rust);font:700 1rem Georgia,serif;color:var(--rust)}
+.relay-options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.relay-options button{border:1px solid var(--line);background:#f7f1e6;padding:12px;text-align:left;font:inherit;line-height:1.4;cursor:pointer}
+.relay-options button.selected{outline:2px solid var(--rust);background:#fff6e8}
+@media(max-width:760px){.relay-options{grid-template-columns:1fr}}
+
+
+/* Detection Context Dossier — Annotate + Complete */
+.dossier{border:1px solid var(--line);background:#fffdf7;margin:18px 0}
+.dossier-head{display:flex;justify-content:space-between;gap:14px;padding:14px 16px;background:#ece7db;border-bottom:1px solid var(--line);font-size:.84rem;letter-spacing:.04em}
+.annotation-case{padding:18px;border-bottom:1px solid var(--line)}.annotation-case:last-child{border-bottom:0}
+.annotation-tag{font-size:.76rem;font-weight:bold;letter-spacing:.08em;color:var(--rust);margin-bottom:9px}
+.evidence-strip{display:grid;grid-template-columns:130px 1fr;gap:12px;border-left:5px solid var(--blue);background:#f1f2ed;padding:12px;line-height:1.5}
+.evidence-strip b{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.annotation-case p{line-height:1.55}.annotation-entry{width:320px;max-width:100%;padding:9px 10px;border:0;border-bottom:2px solid var(--rust);background:#f7f1e6;font:inherit;font-weight:bold}
+.annotation-entry.entry-good{border-bottom-color:var(--ok);background:#edf5ea}.annotation-entry.entry-bad{border-bottom-color:var(--bad);background:#faece8}
+@media(max-width:650px){.dossier-head{display:block}.dossier-head span{display:block;margin-top:5px}.evidence-strip{grid-template-columns:1fr}.annotation-entry{width:100%;display:block;margin-top:5px}}
+
+</style>
+</head>
+<body><div class="app">
+<header class="top"><div class="topbar">
+ <div class="brand"><div class="mark"></div><div><b>Asterion Security Atlas</b><small>Complete-source defense readiness field study</small></div></div>
+ <div class="progress"><i id="bar"></i></div><div class="pct" id="pct">0%</div>
+</div></header>
+<div class="shell">
+<aside class="nav" id="nav"></aside>
+<main class="main">
+<select class="mobileNav" id="mobileNav" aria-label="Navigate learning application"></select>
+
+<section class="screen active" data-title="Welcome">
+<div class="hero">
+<div class="kicker">Welcome · Field Orientation</div>
+<h1>Read the security environment before you enter it.</h1>
+<p class="lead">You are joining <b>Asterion Civic Systems</b>, a fictional organization that supports digital services for several regional public-service partners. Before your instructor-led SOC session, your task is to build a dependable mental map of security operations and the Splunk Security Essentials content that supports analysts.</p>
+<div class="note"><b>Your role:</b> Security Operations Associate in orientation. This is prework—not a live incident. You will recognize, recall, compare, organize, and explain concepts. You will not troubleshoot or make operational response decisions yet.</div>
+<div class="meta"><div><b>Learning path</b>Reporter → Translator</div><div><b>Estimated time</b>45-minute guided core + complete-source reference</div><div><b>Coverage</b>Entire lesson · two sources</div></div>
+<div class="source-note">Source foundation: <i>Security Operations and the Defense Analyst</i> + <i>Introduction to Splunk Security Essentials</i>.</div>
+</div>
+<div class="actions"><span></span><button class="btn rust next">Begin orientation →</button></div>
+</section>
+
+<section class="screen" data-title="Learning Objectives">
+<div class="paper"><div class="kicker">02 · Learning Objectives</div><h2>What you should understand before class</h2>
+<p class="lead">By the end of this prework, you should be able to accurately describe the core structure of a SOC and explain how Splunk Security Essentials organizes security content for analysts.</p>
+<div class="grid2">
+<div class="objective"><span>OBJECTIVE 01</span><h3>Security operations</h3><p>Describe security posture, continuous monitoring, and the relationship among people, processes, policies, and technologies.</p></div>
+<div class="objective"><span>OBJECTIVE 02</span><h3>SOC roles and analyst work</h3><p>Recognize common SOC roles, defense technologies, alert triage, threat hunting, and incident-response concepts.</p></div>
+<div class="objective"><span>OBJECTIVE 03</span><h3>Operational measures</h3><p>Distinguish KPI, SLO, SLA and explain the meaning of MTTD, MTTR, MTTA, dwell time, event volume, and escalation quality.</p></div>
+<div class="objective"><span>OBJECTIVE 04</span><h3>Splunk Security Essentials</h3><p>Explain the Security Data Journey, Security Content, use-case details, data availability, framework mappings, and Analytic Stories.</p></div>
+</div></div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn rust next">Build vocabulary →</button></div>
+</section>
+
+<section class="screen" data-title="Essential Vocabulary">
+<div class="paper"><div class="kicker">03 · Essential Vocabulary</div><h2>Recognition deck</h2>
+<p class="lead">Read the term first. Before flipping, silently recall what it means. Then flip the card to compare your memory with the source-aligned explanation.</p>
+<div class="note"><span id="vocabCount">0</span> of 27 cards reviewed. Vocabulary exploration is not scored.</div>
+<div class="cards" id="vocabCards"></div></div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn rust next">Enter Reporter →</button></div>
+</section>
+
+
+<section class="screen" data-title="Reporter Phase Brief">
+<div class="paper brief"><div class="big-no">R</div><div><div class="kicker">04 · Reporter Phase Brief</div><h2>Remember accurately before interpreting.</h2>
+<p class="lead">The Reporter phase strengthens accurate retrieval from both lessons. Your job is to recognize terminology, role boundaries, technologies, workflow steps, metric meanings, SSE fields, and source-defined examples before explaining how they relate.</p><div class="note"><b>Reporter scope:</b> Work at Bloom’s <b>Remember</b> level. Retrieve what the sources say; do not diagnose incidents, choose production detections, or judge organizational performance. This creates the factual foundation Translator will use.</div>
+<div class="grid2"><div><h3>What to notice</h3><p>Names, purposes, role boundaries, metric meanings, and the order of recurring workflows.</p></div><div><h3>What success looks like</h3><p>You can retrieve foundational facts reliably enough to use them in the Translator phase.</p></div></div>
+<div class="note"><b>Memory cue:</b> SOC work is not only a tool. Think <b>people + processes + policies + technologies</b> operating through continuous monitoring.</div></div></div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn rust next">Reporter activity 1 →</button></div>
+</section>
+
+
+<section class="screen" data-title="Reporter · SOC Role Registry">
+<div class="activity">
+<div class="kicker">04 · Reporter // SOC Role Registry</div>
+<h2>Shift Handoff: Route the Work</h2>
+<p class="lead">You are beginning a shift inside the Asterion Civic Systems SOC. Five work items arrived during handoff. Your job is to route each item to the role whose <b>primary responsibility in the course</b> best matches the work.</p>
+<div class="instruction"><b>Your task:</b> Read the evidence in each handoff ticket before assigning an owner. Several roles could collaborate, so choose the role that should <b>own the stated responsibility</b>, not simply someone who might be involved. Complete all five tickets, then select <b>Review handoff</b>. Incorrect tickets remain open for another attempt. Once every ticket is correctly routed, the analyst debrief explains why the correct role fits and why each competing role does not.</div>
+<div class="note"><b>Reporter boundary:</b> You are recalling source-defined role responsibilities. You are not deciding how to remediate the incident or redesign the SOC.</div>
+
+<div class="case" style="margin-top:20px">
+<div class="kicker">HANDOFF TICKET 01 · NOTABLE EVENT</div>
+<h3>Suspicious privileged sign-in</h3>
+<p>A privileged account authenticated from an unfamiliar source shortly after a maintenance window. The event has not yet been validated. The assigned owner must establish what occurred, gather supporting context, use the documented investigation path, and record the event disposition for the shift handoff.</p>
+<label><b>Assign primary owner</b>
+<select id="roleTicket1">
+<option value="">Select a role…</option><option>Architect</option><option>SOC Manager</option><option>Defense Analyst</option><option>Engineer</option><option>CISO</option></select></label><div class="feedback" id="roleTicket1Fb"></div>
+</div>
+
+<div class="case">
+<div class="kicker">HANDOFF TICKET 02 · DETECTION QUALITY</div>
+<h3>Noisy authentication detection</h3>
+<p>An authentication detection has produced a noticeable increase in low-value alerts during the last two shifts. The current platform remains in place. The assigned owner must examine how the detection is behaving, review the intelligence feeding the detection, test changes, and reduce unnecessary noise without changing the underlying security platform.</p>
+<label><b>Assign primary owner</b>
+<select id="roleTicket2">
+<option value="">Select a role…</option><option>Defense Analyst</option><option>Architect</option><option>SOC Manager</option><option>Engineer</option><option>CISO</option></select></label><div class="feedback" id="roleTicket2Fb"></div>
+</div>
+
+<div class="case">
+<div class="kicker">HANDOFF TICKET 03 · PLATFORM DESIGN</div>
+<h3>New security data capability</h3>
+<p>Leadership approved expansion of the SOC's security capabilities. Several technology options can meet the requirement, but the new capability must fit the existing environment. The assigned owner must determine how the solution should be introduced and coordinate the information Splunk will need from administrators.</p>
+<label><b>Assign primary owner</b>
+<select id="roleTicket3">
+<option value="">Select a role…</option><option>Engineer</option><option>Architect</option><option>CISO</option><option>Defense Analyst</option><option>SOC Manager</option></select></label><div class="feedback" id="roleTicket3Fb"></div>
+</div>
+
+<div class="case">
+<div class="kicker">HANDOFF TICKET 04 · SHIFT OPERATIONS</div>
+<h3>Analyst support and workflow coordination</h3>
+<p>Two analysts need assistance prioritizing their queues, a handoff procedure is being applied inconsistently, and the evening shift needs coordinated direction before turnover. The assigned owner must keep the team aligned and maintain continuity of daily SOC operations.</p>
+<label><b>Assign primary owner</b>
+<select id="roleTicket4">
+<option value="">Select a role…</option><option>Architect</option><option>CISO</option><option>Engineer</option><option>Defense Analyst</option><option>SOC Manager</option></select></label><div class="feedback" id="roleTicket4Fb"></div>
+</div>
+
+<div class="case">
+<div class="kicker">HANDOFF TICKET 05 · EXECUTIVE RESPONSIBILITY</div>
+<h3>Security investment decision</h3>
+<p>The SOC is requesting a significant investment that affects next year's security budget. Business leadership wants a security representative to explain the organizational need, address executive questions, and make the final security-side budget decision.</p>
+<label><b>Assign primary owner</b>
+<select id="roleTicket5">
+<option value="">Select a role…</option><option>SOC Manager</option><option>CISO</option><option>Architect</option><option>Engineer</option><option>Defense Analyst</option></select></label><div class="feedback" id="roleTicket5Fb"></div>
+</div>
+
+<div style="position:sticky;bottom:0;padding:14px 0 8px;background:linear-gradient(transparent,var(--sheet) 24%)"><button class="btn rust" id="reviewRoleHandoff" type="button">Review handoff</button></div>
+<div class="feedback" id="roleHandoffSummary"></div>
+</div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Continue →</button></div>
+</section>
+
+
+<section class="screen" data-title="Reporter · Triage Recall Strip">
+<div class="activity">
+<div class="kicker">05 · Reporter // Triage Recall Strip</div>
+<h2>Incident Intake Timeline: Reconstruct the Analyst Handoff</h2>
+<p class="lead">Asterion Civic Systems received a suspicious authentication alert involving a privileged account. The overnight analyst left five incomplete investigation checkpoints. Reconstruct the source-defined alert-triage workflow so the incoming analyst can understand what must be established before the case moves forward.</p>
+
+<div class="instruction"><b>Your task:</b> Work through the five checkpoints in order. At each checkpoint, read the evidence already available and choose the <b>investigation question that belongs at that point in the workflow</b>. The choices are intentionally similar because a real investigation may eventually ask all of them. Focus on what the analyst needs to establish <i>next</i>. Select <b>Review investigation sequence</b> when all five checkpoints are filled.</div>
+
+<div class="note"><b>Reporter boundary:</b> This activity asks you to recall and recognize the five source-defined alert-triage questions and their sequence. You are not diagnosing the incident or selecting remediation actions.</div>
+
+<div class="case" style="margin-top:20px">
+<div class="kicker">CHECKPOINT 01 · VALIDATION</div>
+<h3>The alert has fired, but its meaning is not yet established.</h3>
+<p>The SOC has a privileged-authentication alert and basic event details. Before treating the event as a confirmed security incident, the analyst needs to establish the first decision point in the triage workflow.</p>
+<label><b>Which investigation question comes next?</b>
+<select id="triageTicket1">
+<option value="">Choose the next question…</option>
+<option>What happened during the incident?</option>
+<option>Was this an actual incident?</option>
+<option>Were other assets affected?</option>
+<option>How should security operations respond?</option>
+<option>Did the incident cause damage?</option>
+</select></label><div class="feedback" id="triageTicket1Fb"></div>
+</div>
+
+<div class="case">
+<div class="kicker">CHECKPOINT 02 · EFFECT</div>
+<h3>The event has now been validated as an incident.</h3>
+<p>The analyst has enough evidence to confirm that the activity was not simply benign account behavior. The next checkpoint determines whether the confirmed activity achieved an effect.</p>
+<label><b>Which investigation question comes next?</b>
+<select id="triageTicket2">
+<option value="">Choose the next question…</option>
+<option>Were other assets affected?</option>
+<option>What happened during the incident?</option>
+<option>How should security operations respond?</option>
+<option>Did the incident cause damage?</option>
+<option>Was this an actual incident?</option>
+</select></label><div class="feedback" id="triageTicket2Fb"></div>
+</div>
+
+<div class="case">
+<div class="kicker">CHECKPOINT 03 · RECONSTRUCTION</div>
+<h3>The incident is confirmed and its immediate effect has been considered.</h3>
+<p>The handoff still lacks a clear account of the activity itself. The incoming analyst needs the checkpoint that establishes the sequence and nature of what occurred.</p>
+<label><b>Which investigation question comes next?</b>
+<select id="triageTicket3">
+<option value="">Choose the next question…</option>
+<option>How should security operations respond?</option>
+<option>Did the incident cause damage?</option>
+<option>What happened during the incident?</option>
+<option>Was this an actual incident?</option>
+<option>Were other assets affected?</option>
+</select></label><div class="feedback" id="triageTicket3Fb"></div>
+</div>
+
+<div class="case">
+<div class="kicker">CHECKPOINT 04 · SCOPE</div>
+<h3>The analyst now understands what happened on the initially identified system.</h3>
+<p>The investigation cannot assume the activity remained isolated. The next checkpoint establishes whether the incident extends beyond the first observed asset.</p>
+<label><b>Which investigation question comes next?</b>
+<select id="triageTicket4">
+<option value="">Choose the next question…</option>
+<option>Was this an actual incident?</option>
+<option>How should security operations respond?</option>
+<option>Did the incident cause damage?</option>
+<option>What happened during the incident?</option>
+<option>Were other assets affected?</option>
+</select></label><div class="feedback" id="triageTicket4Fb"></div>
+</div>
+
+<div class="case">
+<div class="kicker">CHECKPOINT 05 · RESPONSE</div>
+<h3>Validation, effect, reconstruction, and scope are now documented.</h3>
+<p>The investigation record contains the information needed to reach the final question in the source-defined triage workflow.</p>
+<label><b>Which investigation question completes the sequence?</b>
+<select id="triageTicket5">
+<option value="">Choose the final question…</option>
+<option>Did the incident cause damage?</option>
+<option>Were other assets affected?</option>
+<option>Was this an actual incident?</option>
+<option>How should security operations respond?</option>
+<option>What happened during the incident?</option>
+</select></label><div class="feedback" id="triageTicket5Fb"></div>
+</div>
+
+<div style="position:sticky;bottom:0;padding:14px 0 8px;background:linear-gradient(transparent,var(--sheet) 24%)">
+<button class="btn rust" id="reviewTriageSequence" type="button">Review investigation sequence</button>
+</div>
+<div class="feedback" id="triageSequenceSummary"></div>
+</div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Continue →</button></div>
+</section>
+
+
+
+<section class="screen" data-title="Reporter · SOC Timing Evidence Board">
+<div class="activity">
+<div class="kicker">06 · Reporter // SOC Timing Evidence Board</div>
+<h2>Incident Clock Lab: Route the Evidence</h2>
+<p class="lead">The incident timeline has been reconstructed, but four timing evidence cards were detached from their metric records. Instead of choosing from a list, you will physically route each evidence card to the correct SOC timing lane.</p>
+
+<div class="instruction"><b>Your task:</b> Drag each evidence card into the metric lane that describes the interval. Each lane accepts one card. Focus on the <b>start and end of the clock</b>, not just familiar words. You can move a card again before reviewing. When all four cards are placed, select <b>Validate evidence routing</b>.</div>
+
+<div class="note"><b>Reporter boundary:</b> You are recognizing the source-defined meanings of MTTD, MTTR, MTTA, and dwell time from incident evidence. You are not judging whether the measured times are good or bad.</div>
+
+<div id="metricCardBank" class="metric-bank">
+  <div class="metric-evidence" draggable="true" tabindex="0" data-card="detect">
+    <span class="badge">Evidence A</span>
+    <b>Threat activity → SOC detection</b>
+    <span>Suspicious activity begins at 01:18. The SOC detects the threat at 01:41.</span>
+  </div>
+  <div class="metric-evidence" draggable="true" tabindex="0" data-card="control">
+    <span class="badge">Evidence B</span>
+    <b>Incident handling → control established</b>
+    <span>The case records the interval ending when security operations takes control of the incident.</span>
+  </div>
+  <div class="metric-evidence" draggable="true" tabindex="0" data-card="hidden">
+    <span class="badge">Evidence C</span>
+    <b>Threat present → no detection yet</b>
+    <span>Investigators determine how long the threat remained inside the environment without being detected.</span>
+  </div>
+  <div class="metric-evidence" draggable="true" tabindex="0" data-card="ack">
+    <span class="badge">Evidence D</span>
+    <b>Alert issued → incident recognized</b>
+    <span>An alert is issued at 14:06; the record captures when the incident is recognized afterward.</span>
+  </div>
+</div>
+
+<div class="metric-board" id="metricDropBoard">
+  <div class="metric-lane" data-metric="MTTA"><div class="lane-head"><b>MTTA</b><span>Timing Lane 01</span></div><div class="metric-drop" data-metric="MTTA">Drop one evidence card here</div><div class="feedback" id="metricFbMTTA"></div></div>
+  <div class="metric-lane" data-metric="Dwell time"><div class="lane-head"><b>Dwell time</b><span>Timing Lane 02</span></div><div class="metric-drop" data-metric="Dwell time">Drop one evidence card here</div><div class="feedback" id="metricFbDwell"></div></div>
+  <div class="metric-lane" data-metric="MTTR"><div class="lane-head"><b>MTTR</b><span>Timing Lane 03</span></div><div class="metric-drop" data-metric="MTTR">Drop one evidence card here</div><div class="feedback" id="metricFbMTTR"></div></div>
+  <div class="metric-lane" data-metric="MTTD"><div class="lane-head"><b>MTTD</b><span>Timing Lane 04</span></div><div class="metric-drop" data-metric="MTTD">Drop one evidence card here</div><div class="feedback" id="metricFbMTTD"></div></div>
+</div>
+
+<p class="small"><b>Keyboard option:</b> Select an evidence card with Enter or Space, then select a timing lane with Enter or Space to place it. This is still a routing interaction—there are no answer-choice menus.</p>
+
+<div style="position:sticky;bottom:0;padding:14px 0 8px;background:linear-gradient(transparent,var(--sheet) 24%)">
+<button class="btn rust" id="reviewMetricBoard" type="button">Validate evidence routing</button>
+<button class="btn secondary" id="resetMetricBoard" type="button">Reset board</button>
+</div>
+<div class="feedback" id="metricBoardSummary"></div>
+</div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Continue →</button></div>
+</section>
+
+
+<section class="screen" data-title="Reporter · SSE Content Ledger">
+<div class="activity">
+<div class="kicker">07 · Reporter // SSE Content Operations</div>
+<h2>Security Content Intake Desk: Build the Analyst Workspace</h2>
+<p class="lead">Asterion's SOC is preparing to use Splunk Security Essentials (SSE) to investigate available security content. A handoff packet contains actions from several analysts, but some actions accurately reflect SSE capabilities while others overstate what SSE can guarantee. Build the workspace using only source-supported actions.</p>
+
+<div class="instruction"><b>Your task:</b> Drag each action card into either <b>Use in the SSE Workspace</b> or <b>Hold for Environment Validation</b>. The second lane does not mean an idea is useless—it means the statement goes beyond what SSE itself can guarantee and requires organizational validation. Several cards are intentionally close in wording. Read the entire action, not just the first phrase. When all cards are routed, select <b>Review content intake</b>.</div>
+
+<div class="note"><b>Reporter boundary:</b> You are recognizing what the course says SSE allows learners to find, filter, bookmark, inspect, and browse, while remembering that a proper gap assessment is still required. You are not choosing which detection Asterion should deploy.</div>
+
+<div id="sseCardBank" class="sse-bank">
+<div class="sse-action" draggable="true" tabindex="0" data-card="journey"><span class="badge">Action 01</span><b>Narrow content by Journey stage</b><span>Use maturity-stage filtering to focus the security-content library.</span></div>
+<div class="sse-action" draggable="true" tabindex="0" data-card="category"><span class="badge">Action 02</span><b>Narrow content by category</b><span>Use category as one dimension for reducing the content set.</span></div>
+<div class="sse-action" draggable="true" tabindex="0" data-card="datasource"><span class="badge">Action 03</span><b>Narrow content by data source</b><span>Use available data-source filtering to focus relevant content.</span></div>
+<div class="sse-action" draggable="true" tabindex="0" data-card="bookmark"><span class="badge">Action 04</span><b>Track selected content with bookmarks</b><span>Keep content organized for later management and implementation work.</span></div>
+<div class="sse-action" draggable="true" tabindex="0" data-card="prereq"><span class="badge">Action 05</span><b>Inspect prerequisites and data sources</b><span>Review what a detection expects before treating it as usable.</span></div>
+<div class="sse-action" draggable="true" tabindex="0" data-card="search"><span class="badge">Action 06</span><b>Review the search behind a detection</b><span>Examine the SPL/search logic associated with the detection.</span></div>
+<div class="sse-action" draggable="true" tabindex="0" data-card="mitre"><span class="badge">Action 07</span><b>Browse MITRE ATT&amp;CK-driven content</b><span>Use framework-oriented browsing to explore related security content.</span></div>
+<div class="sse-action" draggable="true" tabindex="0" data-card="ransom"><span class="badge">Action 08</span><b>Browse ransomware and RBA content</b><span>Explore the ransomware and Risk-Based Alerting content views.</span></div>
+<div class="sse-action" draggable="true" tabindex="0" data-card="stories"><span class="badge">Action 09</span><b>Examine Analytic Stories</b><span>Use grouped security context around related detections and guidance.</span></div>
+<div class="sse-action" draggable="true" tabindex="0" data-card="guarantee"><span class="badge">Action 10</span><b>Assume a recommended detection fits</b><span>Treat recommendation alone as proof the detection suits this environment.</span></div>
+<div class="sse-action" draggable="true" tabindex="0" data-card="nogap"><span class="badge">Action 11</span><b>Skip the local gap assessment</b><span>Use SSE recommendations in place of checking required organizational data.</span></div>
+<div class="sse-action" draggable="true" tabindex="0" data-card="ready"><span class="badge">Action 12</span><b>Mark every use case deployment-ready</b><span>Treat library availability as proof that local prerequisites are satisfied.</span></div>
+</div>
+
+<div class="sse-routing-board">
+<div class="sse-lane">
+<div class="lane-head"><b>Use in the SSE Workspace</b><span>Source-supported capability</span></div>
+<div class="sse-drop" tabindex="0" data-lane="supported"><span class="drop-placeholder">Route supported SSE actions here</span></div>
+<div class="feedback" id="sseSupportedFb"></div>
+</div>
+<div class="sse-lane">
+<div class="lane-head"><b>Hold for Environment Validation</b><span>Requires local verification</span></div>
+<div class="sse-drop" tabindex="0" data-lane="validate"><span class="drop-placeholder">Route overstatements here</span></div>
+<div class="feedback" id="sseValidateFb"></div>
+</div>
+</div>
+
+<p class="small"><b>Keyboard option:</b> Select a card with Enter or Space, then select a destination lane with Enter or Space. No multiple-choice or dropdown selection is required.</p>
+<div style="position:sticky;bottom:0;padding:14px 0 8px;background:linear-gradient(transparent,var(--sheet) 24%)">
+<button class="btn rust" id="reviewSSEIntake" type="button">Review content intake</button>
+<button class="btn secondary" id="resetSSEIntake" type="button">Reset workspace</button>
+</div>
+<div class="feedback" id="sseIntakeSummary"></div>
+</div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Continue →</button></div>
+</section>
+
+<section class="screen" data-title="Translator Phase Brief">
+<div class="paper brief"><div class="big-no">T</div><div><div class="kicker">06 · Translator Phase Brief</div><h2>Move from labels to meaning.</h2>
+<p class="lead">Translator uses Reporter facts to build meaning. You will explain relationships among security posture, SOC operations, triage, hunting, measurement, SSE maturity, security content, data requirements, use-case fields, and framework context.</p><div class="note"><b>Translator scope:</b> Work at Bloom’s <b>Understand</b> level. Explain why distinctions matter and how concepts connect, but stop short of troubleshooting a live environment, evaluating production strategies, or designing a response.</div>
+<div class="note"><b>Translator boundary:</b> You are interpreting supplied information—not diagnosing a new incident or designing a production detection.</div>
+<div class="grid2"><div><h3>Ask yourself</h3><p>“What does this tell me?” “How are these ideas connected?” “Why is this distinction important?”</p></div><div><h3>Carry forward</h3><p>Use Reporter facts as building blocks rather than isolated definitions.</p></div></div></div></div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn rust next">Translator activity 1 →</button></div>
+</section>
+
+
+
+
+<section class="screen" data-title="Translator · Security Posture Map">
+<div class="activity">
+<div class="kicker">08 · Translator // Security Posture Map</div>
+<h2>Security Posture Operations Brief: Explain What Is Actually Missing</h2>
+<p class="lead">Asterion Civic Systems is preparing a leadership briefing after four security-operation concerns were raised during a readiness review. Each concern touches several parts of the security program, so the answer cannot be found by spotting a single keyword. Your job is to identify the <b>primary security-posture element being described</b> and explain the relationship behind it.</p>
+
+<div class="instruction"><b>Your task:</b> Work through the four briefing cases one at a time. Read the evidence, then identify whether the primary element is <b>People, Policies, Processes, or Technologies</b>. The alternatives are intentionally similar in length and use plausible security reasoning. After selecting <b>Review briefing</b>, incorrect decisions must be reconsidered before the activity can be completed. Once every case is correct, the full expert debrief explains why each answer is correct and why every competing answer is not the best fit.</div>
+
+<div class="note"><b>Translator boundary:</b> You are explaining how the four source-defined elements contribute to security posture. You are not evaluating Asterion's real security posture or designing a new security program.</div>
+
+<div class="posture-case" data-case="1">
+<div class="case-head"><span class="badge">Briefing Case 01</span><b>Consistent direction, inconsistent execution</b></div>
+<p>Asterion already has an approved security guideline for handling suspicious events, and the SOC has the required monitoring tools. During shift review, analysts describe different step sequences for handling the same type of alert, creating inconsistent handoffs.</p>
+<div class="choice-grid posture-choices">
+<label><input type="radio" name="posture1" value="Technologies"> <span><b>Technologies</b><small>The supporting capability used during security work.</small></span></label>
+<label><input type="radio" name="posture1" value="Processes"> <span><b>Processes</b><small>The repeatable rules or steps used to complete work.</small></span></label>
+<label><input type="radio" name="posture1" value="People"> <span><b>People</b><small>The individuals who define, manage, and perform security work.</small></span></label>
+<label><input type="radio" name="posture1" value="Policies"> <span><b>Policies</b><small>The organizational guidelines that establish security direction.</small></span></label>
+</div><div class="feedback" id="postureCase1Fb"></div>
+</div>
+
+<div class="posture-case" data-case="2">
+<div class="case-head"><span class="badge">Briefing Case 02</span><b>Capability exists, direction is unclear</b></div>
+<p>The organization has trained staff, documented operating steps, and security tools. However, teams disagree about the organizational expectations that should govern protection of sensitive assets and data.</p>
+<div class="choice-grid posture-choices">
+<label><input type="radio" name="posture2" value="People"> <span><b>People</b><small>The individuals who define, manage, and perform security work.</small></span></label>
+<label><input type="radio" name="posture2" value="Technologies"> <span><b>Technologies</b><small>The supporting capability used during security work.</small></span></label>
+<label><input type="radio" name="posture2" value="Policies"> <span><b>Policies</b><small>The organizational guidelines that establish security direction.</small></span></label>
+<label><input type="radio" name="posture2" value="Processes"> <span><b>Processes</b><small>The repeatable rules or steps used to complete work.</small></span></label>
+</div><div class="feedback" id="postureCase2Fb"></div>
+</div>
+
+<div class="posture-case" data-case="3">
+<div class="case-head"><span class="badge">Briefing Case 03</span><b>Direction and workflow exist, capability does not</b></div>
+<p>Asterion has established security guidance, assigned staff, and documented operating steps. The team cannot perform the required monitoring because the necessary hardware and software capability is not available.</p>
+<div class="choice-grid posture-choices">
+<label><input type="radio" name="posture3" value="Processes"> <span><b>Processes</b><small>The repeatable rules or steps used to complete work.</small></span></label>
+<label><input type="radio" name="posture3" value="Policies"> <span><b>Policies</b><small>The organizational guidelines that establish security direction.</small></span></label>
+<label><input type="radio" name="posture3" value="People"> <span><b>People</b><small>The individuals who define, manage, and perform security work.</small></span></label>
+<label><input type="radio" name="posture3" value="Technologies"> <span><b>Technologies</b><small>The supporting capability used during security work.</small></span></label>
+</div><div class="feedback" id="postureCase3Fb"></div>
+</div>
+
+<div class="posture-case" data-case="4">
+<div class="case-head"><span class="badge">Briefing Case 04</span><b>Everything is documented, ownership is missing</b></div>
+<p>Security guidelines, operating steps, and supporting tools are available. The remaining problem is that no assigned staff member is consistently carrying out, managing, and coordinating the security work.</p>
+<div class="choice-grid posture-choices">
+<label><input type="radio" name="posture4" value="Policies"> <span><b>Policies</b><small>The organizational guidelines that establish security direction.</small></span></label>
+<label><input type="radio" name="posture4" value="People"> <span><b>People</b><small>The individuals who define, manage, and perform security work.</small></span></label>
+<label><input type="radio" name="posture4" value="Technologies"> <span><b>Technologies</b><small>The supporting capability used during security work.</small></span></label>
+<label><input type="radio" name="posture4" value="Processes"> <span><b>Processes</b><small>The repeatable rules or steps used to complete work.</small></span></label>
+</div><div class="feedback" id="postureCase4Fb"></div>
+</div>
+
+<div style="position:sticky;bottom:0;padding:14px 0 8px;background:linear-gradient(transparent,var(--sheet) 24%)">
+<button class="btn rust" id="reviewPostureBrief" type="button">Review briefing</button>
+</div>
+<div class="feedback" id="postureSummary"></div>
+</div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Continue →</button></div>
+</section>
+
+<section class="screen" data-title="Translator · Disposition Desk">
+<div class="activity">
+<div class="kicker">09 · Translator // Disposition Desk</div><h2>SOC Disposition Review: Close the Shift Handoff</h2>
+<p class="lead">Asterion's evening SOC shift inherited six alerts that have already been investigated. Review the <b>alert signal</b> together with the <b>investigation finding</b> and record the disposition that best explains what the investigation established.</p>
+<div class="instruction"><b>What to do:</b> Use <b>True Positive</b> when the investigation confirms malicious activity or a security incident. Use <b>False Positive</b> when acceptable or non-threatening behavior explains the alert. Do not classify from the alert name alone. The button order changes across cases so position cannot reveal the answer. Incorrect cases must be reconsidered before completion.</div>
+<div class="note"><b>Analyst lens:</b> Similar alert signals can lead to different dispositions. The source examples show authentication errors caused by password cracking and authentication errors caused by user error. Context—not the alert label—determines the disposition.</div>
+<div id="dispositionCases">
+<div class="disposition-case"><div class="case-head"><span class="badge">Case 01 · Endpoint</span><b>Antivirus detection cluster</b></div>
+<div class="evidence-pair"><div><small>ALERT SIGNAL</small><p>Antivirus monitoring reports detections across a pool of hosts.</p></div><div><small>INVESTIGATION FINDING</small><p>Review identifies the hosts as infected rather than showing acceptable activity.</p></div></div>
+<div class="disp-choice"><button type="button" data-case="0" data-value="False Positive">False Positive</button><button type="button" data-case="0" data-value="True Positive">True Positive</button></div><div class="feedback" id="dispCase0Fb"></div></div>
+<div class="disposition-case"><div class="case-head"><span class="badge">Case 02 · Identity</span><b>Authentication error threshold</b></div>
+<div class="evidence-pair"><div><small>ALERT SIGNAL</small><p>Authentication errors exceed the configured alert threshold.</p></div><div><small>INVESTIGATION FINDING</small><p>The activity is traced to an attempt to crack a user's password.</p></div></div>
+<div class="disp-choice"><button type="button" data-case="1" data-value="True Positive">True Positive</button><button type="button" data-case="1" data-value="False Positive">False Positive</button></div><div class="feedback" id="dispCase1Fb"></div></div>
+<div class="disposition-case"><div class="case-head"><span class="badge">Case 03 · Network</span><b>Port-scanning IDS alert</b></div>
+<div class="evidence-pair"><div><small>ALERT SIGNAL</small><p>The IDS reports port-scanning behavior on the network.</p></div><div><small>INVESTIGATION FINDING</small><p>The scanning is observed in a network that is under attack.</p></div></div>
+<div class="disp-choice"><button type="button" data-case="2" data-value="False Positive">False Positive</button><button type="button" data-case="2" data-value="True Positive">True Positive</button></div><div class="feedback" id="dispCase2Fb"></div></div>
+<div class="disposition-case"><div class="case-head"><span class="badge">Case 04 · Identity</span><b>Authentication error threshold</b></div>
+<div class="evidence-pair"><div><small>ALERT SIGNAL</small><p>Authentication errors exceed the configured alert threshold.</p></div><div><small>INVESTIGATION FINDING</small><p>The repeated failures are traced to user error rather than malicious activity.</p></div></div>
+<div class="disp-choice"><button type="button" data-case="3" data-value="True Positive">True Positive</button><button type="button" data-case="3" data-value="False Positive">False Positive</button></div><div class="feedback" id="dispCase3Fb"></div></div>
+<div class="disposition-case"><div class="case-head"><span class="badge">Case 05 · Availability</span><b>Denial-of-service alert</b></div>
+<div class="evidence-pair"><div><small>ALERT SIGNAL</small><p>Traffic volume causes a denial-of-service alert to fire.</p></div><div><small>INVESTIGATION FINDING</small><p>The increase follows customer purchases generated by a new advertising campaign.</p></div></div>
+<div class="disp-choice"><button type="button" data-case="4" data-value="False Positive">False Positive</button><button type="button" data-case="4" data-value="True Positive">True Positive</button></div><div class="feedback" id="dispCase4Fb"></div></div>
+<div class="disposition-case"><div class="case-head"><span class="badge">Case 06 · Data</span><b>Possible exfiltration alert</b></div>
+<div class="evidence-pair"><div><small>ALERT SIGNAL</small><p>Outbound data activity triggers a data-exfiltration alert.</p></div><div><small>INVESTIGATION FINDING</small><p>The transfer is Marketing publishing approved videos to the organization's site.</p></div></div>
+<div class="disp-choice"><button type="button" data-case="5" data-value="True Positive">True Positive</button><button type="button" data-case="5" data-value="False Positive">False Positive</button></div><div class="feedback" id="dispCase5Fb"></div></div>
+</div>
+<div style="position:sticky;bottom:0;padding:14px 0 8px;background:linear-gradient(transparent,var(--sheet) 24%)"><button class="btn rust" id="reviewDisposition" type="button">Review shift dispositions</button></div>
+<div class="feedback" id="dispSummary"></div></div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Continue →</button></div></section>
+
+
+<section class="screen" data-title="Translator · SSE Detection Anatomy">
+<div class="activity">
+<div class="kicker">10 · Translator // SSE Detection Anatomy</div>
+<h2>SSE Use-Case Review Board: Read the Detection Before the Handoff</h2>
+<p class="lead">Asterion is reviewing the SSE <b>New Local Admin Account</b> use case before moving it further through the team's content workflow. A junior analyst has left five interpretation notes beside the use-case record. Some notes accurately explain what an SSE field tells the team; others confuse that field with a nearby SSE concept.</p>
+
+<div class="instruction"><b>Your task:</b> Open each section of the use-case record, inspect the field and the analyst notes, then choose the interpretation that most precisely explains that field. The alternatives use comparable detail and intentionally borrow nearby SSE concepts, so do not choose by length or wording. Correct positions vary across the five sections. If an interpretation is wrong, revise it. Once correct, the expert review explains why every alternative is right or wrong.</div>
+
+<div class="note"><b>Translator lens:</b> You are explaining what the SSE information means and how the pieces relate. You are not deciding whether Asterion should deploy the detection.</div>
+
+<div id="detectReviewBoard">
+<div class="detect-record">
+<div class="record-head"><span class="badge">Record 01 · Data Readiness</span><b>Data Availability</b></div>
+<div class="record-snapshot"><b>USE-CASE VIEW</b><span>Data Availability is driven by Data Inventory and can expose data type, search, and data status.</span></div>
+<div class="analyst-note"><b>Which interpretation belongs in the handoff?</b></div>
+<div class="detect-options" data-q="0">
+<button type="button" data-id="fit">It confirms the use case fits the organization once the listed source appears in inventory.</button>
+<button type="button" data-id="presence">It shows whether required data is present and connects that requirement to Data Inventory.</button>
+<button type="button" data-id="onboarded">It confirms the listed source has completed onboarding, tuning, and validation for the detection.</button>
+</div><div class="feedback" id="detectFb0"></div>
+</div>
+
+<div class="detect-record">
+<div class="record-head"><span class="badge">Record 02 · Workload Signal</span><b>Alert Volume</b></div>
+<div class="record-snapshot"><b>USE-CASE VIEW</b><span>The field describes the expected alert quantity associated with the detection.</span></div>
+<div class="analyst-note"><b>Which interpretation belongs in the handoff?</b></div>
+<div class="detect-options" data-q="1">
+<button type="button" data-id="priority">It estimates the detection's operational importance from how frequently the detection is expected to fire.</button>
+<button type="button" data-id="stored">It estimates how much matching security data the organization currently stores for the detection.</button>
+<button type="button" data-id="quantity">It communicates expected alert quantity and helps frame the detection's relationship to alert fatigue.</button>
+</div><div class="feedback" id="detectFb1"></div>
+</div>
+
+<div class="detect-record">
+<div class="record-head"><span class="badge">Record 03 · Search Skill</span><b>SPL Difficulty</b></div>
+<div class="record-snapshot"><b>USE-CASE VIEW</b><span>SSE includes a difficulty indicator associated with the SPL used by the detection.</span></div>
+<div class="analyst-note"><b>Which interpretation belongs in the handoff?</b></div>
+<div class="detect-options" data-q="2">
+<button type="button" data-id="skill">It communicates how the detection aligns with the learner or practitioner's current SPL skill level.</button>
+<button type="button" data-id="onboarding">It communicates how complex the required data onboarding will be before the detection can operate.</button>
+<button type="button" data-id="investigation">It communicates how difficult the detected behavior will be for an analyst to investigate after an alert.</button>
+</div><div class="feedback" id="detectFb2"></div>
+</div>
+
+<div class="detect-record">
+<div class="record-head"><span class="badge">Record 04 · Required Telemetry</span><b>Data Sources</b></div>
+<div class="record-snapshot"><b>USE-CASE VIEW</b><span>The New Local Admin Account example identifies Windows Security data and connects to onboarding information.</span></div>
+<div class="analyst-note"><b>Which interpretation belongs in the handoff?</b></div>
+<div class="detect-options" data-q="3">
+<button type="button" data-id="verified">It identifies the source SSE has already verified as sufficient for the organization's security gap.</button>
+<button type="button" data-id="priority">It identifies which source produced the highest-priority alert after the detection was executed.</button>
+<button type="button" data-id="dependency">It identifies data the detection depends on and connects that requirement to onboarding information.</button>
+</div><div class="feedback" id="detectFb3"></div>
+</div>
+
+<div class="detect-record">
+<div class="record-head"><span class="badge">Record 05 · Use-Case Support</span><b>Guidance</b></div>
+<div class="record-snapshot"><b>USE-CASE VIEW</b><span>The course shows guidance areas for implementation, known false positives, response, related capabilities, SPL, and help.</span></div>
+<div class="analyst-note"><b>Which interpretation belongs in the handoff?</b></div>
+<div class="detect-options" data-q="4">
+<button type="button" data-id="verdict">It combines readiness indicators into a single decision that determines whether the use case should be deployed.</button>
+<button type="button" data-id="specific">It provides use-case-specific information for implementation, false positives, response, capabilities, SPL, and help.</button>
+<button type="button" data-id="standard">It provides one standardized response procedure intended to remain unchanged across Security Content detections.</button>
+</div><div class="feedback" id="detectFb4"></div>
+</div>
+</div>
+
+<div style="position:sticky;bottom:0;padding:14px 0 8px;background:linear-gradient(transparent,var(--sheet) 24%)"><button class="btn rust" id="reviewDetectionBoard" type="button">Review use-case handoff</button></div>
+<div class="feedback" id="detectSummary"></div>
+</div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Continue →</button></div>
+</section>
+
+
+
+
+<section class="screen" data-title="Translator · Content Narrowing Route">
+<div class="activity">
+<div class="kicker">11 · Translator // Content Narrowing Route</div>
+<h2>SSE Content Request Workbench: Build the Narrowing Route</h2>
+<p class="lead">Asterion's SOC receives content requests from analysts who know <i>what they need to find</i> but do not always know which SSE filter expresses that need. You are supporting the content desk. For each request, interpret the analyst's intent and select the filter that most precisely narrows the library in the requested way.</p>
+
+<div class="instruction"><b>Your task:</b> Review five realistic analyst requests. Each request contains three plausible SSE filters. Choose the filter that answers the analyst's specific information need—not simply a filter that could also produce useful results. The options are intentionally concise and similar in length, and the correct position changes from case to case. Incorrect selections must be revised. After a correct decision, the expert review explains why every option is right or wrong for that request.</div>
+
+<div class="note"><b>Translator lens:</b> Focus on what each filter <i>means</i>: <b>Keyword</b> = terms, <b>Journey</b> = Security Data Journey stage, <b>Category</b> = security concern, <b>Data Source</b> = supporting data/technology, and <b>Featured</b> = highly recommended by Splunk Security SMEs. Filtering narrows content; it does not by itself prove local deployment readiness.</div>
+
+<div class="route-board">
+<div class="route-case">
+<div class="case-head"><span class="badge">Request 01 · Topic Search</span><b>“Start with the phrase local admin.”</b></div>
+<p>The analyst is not yet asking about maturity, telemetry, or recommendation status. The immediate goal is to reduce the library using a specific term associated with the behavior being researched.</p>
+<div class="route-options" data-route="0"><button data-id="category">Category</button><button data-id="keyword">Keyword</button><button data-id="journey">Journey</button></div><div class="feedback" id="routeFb0"></div>
+</div>
+
+<div class="route-case">
+<div class="case-head"><span class="badge">Request 02 · Maturity Alignment</span><b>“Show content appropriate to our current maturity stage.”</b></div>
+<p>The analyst wants to narrow the library according to where the Splunk deployment sits in the Security Data Journey rather than by the source providing the data.</p>
+<div class="route-options" data-route="1"><button data-id="featured">Featured</button><button data-id="datasource">Data Source</button><button data-id="journey">Journey</button></div><div class="feedback" id="routeFb1"></div>
+</div>
+
+<div class="route-case">
+<div class="case-head"><span class="badge">Request 03 · Security Concern</span><b>“Keep the search centered on this type of security problem.”</b></div>
+<p>The analyst wants an organized security-content grouping rather than a literal search term or a filter based on the telemetry supporting the detection.</p>
+<div class="route-options" data-route="2"><button data-id="category">Category</button><button data-id="keyword">Keyword</button><button data-id="datasource">Data Source</button></div><div class="feedback" id="routeFb2"></div>
+</div>
+
+<div class="route-case">
+<div class="case-head"><span class="badge">Request 04 · Telemetry Fit</span><b>“Which content is powered by the data sources we are considering?”</b></div>
+<p>The analyst wants to narrow results according to the technologies and data sources behind the use cases, not according to maturity stage or SME recommendation.</p>
+<div class="route-options" data-route="3"><button data-id="journey">Journey</button><button data-id="featured">Featured</button><button data-id="datasource">Data Source</button></div><div class="feedback" id="routeFb3"></div>
+</div>
+
+<div class="route-case">
+<div class="case-head"><span class="badge">Request 05 · SME Recommendation</span><b>“Surface content Splunk Security experts highly recommend.”</b></div>
+<p>The analyst wants recommendation status to narrow the library rather than using a topic term or an organized security concern.</p>
+<div class="route-options" data-route="4"><button data-id="keyword">Keyword</button><button data-id="featured">Featured</button><button data-id="category">Category</button></div><div class="feedback" id="routeFb4"></div>
+</div>
+</div>
+
+<div style="position:sticky;bottom:0;padding:14px 0 8px;background:linear-gradient(transparent,var(--sheet) 24%)"><button class="btn rust" id="reviewNarrowingRoute" type="button">Review narrowing route</button></div>
+<div class="feedback" id="filterSummary"></div>
+</div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Continue →</button></div>
+</section>
+
+
+<section class="screen" data-title="Translator · Monitoring Cycle">
+<div class="activity">
+<div class="kicker">12 · Translator // Monitoring Cycle</div>
+<h2>Continuous Monitoring Relay: Rebuild the Security Operations Loop</h2>
+<p class="lead">Asterion is preparing a handoff diagram for new SOC staff. The five stages of the continuous monitoring cycle are already in the correct order, but the explanatory handoff notes were mixed up. Your job is to restore the meaning of each stage and then explain why the final stage feeds the next cycle.</p>
+
+<div class="instruction"><b>Your task:</b> Work through the five-stage relay. At each stage, choose the handoff note that most precisely belongs there. Every alternative uses legitimate language from another part of the cycle, so keyword spotting will not be enough. Correct positions change across stages. Incorrect decisions must be revised. Once correct, expert feedback explains why the selected note belongs there and why each competing note belongs somewhere else in the cycle.</div>
+
+<div class="note"><b>Translator lens:</b> The stages are provided in source order. You are explaining the relationship between each stage and its work—not designing a monitoring program or troubleshooting one.</div>
+
+<div class="cycle-relay">
+<div class="relay-stage">
+<div class="relay-head"><span class="relay-num">01</span><div><b>Define &amp; Predict</b><small>What work belongs at the opening of the cycle?</small></div></div>
+<div class="relay-options" data-cycleq="0">
+<button data-id="requirements">Establish frequency and determine requirements.</button>
+<button data-id="hypothesis">Establish risk, vulnerability, and create a hypothesis.</button>
+<button data-id="collect">Add assets, identities, sources, searches, and reports.</button>
+</div><div class="feedback" id="cycleStage0Fb"></div></div>
+
+<div class="relay-stage">
+<div class="relay-head"><span class="relay-num">02</span><div><b>Establish &amp; Architect</b><small>What bridges the opening hypothesis to implementation?</small></div></div>
+<div class="relay-options" data-cycleq="1">
+<button data-id="analyze">View data and results and search from the hypothesis.</button>
+<button data-id="review">Review findings and make recommendations for the next cycle.</button>
+<button data-id="requirements">Establish frequency and determine requirements.</button>
+</div><div class="feedback" id="cycleStage1Fb"></div></div>
+
+<div class="relay-stage">
+<div class="relay-head"><span class="relay-num">03</span><div><b>Implement &amp; Collect</b><small>What makes the required information available for monitoring?</small></div></div>
+<div class="relay-options" data-cycleq="2">
+<button data-id="collect">Add assets, identities, sources, searches, and reports.</button>
+<button data-id="hypothesis">Establish risk, vulnerability, and create a hypothesis.</button>
+<button data-id="analyze">View data and results and search from the hypothesis.</button>
+</div><div class="feedback" id="cycleStage2Fb"></div></div>
+
+<div class="relay-stage">
+<div class="relay-head"><span class="relay-num">04</span><div><b>Analyze &amp; Report</b><small>What connects collected information back to the hypothesis?</small></div></div>
+<div class="relay-options" data-cycleq="3">
+<button data-id="requirements">Establish frequency and determine requirements.</button>
+<button data-id="analyze">View data and results and search from the hypothesis.</button>
+<button data-id="review">Review findings and make recommendations for the next cycle.</button>
+</div><div class="feedback" id="cycleStage3Fb"></div></div>
+
+<div class="relay-stage">
+<div class="relay-head"><span class="relay-num">05</span><div><b>Respond &amp; Review</b><small>What closes this pass while preparing the next one?</small></div></div>
+<div class="relay-options" data-cycleq="4">
+<button data-id="collect">Add assets, identities, sources, searches, and reports.</button>
+<button data-id="requirements">Establish frequency and determine requirements.</button>
+<button data-id="review">Mitigate, review findings, and recommend the next cycle.</button>
+</div><div class="feedback" id="cycleStage4Fb"></div></div>
+</div>
+
+<div style="position:sticky;bottom:0;padding:14px 0 8px;background:linear-gradient(transparent,var(--sheet) 24%)"><button class="btn rust" id="reviewCycleRelay" type="button">Review monitoring relay</button></div>
+<div class="feedback" id="cycleFb"></div>
+</div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Continue →</button></div>
+</section>
+
+
+<section class="screen" data-title="Translator · Framework & Story Lens">
+<div class="activity">
+<div class="kicker">13 · Translator // Security Content Context</div>
+<h2>Detection Context Dossier: Annotate the Analyst Handoff</h2>
+<p class="lead">Asterion's evening analyst has already found a useful detection in Splunk Security Essentials. The next shift does not need another quiz about the detection itself—they need a concise explanation of the <b>larger context surrounding it</b>. Four incomplete annotation lines remain in the handoff dossier.</p>
+
+<div class="instruction"><b>Your task:</b> Use the prompt's <b>ANNOTATE + COMPLETE</b> activity style. Read each evidence excerpt, then type the SSE concept that explains what that evidence adds to the analyst's understanding. Use the source terms <b>Security Frameworks, Analytic Stories, Security Data Journey,</b> and <b>Sankey diagram</b>. Each is used once. There are no answer buttons to eliminate and no answer-position pattern. Incorrect entries receive a conceptual clue and must be revised; correct entries unlock expert distinctions.</div>
+
+<div class="note"><b>Translator lens:</b> Explain how SSE places security content into <i>framework, thematic, maturity, and relationship context</i>. You are not evaluating which detection Asterion should deploy.</div>
+
+<div class="dossier">
+<div class="dossier-head"><b>ASTERION SOC · CONTENT CONTEXT HANDOFF</b><span>Case SSE-CTX-13</span></div>
+
+<div class="annotation-case">
+<div class="annotation-tag">ANNOTATION A · ATTACK CONTEXT</div>
+<div class="evidence-strip"><b>Evidence excerpt</b><span>The use case is shown in relation to MITRE ATT&amp;CK and Cyber Kill Chain.</span></div>
+<p><b>Complete the analyst note:</b> “This gives the detection a broader security-model context rather than leaving it as an isolated search.”</p>
+<label>Context concept <input class="annotation-entry" id="frameworkEntry0" autocomplete="off" spellcheck="false" placeholder="Type the SSE concept"></label>
+<div class="feedback" id="frameworkEntry0Fb"></div>
+</div>
+
+<div class="annotation-case">
+<div class="annotation-tag">ANNOTATION B · THEMATIC CONTEXT</div>
+<div class="evidence-strip"><b>Evidence excerpt</b><span>Related guidance and detections are grouped around a security theme, with mappings and references.</span></div>
+<p><b>Complete the analyst note:</b> “This helps the analyst understand related content as a connected security narrative rather than unrelated detections.”</p>
+<label>Context concept <input class="annotation-entry" id="frameworkEntry1" autocomplete="off" spellcheck="false" placeholder="Type the SSE concept"></label>
+<div class="feedback" id="frameworkEntry1Fb"></div>
+</div>
+
+<div class="annotation-case">
+<div class="annotation-tag">ANNOTATION C · MATURITY CONTEXT</div>
+<div class="evidence-strip"><b>Evidence excerpt</b><span>Security content is associated with stages reflecting the technical maturity of the Splunk deployment.</span></div>
+<p><b>Complete the analyst note:</b> “This explains where content sits relative to the organization's progression from foundational collection toward more advanced detection.”</p>
+<label>Context concept <input class="annotation-entry" id="frameworkEntry2" autocomplete="off" spellcheck="false" placeholder="Type the SSE concept"></label>
+<div class="feedback" id="frameworkEntry2Fb"></div>
+</div>
+
+<div class="annotation-case">
+<div class="annotation-tag">ANNOTATION D · RELATIONSHIP CONTEXT</div>
+<div class="evidence-strip"><b>Evidence excerpt</b><span>The Security Content Overview visual connects use cases, data sources, and Splunk apps.</span></div>
+<p><b>Complete the analyst note:</b> “This makes relationships among content, supporting data, and Splunk capabilities easier to see.”</p>
+<label>Context concept <input class="annotation-entry" id="frameworkEntry3" autocomplete="off" spellcheck="false" placeholder="Type the SSE concept"></label>
+<div class="feedback" id="frameworkEntry3Fb"></div>
+</div>
+</div>
+
+<div style="position:sticky;bottom:0;padding:14px 0 8px;background:linear-gradient(transparent,var(--sheet) 24%)"><button class="btn rust" id="reviewContextDossier" type="button">Review annotated dossier</button><button class="btn secondary" id="clearContextDossier" type="button">Clear annotations</button></div>
+<div class="feedback" id="frameworkFb"></div>
+</div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Continue →</button></div>
+</section>
+
+
+<section class="screen" data-title="Complete Coverage Check">
+<div class="activity">
+<div class="kicker">07B · Complete Coverage Check</div><h2>Confirm the connections across both lessons</h2>
+<div class="instruction"><b>What to do:</b> Complete each relationship. These prompts deliberately span concepts that can be overlooked when the two lessons are taught separately.</div>
+<div id="fullRows"></div><button class="btn rust" onclick="checkFull()">Check complete-source map</button><div class="feedback" id="fullFb"></div>
+</div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Continue →</button></div>
+</section>
+
+<section class="screen" data-title="Final Reflection">
+<div class="paper"><div class="kicker">08 · Final Reflection</div><h2>Turn the map into your own explanation</h2>
+<p class="lead">Use this reflection to consolidate the complete mental model across both lessons. Explain relationships in your own words and identify remaining questions for class.</p><div class="note"><b>Reflection boundary:</b> This remains Translator/Understand work. Explain meaning and relationships; do not design a response plan or make production deployment decisions.</div>
+<label><h3>1. In your own words, how do SOC operations and Splunk Security Essentials complement one another?</h3><textarea data-save="r1" placeholder="Explain the relationship..."></textarea></label>
+<label><h3>2. Which concept is clearest to you now, and what relationship helped it make sense?</h3><textarea data-save="r2" placeholder="Describe what became clearer..."></textarea></label>
+<label><h3>3. What would you like your instructor to clarify in class?</h3><textarea data-save="r3" placeholder="Write one or more questions..."></textarea></label>
+<button class="btn rust" onclick="completeReflection()">Save reflection</button><div class="feedback" id="reflectFb"></div></div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Completion check →</button></div>
+</section>
+
+<section class="screen" data-title="Completion Checklist">
+<div class="paper"><div class="kicker">09 · Completion Checklist</div><h2>Prework readiness check</h2>
+<p class="lead">This checklist confirms completion; it is not another assessment.</p>
+<div id="checklist"></div>
+<div class="note" id="readyNote"><b>Status:</b> Continue reviewing any unfinished items. You may navigate freely and return here.</div></div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn next">Bridge to class →</button></div>
+</section>
+
+<section class="screen" data-title="Bridge to Practitioner Cycle">
+<div class="hero"><div class="kicker">10 · Bridge to Instructor-Led Learning</div><h1>Your foundation is ready for use.</h1>
+<p class="lead">Reporter helped you <b>remember</b>. Translator helped you <b>understand</b>. In instructor-led learning, that foundation can support the next cognitive steps: <b>Operator (Apply)</b> and <b>Detective (Analyze)</b>.</p>
+<div class="grid3"><div class="objective"><span>NEXT</span><h3>Operator</h3><p>Use knowledge in guided professional tasks.</p></div><div class="objective"><span>THEN</span><h3>Detective</h3><p>Examine evidence and relationships more deeply.</p></div><div class="objective"><span>BRING WITH YOU</span><h3>Your questions</h3><p>Use your reflection to identify what deserves instructor discussion.</p></div></div>
+<div class="note"><b>Core mental model:</b> security operations provides the people, process, policy, technology, monitoring, triage, hunting, response, and measurement context; SSE helps organize security detections, required data, implementation guidance, framework mappings, and analytic stories that can support that security program.</div></div>
+<div class="actions"><button class="btn secondary prev">← Back</button><button class="btn rust" onclick="toast('Prework journey complete. Your responses remain available for this browser session.')">Finish</button></div>
+</section>
+
+</main></div><div class="toast" id="toast"></div></div>
+<script>
+const TERMS = [["Security posture", "<b>Meaning:</b> How well an organization can predict, prevent, and respond to changing threats.<br><b>Think of it as:</b> the overall condition created by coordinated security operations\u2014not one product.<br><b>Example:</b> an organization combining trained people, documented policies, repeatable processes, and security technologies.<br><b>Do not confuse it with:</b> a single security tool or dashboard.<br><b>Relationship:</b> People, policies, processes, and technologies work together to shape the posture."], ["SOC", "<b>Meaning:</b> A centralized security function where a team monitors, detects, analyzes, and responds to cybersecurity incidents.<br><b>Think of it as:</b> the operational center connecting people, security-event data, tools, investigation, escalation, and response.<br><b>Example:</b> analysts reviewing notable events with SIEM data and escalating a confirmed incident.<br><b>Do not confuse it with:</b> SIEM; SIEM is a technology that can support a SOC, while the SOC is the broader operational capability.<br><b>Relationship:</b> The course stresses that a SOC is more than a location or team; tools and security-event data enable incident response."], ["SIEM", "<b>Meaning:</b> Security Information and Event Management technology used for monitoring and detection through centralized security-event data.<br><b>Think of it as:</b> the visibility and detection layer that helps analysts search and interpret security events.<br><b>Example:</b> Splunk Enterprise Security, identified in the lesson as a SIEM capability.<br><b>Do not confuse it with:</b> SOC; a SIEM supports the SOC but is not the entire security-operations function.<br><b>Relationship:</b> SIEM data can provide the evidence analysts use during alert triage and investigation."], ["SOAR", "<b>Meaning:</b> Security Orchestration, Automation, and Response technology that helps coordinate and automate response-oriented workflows.<br><b>Think of it as:</b> the workflow/automation capability that can connect actions across security operations.<br><b>Example:</b> Splunk SOAR coordinating repeatable response tasks.<br><b>Do not confuse it with:</b> SIEM; SIEM emphasizes event visibility/detection, while SOAR emphasizes orchestration, automation, and response.<br><b>Relationship:</b> SOAR can improve repeatability and speed, but it complements rather than replaces analyst judgment."], ["Alert triage", "<b>Meaning:</b> The process of intercepting and handling notable events or alerts identified by security operations.<br><b>Think of it as:</b> turning an alert into structured understanding before deciding how it should be handled.<br><b>Example:</b> determining whether an alert represents an actual incident, what happened, scope, impact, and appropriate response.<br><b>Do not confuse it with:</b> an alert itself; the alert is the signal, while triage is the process used to understand it.<br><b>Relationship:</b> The 5 Ws\u2014Who, What, When, Where, and Why\u2014help organize what the analyst learns."], ["True positive", "<b>Meaning:</b> An alert supported by evidence of real malicious activity or a confirmed security incident.<br><b>Think of it as:</b> a disposition showing that investigation validated the security concern.<br><b>Example:</b> an antivirus alert tied to infected hosts, password cracking, or port scanning during an actual attack.<br><b>Do not confuse it with:</b> an alert that merely looks serious; severity or wording does not establish a true positive without confirming context.<br><b>Relationship:</b> The disposition comes from evidence and context, not simply from the fact that a detection fired."], ["False positive", "<b>Meaning:</b> An alert that does not indicate malicious activity or a threat in the investigated situation.<br><b>Think of it as:</b> a detection firing on behavior that investigation explains as acceptable or non-threatening.<br><b>Example:</b> authentication errors caused by user error, a purchase spike after advertising, or Marketing publishing videos.<br><b>Do not confuse it with:</b> an unimportant alert; a false positive can still expose tuning, configuration, or data-quality opportunities.<br><b>Relationship:</b> True and false positives can begin with similar alerts; the surrounding evidence separates them."], ["Threat hunting", "<b>Meaning:</b> A human-centric process for identifying malicious behavior automated detection may have missed.<br><b>Think of it as:</b> starting with a hypothesis and proactively seeking evidence rather than waiting only for an alert.<br><b>Example:</b> investigating a hypothesis informed by operational threat intelligence.<br><b>Do not confuse it with:</b> alert triage; triage begins with an alert, while hunting can begin with a hypothesis.<br><b>Relationship:</b> Threat hunting complements automated detection by looking for activity that existing detections did not surface."], ["Security incident", "<b>Meaning:</b> A condition in which the confidentiality, integrity, or availability of an asset has been broken.<br><b>Think of it as:</b> the confirmed security condition that investigation may establish.<br><b>Example:</b> evidence showing an asset's confidentiality, integrity, or availability was compromised.<br><b>Do not confuse it with:</b> an alert; an alert is a signal to investigate, while an incident is the security condition established through evidence.<br><b>Relationship:</b> Triage helps analysts determine whether an alert corresponds to an actual incident."], ["Security / data breach", "<b>Meaning:</b> Confirmation that data was disclosed to unauthorized parties.<br><b>Think of it as:</b> a specific security outcome involving unauthorized disclosure.<br><b>Example:</b> evidence confirming protected data reached an unauthorized party.<br><b>Do not confuse it with:</b> every security incident; an incident can involve confidentiality, integrity, or availability without necessarily confirming unauthorized data disclosure.<br><b>Relationship:</b> A breach is therefore narrower than the course's broader security-incident concept."], ["MTTD", "<b>Meaning:</b> Mean Time to Detect\u2014the time required to detect a threat.<br><b>Think of it as:</b> the detection portion of the security timeline.<br><b>Example:</b> measuring elapsed time until malicious activity is detected.<br><b>Do not confuse it with:</b> MTTA, which begins from an issued alert and measures acknowledgement.<br><b>Relationship:</b> MTTD relates to detection performance; it does not describe response/control or the full period a threat remains hidden."], ["MTTR", "<b>Meaning:</b> Mean Time to Respond\u2014the time required to take control of a security incident.<br><b>Think of it as:</b> the response/control portion of the incident timeline.<br><b>Example:</b> measuring how long security operations takes to gain control after an incident requires response.<br><b>Do not confuse it with:</b> MTTD, which measures detection rather than response.<br><b>Relationship:</b> The course cautions that faster metrics should still serve the larger goal of preventing harm."], ["MTTA", "<b>Meaning:</b> Mean Time to Acknowledge\u2014the time required to recognize an incident after an alert is issued.<br><b>Think of it as:</b> the acknowledgement step after alerting.<br><b>Example:</b> measuring elapsed time between an alert and recognition that it requires attention.<br><b>Do not confuse it with:</b> MTTD, whose clock concerns detecting the threat itself.<br><b>Relationship:</b> Its defining clue is 'after an alert has been issued.'"], ["Dwell time", "<b>Meaning:</b> How long a threat spends undetected in the environment.<br><b>Think of it as:</b> the period during which malicious activity remains present without detection.<br><b>Example:</b> a threat entering an environment and remaining unnoticed for a period of time.<br><b>Do not confuse it with:</b> MTTD; both relate to detection, but dwell time emphasizes how long the threat remains hidden.<br><b>Relationship:</b> Long dwell time means the threat had more undetected time in the environment."], ["KPI", "<b>Meaning:</b> Key Performance Indicator\u2014a value used to measure performance.<br><b>Think of it as:</b> a measurement used to understand whether operational performance is moving as intended.<br><b>Example:</b> tracking a meaningful SOC performance value over time.<br><b>Do not confuse it with:</b> the security goal itself; a KPI measures performance but should not replace the objective of preventing harm.<br><b>Relationship:</b> The course warns that measurements should help improve security rather than distract from it."], ["SLO", "<b>Meaning:</b> Service Level Objective\u2014an operational performance target.<br><b>Think of it as:</b> the target level a service is expected to achieve.<br><b>Example:</b> setting a target for a service-related response measure.<br><b>Do not confuse it with:</b> SLA; an SLO is the objective/target, while an SLA is the agreement around expected service performance.<br><b>Relationship:</b> Targets provide direction, while measurements show actual performance."], ["SLA", "<b>Meaning:</b> Service Level Agreement\u2014an agreement concerning expected service performance.<br><b>Think of it as:</b> the agreement layer surrounding service expectations.<br><b>Example:</b> a documented agreement describing expected service performance.<br><b>Do not confuse it with:</b> SLO; the objective is a target, while the agreement establishes the service commitment.<br><b>Relationship:</b> Agreement, target, and measured indicator are related operational concepts but are not interchangeable."], ["Security Data Journey", "<b>Meaning:</b> SSE's security-maturity roadmap, from foundational data collection at Stage 1 to more complex detections such as machine learning at Stage 6.<br><b>Think of it as:</b> a way to align security content with the technical maturity of the Splunk deployment.<br><b>Example:</b> Stage 1 emphasizing basic security logs and machine data before more advanced detection maturity.<br><b>Do not confuse it with:</b> a ranking of which detection is best; the Journey indicates maturity alignment, not universal detection quality.<br><b>Relationship:</b> A stage can show description, milestones, challenges, applicable use-case types, and expected data sources."], ["Security Content / use case", "<b>Meaning:</b> A security detection in SSE accompanied by information needed to understand and work with it.<br><b>Think of it as:</b> more than a search title: it can include description, prerequisites, data sources, implementation steps, alert handling, search logic, and guidance.<br><b>Example:</b> the New Local Admin Account use case used throughout the course.<br><b>Do not confuse it with:</b> an Analytic Story; a use case is an individual detection/content item, while an Analytic Story groups related security content around a theme.<br><b>Relationship:</b> Use cases connect detection logic to required data and operational context."], ["Data Availability", "<b>Meaning:</b> An SSE use-case field driven by Data Inventory that indicates whether relevant data is available for the detection.<br><b>Think of it as:</b> a data-readiness signal that helps SSE recommend content using existing data.<br><b>Example:</b> a Good status exposing the data type, with Open leading to Data Inventory, search, and data status.<br><b>Do not confuse it with:</b> production readiness; available data alone does not prove that the detection is fully onboarded, tuned, or appropriate.<br><b>Relationship:</b> The course still calls for a proper gap assessment before relying on a use case."], ["Data Source Onboarding Guide", "<b>Meaning:</b> An SSE guide containing information for bringing a required data source into Splunk.<br><b>Think of it as:</b> the bridge between a detection's data requirement and the practical details needed to onboard that source.<br><b>Example:</b> Windows Security guidance covering onboarding, indexes/source types, forwarder setup, and sizing estimates.<br><b>Do not confuse it with:</b> Data Availability; availability reports data status, while the guide explains how the source can be onboarded.<br><b>Relationship:</b> A use case may require one or several data sources, each of which can have onboarding requirements."], ["Alert Volume", "<b>Meaning:</b> A use-case property indicating how many alerts a detection is expected to create.<br><b>Think of it as:</b> an expectation about alert quantity and its possible contribution to alert fatigue.<br><b>Example:</b> a low-volume detection producing relatively few alerts.<br><b>Do not confuse it with:</b> security impact or importance; fewer alerts do not automatically mean a detection is more valuable or accurate.<br><b>Relationship:</b> Alert Volume helps anticipate workload, while other fields explain different characteristics of the use case."], ["SPL Difficulty", "<b>Meaning:</b> A use-case field describing how the detection aligns with a learner's or practitioner's SPL skill level.<br><b>Think of it as:</b> a search-language complexity indicator.<br><b>Example:</b> using the field to focus on detections appropriate to current SPL ability.<br><b>Do not confuse it with:</b> incident severity, investigation difficulty, or onboarding complexity; those are separate concerns.<br><b>Relationship:</b> The field helps match detection content to SPL skills rather than judging the threat itself."], ["Analytic Story", "<b>Meaning:</b> A grouping of related security detections and actionable guidance around a broader security theme.<br><b>Think of it as:</b> a context layer that helps learners see related detections as part of a larger security narrative.<br><b>Example:</b> an Analytic Story containing description/context, framework mappings, references, and related searches.<br><b>Do not confuse it with:</b> an individual use case; a story groups and contextualizes related content rather than representing only one detection.<br><b>Relationship:</b> Analytic Stories help connect security content to broader attack behavior and defensive understanding."], ["MITRE ATT&CK / Cyber Kill Chain mapping", "<b>Meaning:</b> Framework context that SSE applies to data and detections.<br><b>Think of it as:</b> a way to show where security content relates to established models of adversary behavior or attack progression.<br><b>Example:</b> a detection displayed with relevant MITRE ATT&CK or Cyber Kill Chain associations.<br><b>Do not confuse it with:</b> proof that a detection is ready for an environment; framework mapping provides context, not environment-specific readiness.<br><b>Relationship:</b> Framework mappings help analysts interpret where detections fit within a broader security model."], ["Bookmark Status", "<b>Meaning:</b> An SSE content-management indicator showing how a use case is being tracked or what may be blocking it.<br><b>Think of it as:</b> a workflow/status signal for managing security content.<br><b>Example:</b> Not on List, Waiting for data, or Deployment Issues.<br><b>Do not confuse it with:</b> Data Availability; bookmark status tracks content-management state, while Data Availability is driven by Data Inventory.<br><b>Relationship:</b> Status helps communicate where content stands without claiming the detection is operationally ready."], ["Gap assessment", "<b>Meaning:</b> A deliberate check that required detection data exists and is onboarded correctly before relying on a use case.<br><b>Think of it as:</b> the environment-specific validation step that prevents recommendations from being treated as guarantees.<br><b>Example:</b> reviewing whether the organization actually has the data a recommended detection requires.<br><b>Do not confuse it with:</b> an SSE recommendation; recommendations can help find content, but they do not replace validation of the environment.<br><b>Relationship:</b> The course explicitly cautions that SSE's large library and suggestions do not eliminate the need for this assessment."]];
+const state={done:{},vocab:new Set(),responses:{},screen:0};
+const screens=[...document.querySelectorAll('.screen')];
+
+function shuffle(a){let x=[...a];for(let i=x.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}return x}
+function toast(s){let t=document.getElementById('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function navBuild(){
+ const n=document.getElementById('nav'),m=document.getElementById('mobileNav'); n.innerHTML='';m.innerHTML='';
+ const phaseAt={0:'Foundation',4:'Reporter · Remember',8:'Translator · Understand',15:'Close'};
+ screens.forEach((s,i)=>{
+  if(phaseAt[i]){let p=document.createElement('div');p.className='phase';p.textContent=phaseAt[i];n.appendChild(p)}
+  let b=document.createElement('button');b.textContent=s.dataset.title;b.onclick=()=>go(i);b.dataset.i=i;n.appendChild(b);
+  let o=document.createElement('option');o.value=i;o.textContent=s.dataset.title;m.appendChild(o)
+ });
+ m.onchange=e=>go(+e.target.value);update();
+}
+function go(i){
+ state.screen=Math.max(0,Math.min(screens.length-1,i));
+ screens.forEach((s,j)=>s.classList.toggle('active',j===state.screen));
+ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',+b.dataset.i===state.screen));
+ document.getElementById('mobileNav').value=state.screen; window.scrollTo({top:0,behavior:'smooth'});update();
+}
+document.addEventListener('click',e=>{if(e.target.classList.contains('next'))go(state.screen+1);if(e.target.classList.contains('prev'))go(state.screen-1)});
+function mark(key){state.done[key]=true;update()}
+function update(){
+ const keys=['vocab','roles','triage','metrics','sse','posture','disp','detect','filters','cycle','framework','full','reflection'];
+ let done=keys.filter(k=>state.done[k]).length;
+ let pct=Math.round(done/keys.length*100);
+ document.getElementById('bar').style.width=pct+'%';document.getElementById('pct').textContent=pct+'%';
+ document.querySelectorAll('#nav button').forEach((b,i)=>{let s=screens[i].dataset.title.toLowerCase();b.classList.toggle('done',
+  (s.includes('vocabulary')&&state.done.vocab)||(s.includes('role registry')&&state.done.roles)||(s.includes('triage recall')&&state.done.triage)||
+  (s.includes('metric index')&&state.done.metrics)||(s.includes('content ledger')&&state.done.sse)||(s.includes('posture map')&&state.done.posture)||
+  (s.includes('disposition')&&state.done.disp)||(s.includes('detection anatomy')&&state.done.detect)||(s.includes('narrowing')&&state.done.filters)||
+  (s.includes('monitoring cycle')&&state.done.cycle)||(s.includes('framework')&&state.done.framework)||(s.includes('complete coverage check')&&state.done.full)||(s==='final reflection'&&state.done.reflection)
+ )});
+ renderChecklist();
+}
+function fb(id,ok,msg){let e=document.getElementById(id);e.className='feedback show';e.innerHTML=(ok?'<strong>Complete.</strong> ':'<strong>Recheck.</strong> ')+msg}
+function opts(values,placeholder='Choose…'){return '<option value="">'+placeholder+'</option>'+shuffle(values).map(v=>'<option>'+v+'</option>').join('')}
+
+// Vocabulary
+const vc=document.getElementById('vocabCards');
+TERMS.forEach((x,i)=>{let b=document.createElement('button');b.className='flip';b.innerHTML=`<div class="flipin"><div class="face front"><span class="badge">Term ${String(i+1).padStart(2,'0')}</span><div class="term">${x[0]}</div><span class="tap">Recall → Flip</span></div><div class="face back"><div><h3>${x[0]}</h3><p>${x[1]}</p></div><span class="tap">Flip back</span></div></div>`;b.onclick=()=>{b.classList.toggle('flipped');state.vocab.add(i);document.getElementById('vocabCount').textContent=state.vocab.size;if(state.vocab.size===TERMS.length)mark('vocab')};vc.appendChild(b)});
+document.getElementById('vocabCount').textContent=0;
+
+// Generic select-row builder
+function rows(id,data,values){
+ let el=document.getElementById(id);el.innerHTML=data.map((d,i)=>`<div class="slotrow"><b>${d[0]}</b><div><div>${d[1]}</div><select data-answer="${d[2]}">${opts(values)}</select></div></div>`).join('')
+}
+
+function checkRows(id,key,fbid,success){
+ let ss=[...document.querySelectorAll('#'+id+' select')],ok=true;
+ ss.forEach(el=>{let c=el.value===el.dataset.answer;el.style.borderColor=c?'var(--ok)':'var(--bad)';ok&=c});
+ if(ok){mark(key);fb(fbid,true,success)}
+ else fb(fbid,false,'One or more selections are not yet aligned with the course. Review the rows marked for revision, compare the defining concept, and try again.');
+}
+
+
+const triageTickets=[
+ {id:'triageTicket1',answer:'Was this an actual incident?',why:`<b>Correct — Was this an actual incident?</b> The source-defined workflow begins by validating whether the alert represents an actual security incident. An alert is a signal; it is not automatically proof that confidentiality, integrity, or availability has been broken.<br><br><b>Did the incident cause damage? — plausible, but too early:</b> Impact matters only after the analyst has established that an incident actually occurred.<br><br><b>What happened during the incident? — plausible, but too early:</b> Reconstruction becomes meaningful after validation and the initial effect question. Starting here risks describing activity before establishing whether it qualifies as an incident.<br><br><b>Were other assets affected? — plausible, but too early:</b> Scope is essential, but the workflow first validates the incident and develops an understanding of what occurred.<br><br><b>How should security operations respond? — plausible, but premature:</b> Response should be informed by validation, impact, reconstruction, and scope rather than selected from the alert alone.<br><br><b>Expert cue:</b> First establish <i>whether the signal is an incident</i>.`},
+ {id:'triageTicket2',answer:'Did the incident cause damage?',why:`<b>Correct — Did the incident cause damage or did the attack succeed?</b> Once the event is validated as an incident, the source workflow asks whether the incident caused damage or whether the attack succeeded. This establishes the immediate effect of the confirmed activity.<br><br><b>Was this an actual incident? — wrong at this checkpoint:</b> That validation question belongs first and has already been answered by the scenario.<br><br><b>What happened during the incident? — plausible, but next:</b> Reconstruction is important, but the source sequence places the success/damage question before the detailed account of what happened.<br><br><b>Were other assets affected? — plausible, but later:</b> Scope comes after the analyst has reconstructed what occurred.<br><br><b>How should security operations respond? — premature:</b> Response is the final question because it should use the evidence gathered by the earlier checkpoints.<br><br><b>Expert cue:</b> After validation, establish <i>whether the confirmed activity succeeded or caused damage</i>.`},
+ {id:'triageTicket3',answer:'What happened during the incident?',why:`<b>Correct — What happened during the incident?</b> The third source-defined question reconstructs the incident. At this point the analyst has validated the incident and considered whether it succeeded or caused damage; now the record needs a clear account of the activity itself.<br><br><b>Was this an actual incident? — wrong here:</b> Validation was the first checkpoint and should already be settled.<br><br><b>Did the incident cause damage? — wrong here:</b> The effect question belongs immediately after validation and precedes reconstruction in the source sequence.<br><br><b>Were other assets affected? — plausible, but next:</b> Scope is easier to investigate once the analyst understands the activity being traced.<br><br><b>How should security operations respond? — premature:</b> A response decision made before understanding the activity and its scope can be poorly informed.<br><br><b>Expert cue:</b> The third checkpoint builds the <i>incident story</i>: what actually happened?`},
+ {id:'triageTicket4',answer:'Were other assets affected?',why:`<b>Correct — Were other assets affected or compromised?</b> After reconstructing what happened, the source workflow expands the investigation from the initially observed system to the broader environment. This is the scope checkpoint.<br><br><b>Was this an actual incident? — wrong here:</b> Validation was completed at the beginning of triage.<br><br><b>Did the incident cause damage? — wrong here:</b> The success/damage question belongs earlier, immediately after validation.<br><br><b>What happened during the incident? — wrong here:</b> The scenario states that the activity on the initial system has already been reconstructed.<br><br><b>How should security operations respond? — plausible, but next:</b> Response should account for whether the incident is isolated or has affected additional assets.<br><br><b>Expert cue:</b> Once you know <i>what happened</i>, ask <i>how far it reached</i>.`},
+ {id:'triageTicket5',answer:'How should security operations respond?',why:`<b>Correct — How should security operations respond?</b> This is the fifth question in the source-defined workflow. By this point the analyst has validated the incident, considered success/damage, reconstructed the activity, and investigated scope. Those findings provide the context needed to consider the security-operations response.<br><br><b>Was this an actual incident? — wrong here:</b> Returning to validation would ignore the evidence already established.<br><br><b>Did the incident cause damage? — wrong here:</b> Impact was considered earlier in the workflow.<br><br><b>What happened during the incident? — wrong here:</b> Reconstruction has already supplied the incident narrative.<br><br><b>Were other assets affected? — wrong here:</b> Scope was the preceding checkpoint and informs the response decision.<br><br><b>Expert cue:</b> Response comes <i>after</i> the analyst has enough context to respond deliberately rather than react to the alert.`}
+];
+
+document.getElementById('reviewTriageSequence').addEventListener('click',()=>{
+ let all=true, attempted=true;
+ triageTickets.forEach((t,i)=>{
+   const el=document.getElementById(t.id), box=document.getElementById(t.id+'Fb');
+   if(!el.value){
+      all=false; attempted=false;
+      box.className='feedback show bad';
+      box.innerHTML='<b>Checkpoint '+String(i+1).padStart(2,'0')+' is incomplete.</b> Choose the investigation question that belongs at this point.';
+      return;
+   }
+   if(el.value===t.answer){
+      box.className='feedback show good';
+      box.innerHTML=t.why;
+   }else{
+      all=false;
+      box.className='feedback show bad';
+      box.innerHTML='<b>Your selected question belongs somewhere in the investigation, but not at this checkpoint.</b><div class="expert-ticket">'+t.why+'</div><div style="margin-top:10px"><b>Try again:</b> Use the workflow distinction in the expert feedback, then choose again.</div>';
+   }
+ });
+ const sum=document.getElementById('triageSequenceSummary');
+ sum.className='feedback show '+(all?'good':'bad');
+ if(all){
+   mark('triage');
+   sum.innerHTML='<h3>Investigation sequence complete</h3><p>You reconstructed the five source-defined triage questions in order: <b>validate → effect → reconstruct → scope → response</b>. The expert feedback under each checkpoint explains why that question belongs there and why the other questions belong elsewhere in the workflow.</p>';
+ }else{
+   sum.innerHTML=attempted?'<b>Sequence still open.</b> Review the expert reasoning beneath the checkpoints that need revision, change those selections, and review again.':'<b>Complete all five checkpoints.</b> Each checkpoint must contain an investigation question before the sequence can close.';
+ }
+ const firstProblem=triageTickets.find(t=>document.getElementById(t.id).value!==t.answer);
+ const target=firstProblem?document.getElementById(firstProblem.id+'Fb'):sum;
+ setTimeout(()=>target.scrollIntoView({behavior:'smooth',block:'center'}),50);
+ update();
+});
+
+
+
+const metricRouting={
+ detect:{answer:'MTTD',fb:'metricFbMTTD'},
+ control:{answer:'MTTR',fb:'metricFbMTTR'},
+ hidden:{answer:'Dwell time',fb:'metricFbDwell'},
+ ack:{answer:'MTTA',fb:'metricFbMTTA'}
+};
+const metricExpert={
+ 'MTTD':`<b>Correct — Evidence A belongs with MTTD.</b> Mean Time to Detect asks how long it takes to detect a threat. The evidence starts with threat activity and ends with SOC detection.<br><br><b>Why it is not MTTA:</b> MTTA begins after an alert is issued and ends when the incident is recognized.<br><b>Why it is not MTTR:</b> MTTR ends when security operations takes control of the incident, which happens after detection.<br><b>Why it is not dwell time:</b> Dwell time emphasizes the threat's undetected residence in the environment; this card is framed as the SOC's time-to-detect interval.<br><br><b>Expert cue:</b> If the measured endpoint is <i>detection</i>, think <b>MTTD</b>.`,
+ 'MTTR':`<b>Correct — Evidence B belongs with MTTR.</b> The course defines Mean Time to Respond as how long it takes to take control of a security incident. The defining endpoint on this card is control established.<br><br><b>Why it is not MTTD:</b> Detection is already behind us once active incident handling is occurring.<br><b>Why it is not MTTA:</b> Recognizing an incident after an alert is different from taking control of it.<br><b>Why it is not dwell time:</b> The threat is no longer simply undetected; security operations is actively handling the incident.<br><br><b>Expert cue:</b> If the clock ends when the SOC <i>takes control</i>, think <b>MTTR</b>.`,
+ 'Dwell time':`<b>Correct — Evidence C belongs with dwell time.</b> Dwell time is how long a threat spends undetected in the environment. The card deliberately focuses on the threat's hidden presence rather than analyst acknowledgement or response.<br><br><b>Why it is not MTTD:</b> MTTD and dwell time are closely related, but MTTD is framed as time to detect; dwell time is framed as time the threat remains undetected in the environment.<br><b>Why it is not MTTA:</b> No alert-to-recognition interval appears here.<br><b>Why it is not MTTR:</b> No incident-control interval appears here.<br><br><b>Expert cue:</b> If the evidence emphasizes <i>undetected residence</i>, think <b>dwell time</b>.`,
+ 'MTTA':`<b>Correct — Evidence D belongs with MTTA.</b> Mean Time to Acknowledge measures how long it takes to recognize an incident after an alert has been issued. The explicit starting point is the alert.<br><br><b>Why it is not MTTD:</b> The alert has already been generated, so the card is no longer measuring the original time to detect the threat.<br><b>Why it is not MTTR:</b> Recognition is not the same as taking control of the incident.<br><b>Why it is not dwell time:</b> Dwell time describes the period before detection, not the period after an alert.<br><br><b>Expert cue:</b> <i>Alert issued → incident recognized</i> identifies <b>MTTA</b>.`
+};
+
+let metricSelected=null;
+function metricPlace(card,drop){
+ const existing=drop.querySelector('.metric-evidence');
+ if(existing) document.getElementById('metricCardBank').appendChild(existing);
+ const old=card.parentElement;
+ if(old && old.classList.contains('metric-drop')) old.innerHTML='Drop one evidence card here';
+ drop.innerHTML=''; drop.appendChild(card); card.classList.remove('selected'); metricSelected=null;
+}
+document.querySelectorAll('.metric-evidence').forEach(card=>{
+ card.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',card.dataset.card)});
+ card.addEventListener('click',()=>{document.querySelectorAll('.metric-evidence').forEach(c=>c.classList.remove('selected'));card.classList.add('selected');metricSelected=card});
+ card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();card.click()}});
+});
+document.querySelectorAll('.metric-drop').forEach(drop=>{
+ drop.setAttribute('tabindex','0');
+ drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});
+ drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+ drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');const card=document.querySelector('.metric-evidence[data-card="'+e.dataTransfer.getData('text/plain')+'"]');if(card)metricPlace(card,drop)});
+ drop.addEventListener('click',()=>{if(metricSelected)metricPlace(metricSelected,drop)});
+ drop.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&metricSelected){e.preventDefault();metricPlace(metricSelected,drop)}});
+});
+
+document.getElementById('resetMetricBoard').addEventListener('click',()=>{
+ const bank=document.getElementById('metricCardBank');
+ ['detect','control','hidden','ack'].forEach(id=>bank.appendChild(document.querySelector('.metric-evidence[data-card="'+id+'"]')));
+ document.querySelectorAll('.metric-drop').forEach(d=>d.innerHTML='Drop one evidence card here');
+ ['metricFbMTTD','metricFbMTTR','metricFbDwell','metricFbMTTA','metricBoardSummary'].forEach(id=>{const e=document.getElementById(id);e.className='feedback';e.innerHTML=''});
+ metricSelected=null;
+});
+
+document.getElementById('reviewMetricBoard').addEventListener('click',()=>{
+ let allFilled=true,allCorrect=true,firstProblem=null;
+ document.querySelectorAll('.metric-drop').forEach(drop=>{
+   const card=drop.querySelector('.metric-evidence'),metric=drop.dataset.metric;
+   const fbId=metric==='Dwell time'?'metricFbDwell':'metricFb'+metric;
+   const box=document.getElementById(fbId);
+   if(!card){allFilled=false;allCorrect=false;box.className='feedback show bad';box.innerHTML='<b>This timing lane is empty.</b> Route one evidence card here before validation.';if(!firstProblem)firstProblem=box;return}
+   const correct=metricRouting[card.dataset.card].answer===metric;
+   if(correct){box.className='feedback show good';box.innerHTML=metricExpert[metric]}
+   else{
+     allCorrect=false;box.className='feedback show bad';
+     box.innerHTML='<b>Re-route Evidence '+card.querySelector('.badge').textContent.replace('Evidence ','')+'.</b> This evidence does not match <b>'+metric+'</b>. Compare the start and end of its clock with the definition of this lane. Move the card to a different lane and validate again.';
+     if(!firstProblem)firstProblem=box;
+   }
+ });
+ const sum=document.getElementById('metricBoardSummary');
+ sum.className='feedback show '+(allCorrect?'good':'bad');
+ if(allCorrect){
+   mark('metrics');
+   sum.innerHTML='<h3>Timing record reconstructed</h3><p>You correctly routed all four evidence intervals. The expert explanations under each lane show why the evidence fits that metric and why the neighboring timing concepts do not.</p><div class="note"><b>Performance insight:</b> The lesson also identifies total event volume, event-source types, response timing, and quality of escalations as useful SOC measures, while cautioning that measurement should support the larger goal of preventing harm.</div>';
+ }else{
+   sum.innerHTML=allFilled?'<b>Routing needs revision.</b> One or more cards are in the wrong timing lane. Re-route only those cards and validate again.':'<b>Board incomplete.</b> Route all four evidence cards before the timing record can close.';
+ }
+ if(firstProblem)setTimeout(()=>firstProblem.scrollIntoView({behavior:'smooth',block:'center'}),50);
+ update();
+});
+
+
+const sseRouting={
+ journey:'supported',category:'supported',datasource:'supported',bookmark:'supported',prereq:'supported',search:'supported',mitre:'supported',ransom:'supported',stories:'supported',
+ guarantee:'validate',nogap:'validate',ready:'validate'
+};
+const sseExpert={
+ journey:`<b>Journey-stage filtering — supported.</b> The course identifies Journey stage as an advanced filtering dimension and connects content to Security Data Journey maturity.<br><b>Why “hold” would be wrong:</b> This is an actual SSE filtering capability, not a claim that a detection will work locally.`,
+ category:`<b>Category filtering — supported.</b> Category is one of the course-supported ways to narrow security content.<br><b>Why “hold” would be wrong:</b> Filtering changes what content you view; it does not claim the filtered content is automatically deployment-ready.`,
+ datasource:`<b>Data-source filtering — supported.</b> The course explicitly includes Data Source among filtering dimensions.<br><b>Why “hold” would be wrong:</b> Using the filter is supported. The separate question of whether your environment actually has correctly onboarded required data still needs validation.`,
+ bookmark:`<b>Bookmarking — supported.</b> SSE allows learners to bookmark content and manage it through statuses such as Waiting on Data, Deployment Issues, Ready for Deployment, and Successfully Implemented.<br><b>Why “hold” would be wrong:</b> A bookmark is a management mechanism, not a guarantee of readiness.`,
+ prereq:`<b>Prerequisites and data sources — supported.</b> Use-case content includes prerequisites/data-source information that helps analysts understand what a detection expects.<br><b>Why “hold” would be wrong:</b> Inspecting requirements is exactly the kind of evidence needed before local implementation decisions.`,
+ search:`<b>Search behind the detection — supported.</b> The course shows that learners can inspect the actual search/SPL associated with a detection, including guidance such as line-by-line SPL.<br><b>Why “hold” would be wrong:</b> Reviewing the search is an SSE capability; whether that search is locally suitable remains a separate environment question.`,
+ mitre:`<b>MITRE ATT&amp;CK-driven browsing — supported.</b> The course explicitly demonstrates browsing/recommendation through MITRE ATT&amp;CK context.<br><b>Why “hold” would be wrong:</b> Framework mapping helps organize and contextualize content; it does not by itself prove local readiness.`,
+ ransom:`<b>Ransomware and Risk-Based Alerting browsing — supported.</b> Both are identified as SSE content-browsing/recommendation views.<br><b>Why “hold” would be wrong:</b> Exploring these content views is supported even though implementation still depends on environment requirements.`,
+ stories:`<b>Analytic Stories — supported.</b> The course describes Analytic Stories as related security content grouped around a theme with description, framework mappings, references, and searches.<br><b>Why “hold” would be wrong:</b> Examining an Analytic Story is a supported way to gain context; it is not the same as declaring every included detection ready.`,
+ guarantee:`<b>Assume a recommended detection fits — hold for validation.</b> SSE can make prescriptive recommendations, but the course does not say a recommendation guarantees fit in every environment.<br><b>Why “supported” would be wrong:</b> Recommendation and local suitability are different claims. Required data and environment context still have to be checked.`,
+ nogap:`<b>Skip the local gap assessment — hold for validation.</b> The course explicitly states that a proper gap assessment should confirm required data exists and is correctly onboarded.<br><b>Why “supported” would be wrong:</b> SSE helps identify content and requirements; it does not replace organizational verification.`,
+ ready:`<b>Mark every use case deployment-ready — hold for validation.</b> Library availability does not prove local prerequisites are satisfied. The course's bookmark statuses themselves distinguish states such as Waiting on Data, Deployment Issues, and Ready for Deployment.<br><b>Why “supported” would be wrong:</b> Content existence is not the same as implementation readiness.`
+};
+
+let sseSelected=null;
+function sseRefreshPlaceholder(drop){
+ const ph=drop.querySelector('.drop-placeholder');
+ if(ph)ph.style.display=drop.querySelector('.sse-action')?'none':'block';
+}
+function ssePlace(card,drop){
+ drop.appendChild(card);card.classList.remove('selected');sseSelected=null;sseRefreshPlaceholder(drop);
+}
+document.querySelectorAll('.sse-action').forEach(card=>{
+ card.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',card.dataset.card));
+ card.addEventListener('click',()=>{document.querySelectorAll('.sse-action').forEach(c=>c.classList.remove('selected'));card.classList.add('selected');sseSelected=card});
+ card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();card.click()}});
+});
+document.querySelectorAll('.sse-drop').forEach(drop=>{
+ drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});
+ drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+ drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');const c=document.querySelector('.sse-action[data-card="'+e.dataTransfer.getData('text/plain')+'"]');if(c)ssePlace(c,drop)});
+ drop.addEventListener('click',e=>{if(e.target===drop||e.target.classList.contains('drop-placeholder')){if(sseSelected)ssePlace(sseSelected,drop)}});
+ drop.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&sseSelected){e.preventDefault();ssePlace(sseSelected,drop)}});
+});
+
+document.getElementById('resetSSEIntake').addEventListener('click',()=>{
+ const bank=document.getElementById('sseCardBank');
+ ['journey','category','datasource','bookmark','prereq','search','mitre','ransom','stories','guarantee','nogap','ready'].forEach(id=>bank.appendChild(document.querySelector('.sse-action[data-card="'+id+'"]')));
+ document.querySelectorAll('.sse-drop').forEach(d=>{const ph=d.querySelector('.drop-placeholder');if(ph)ph.style.display='block'});
+ ['sseSupportedFb','sseValidateFb','sseIntakeSummary'].forEach(id=>{const e=document.getElementById(id);e.className='feedback';e.innerHTML=''});
+ sseSelected=null;
+});
+
+document.getElementById('reviewSSEIntake').addEventListener('click',()=>{
+ const cards=[...document.querySelectorAll('.sse-action')];
+ const routed=cards.filter(c=>c.closest('.sse-drop'));
+ const summary=document.getElementById('sseIntakeSummary');
+ if(routed.length!==cards.length){
+   summary.className='feedback show bad';summary.innerHTML='<b>Workspace incomplete.</b> Route all twelve action cards before reviewing the intake.';
+   return;
+ }
+ let all=true,firstProblem=null;
+ const laneResults={supported:[],validate:[]};
+ routed.forEach(card=>{
+   const lane=card.closest('.sse-drop').dataset.lane, correct=sseRouting[card.dataset.card]===lane;
+   laneResults[lane].push({card,correct});
+   if(!correct){all=false;if(!firstProblem)firstProblem=card}
+ });
+ ['supported','validate'].forEach(lane=>{
+   const box=document.getElementById(lane==='supported'?'sseSupportedFb':'sseValidateFb');
+   const items=laneResults[lane];
+   const wrong=items.filter(x=>!x.correct);
+   box.className='feedback show '+(wrong.length?'bad':'good');
+   if(wrong.length){
+     box.innerHTML='<b>'+wrong.length+' action'+(wrong.length>1?'s':'')+' need'+(wrong.length===1?'s':'')+' re-routing in this lane.</b><br>'+wrong.map(x=>'<div class="expert-ticket">'+sseExpert[x.card.dataset.card]+'</div>').join('');
+   }else{
+     box.innerHTML='<b>This lane is correctly routed.</b><br>'+items.map(x=>'<div class="expert-ticket">'+sseExpert[x.card.dataset.card]+'</div>').join('');
+   }
+ });
+ summary.className='feedback show '+(all?'good':'bad');
+ if(all){
+   mark('sse');
+   summary.innerHTML='<h3>Security Content Intake complete</h3><p>You separated <b>SSE capabilities</b> from <b>claims that still require environment validation</b>. SSE can help find, filter, bookmark, inspect, and contextualize security content, but a proper gap assessment is still needed to confirm required data exists and is correctly onboarded.</p><div class="note"><b>Carry-forward insight:</b> SSE reduces the effort required to discover and understand security content; it does not remove the analyst responsibility to verify data readiness and implementation fit.</div>';
+ }else{
+   summary.innerHTML='<b>Intake needs revision.</b> The expert feedback identifies why the misplaced actions do not belong in their current lane. Re-route those cards and review again.';
+   if(firstProblem)setTimeout(()=>firstProblem.scrollIntoView({behavior:'smooth',block:'center'}),50);
+ }
+ update();
+});
+
+
+
+
+
+const postureCases=[
+ {name:'posture1',answer:'Processes',fb:'postureCase1Fb',
+ correct:`<b>Correct — Processes.</b> The evidence says organizational direction already exists and the monitoring capability is available. The breakdown is that analysts are using different step sequences for the same work. In the lesson, processes are the rules or steps used to complete a task in alignment with security policy.<br><br><b>Why Technologies is not the best fit:</b> Tools are already available; the problem is not missing hardware or software capability.<br><b>Why People is plausible but not best:</b> People are performing the work, but the evidence specifically describes inconsistency in the method they follow.<br><b>Why Policies is plausible but not best:</b> An approved guideline already establishes direction; the missing consistency is in how that direction is carried out.<br><br><b>Recognition cue:</b> When the issue centers on <i>how work is performed step by step</i>, think <b>Processes</b>.`},
+ {name:'posture2',answer:'Policies',fb:'postureCase2Fb',
+ correct:`<b>Correct — Policies.</b> Staff, operating steps, and tools are already present. What remains unclear is the organizational expectation governing protection of assets and data. The lesson describes policies as guidelines that establish security direction and help maintain confidentiality, integrity, and availability.<br><br><b>Why People is not the best fit:</b> The case already identifies trained staff; staffing is not the missing element.<br><b>Why Technologies is plausible but not best:</b> Tools can support or enforce requirements, but they do not establish the organizational guideline itself.<br><b>Why Processes is plausible but not best:</b> Documented steps already exist. A process explains how work is completed; it does not replace the direction the work should follow.<br><br><b>Recognition cue:</b> When the issue is <i>organizational security direction or expectations</i>, think <b>Policies</b>.`},
+ {name:'posture3',answer:'Technologies',fb:'postureCase3Fb',
+ correct:`<b>Correct — Technologies.</b> The case explicitly establishes that guidance, staff, and operating steps are present, but the required hardware and software capability is absent. The lesson identifies technologies as the hardware and software supporting the overall security strategy.<br><br><b>Why Processes is not the best fit:</b> The operating steps are already documented; the method is available.<br><b>Why Policies is plausible but not best:</b> Security guidance is already established, so direction is not the gap.<br><b>Why People is plausible but not best:</b> Assigned staff are present, but they lack the technical capability required to perform the monitoring work.<br><br><b>Recognition cue:</b> When the missing element is <i>hardware or software capability that enables security work</i>, think <b>Technologies</b>.`},
+ {name:'posture4',answer:'People',fb:'postureCase4Fb',
+ correct:`<b>Correct — People.</b> The guidelines, operating steps, and supporting tools are all available. The unresolved issue is the absence of assigned individuals consistently carrying out, managing, and coordinating the work. The lesson identifies people as the human element that helps define and manage security operations.<br><br><b>Why Policies is not the best fit:</b> The security guidelines already exist; direction is available.<br><b>Why Technologies is plausible but not best:</b> Supporting tools are present, but tools do not independently own or coordinate the work.<br><b>Why Processes is plausible but not best:</b> Operating steps are already documented; the missing element is the human actor responsible for executing and managing them.<br><br><b>Recognition cue:</b> When the question is <i>who defines, manages, coordinates, or carries out the work</i>, think <b>People</b>.`}
+];
+
+document.getElementById('reviewPostureBrief').addEventListener('click',()=>{
+ let all=true,complete=true,firstProblem=null;
+ postureCases.forEach(c=>{
+   const picked=document.querySelector('input[name="'+c.name+'"]:checked');
+   const box=document.getElementById(c.fb);
+   if(!picked){
+     all=false;complete=false;box.className='feedback show bad';
+     box.innerHTML='<b>This briefing decision is incomplete.</b> Review the evidence and select the primary operating-model element.';
+     if(!firstProblem)firstProblem=box;return;
+   }
+   if(picked.value===c.answer){
+     box.className='feedback show good';box.innerHTML=c.correct;
+   }else{
+     all=false;box.className='feedback show bad';
+     const selected=picked.value;
+     const hints={
+       People:'People represent the human actors who define, implement, manage, and perform security work.',
+       Policies:'Policies represent the organizational guidelines that establish security direction.',
+       Processes:'Processes represent the repeatable rules or steps used to complete security work.',
+       Technologies:'Technologies represent the hardware and software capability supporting the security strategy.'
+     };
+     box.innerHTML='<b>'+selected+' is plausible, but it is not the primary element described by this evidence.</b><br>'+hints[selected]+'<div class="expert-ticket"><b>Where the reasoning breaks down:</b> Re-read what the case says is already present, then identify the one function that remains unresolved. Change your selection and review the briefing again.</div>';
+     if(!firstProblem)firstProblem=box;
+   }
+ });
+ const sum=document.getElementById('postureSummary');
+ sum.className='feedback show '+(all?'good':'bad');
+ if(all){
+   mark('posture');
+   sum.innerHTML='<h3>Security posture briefing complete</h3><p>You distinguished the four elements by their <b>function</b>, not by isolated keywords: <b>People</b> carry out and manage the work, <b>Policies</b> provide organizational direction, <b>Processes</b> define repeatable rules and steps, and <b>Technologies</b> provide supporting hardware and software capability.</p><div class="note"><b>Carry-forward insight:</b> The lesson presents security posture through these elements working together. A strong explanation asks which function the evidence describes rather than assuming every security problem is primarily a technology problem.</div>';
+ }else{
+   sum.innerHTML=complete?'<b>The briefing needs revision.</b> Incorrect cases remain open. Use the response-specific coaching, reconsider the evidence, and select again.':'<b>Complete all four briefing cases.</b> Every case must have a decision before the briefing can close.';
+ }
+ if(firstProblem)setTimeout(()=>firstProblem.scrollIntoView({behavior:'smooth',block:'center'}),50);
+ update();
+});
+
+
+// Disposition
+const dispositionExpert=[{answer:'True Positive',fb:'dispCase0Fb',right:`<b>Correct — True Positive.</b> The investigation confirms infected hosts. The alert corresponds to real malicious activity.<br><br><b>Why the other disposition can seem plausible:</b> Antivirus alerts still require validation, but uncertainty before investigation does not make an alert false. Here infection is confirmed.<br><br><b>Expert cue:</b> Separate the alert signal from what the investigation ultimately established.`},{answer:'True Positive',fb:'dispCase1Fb',right:`<b>Correct — True Positive.</b> The authentication failures are traced to password cracking, so the alert represents genuine malicious activity.<br><br><b>Why the other disposition can seem plausible:</b> Repeated failures can come from user mistakes, but this investigation explicitly establishes password cracking.<br><br><b>Expert cue:</b> Separate the alert signal from what the investigation ultimately established.`},{answer:'True Positive',fb:'dispCase2Fb',right:`<b>Correct — True Positive.</b> The port-scanning signal is supported by the finding that the network is under attack.<br><br><b>Why the other disposition can seem plausible:</b> Scanning alone can have other explanations; the attack context is what makes this source example a true positive.<br><br><b>Expert cue:</b> Separate the alert signal from what the investigation ultimately established.`},{answer:'False Positive',fb:'dispCase3Fb',right:`<b>Correct — False Positive.</b> The alert fired, but investigation traces the failures to user error rather than malicious activity.<br><br><b>Why the other disposition can seem plausible:</b> High failure counts can resemble password cracking. The count explains the alert, while the investigated cause determines disposition.<br><br><b>Expert cue:</b> Separate the alert signal from what the investigation ultimately established.`},{answer:'False Positive',fb:'dispCase4Fb',right:`<b>Correct — False Positive.</b> The traffic increase is explained by legitimate purchases after an advertising campaign.<br><br><b>Why the other disposition can seem plausible:</b> A traffic surge can resemble a denial-of-service condition. Business context explains why the alert fired without an attack.<br><br><b>Expert cue:</b> Separate the alert signal from what the investigation ultimately established.`},{answer:'False Positive',fb:'dispCase5Fb',right:`<b>Correct — False Positive.</b> The outbound transfer is approved Marketing activity rather than malicious exfiltration.<br><br><b>Why the other disposition can seem plausible:</b> Large outbound transfers can resemble exfiltration. The approved business purpose changes the meaning of the observed behavior.<br><br><b>Expert cue:</b> Separate the alert signal from what the investigation ultimately established.`}];
+const dispSelected=Array(6).fill(null);
+document.querySelectorAll('.disp-choice button').forEach(btn=>btn.addEventListener('click',()=>{const i=Number(btn.dataset.case);document.querySelectorAll('.disp-choice button[data-case="'+i+'"]').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');dispSelected[i]=btn.dataset.value;}));
+document.getElementById('reviewDisposition').addEventListener('click',()=>{
+ let all=true,complete=true,first=null;
+ dispositionExpert.forEach((item,i)=>{const box=document.getElementById(item.fb),v=dispSelected[i];
+ if(!v){all=false;complete=false;box.className='feedback show bad';box.innerHTML='<b>No disposition recorded.</b> Review the signal and finding before closing this case.';if(!first)first=box;return;}
+ if(v===item.answer){box.className='feedback show good';box.innerHTML=item.right;}
+ else{all=false;box.className='feedback show bad';box.innerHTML='<b>'+v+' is plausible, but it does not fit the completed investigation.</b><br><br><b>Where the reasoning breaks down:</b> The alert signal explains why the case was opened; the investigation finding determines whether malicious activity was actually confirmed or a non-threatening explanation was established.<br><br><b>Try again:</b> Re-read the investigation finding and revise the disposition.';if(!first)first=box;}});
+ const sum=document.getElementById('dispSummary');sum.className='feedback show '+(all?'good':'bad');
+ if(all){mark('disp');sum.innerHTML='<h3>Shift handoff complete</h3><p>You dispositioned the cases from the investigation context rather than the alert label. Confirmed malicious activity supports a <b>True Positive</b>; an acceptable or non-threatening explanation supports a <b>False Positive</b>.</p><div class="note"><b>Carry-forward insight:</b> Similar signals can produce different dispositions because the underlying cause is different.</div>';}
+ else sum.innerHTML=complete?'<b>Some cases need revision.</b> Use the case-specific coaching and try those dispositions again.':'<b>The handoff is incomplete.</b> Record a disposition for all six cases.';
+ if(first)setTimeout(()=>first.scrollIntoView({behavior:'smooth',block:'center'}),50);update();
+});
+
+
+// Detection anatomy
+
+const detectionReview=[
+ {answer:'presence',feedback:`<b>Correct — Data Availability is about required data presence and its connection to Data Inventory.</b><br><br><b>“Confirms organizational fit” — why it is wrong:</b> Seeing the source in inventory does not prove the detection is appropriate for the organization. The course still calls for a proper gap assessment.<br><br><b>“Confirms onboarding, tuning, and validation” — why it is wrong:</b> Data Availability can expose data status, but it does not by itself certify that every onboarding and tuning requirement is complete.<br><br><b>Expert distinction:</b> <i>Data present</i> is not the same claim as <i>detection ready for this organization</i>.`},
+ {answer:'quantity',feedback:`<b>Correct — Alert Volume communicates expected alert quantity and relates directly to alert fatigue.</b><br><br><b>“Operational importance” — why it is wrong:</b> A detection that fires frequently is not automatically more important. Frequency and security importance are different ideas.<br><br><b>“Stored security data” — why it is wrong:</b> Alert Volume describes expected alerts, not the amount of matching data retained by the organization.<br><br><b>Expert distinction:</b> Think <i>how many alerts might this detection create?</i>, not <i>how much data exists?</i>`},
+ {answer:'skill',feedback:`<b>Correct — SPL Difficulty relates the detection to SPL skill level.</b><br><br><b>“Data-onboarding complexity” — why it is wrong:</b> Onboarding can be complex, but that is a different concern from the difficulty of the SPL behind the detection.<br><br><b>“Investigation difficulty” — why it is wrong:</b> A behavior may be easy or hard to investigate independently of how difficult its SPL is to understand.<br><br><b>Expert distinction:</b> SPL Difficulty describes the <i>search language skill dimension</i>, not the operational difficulty of the entire use case.`},
+ {answer:'dependency',feedback:`<b>Correct — Data Sources identify what the detection depends on and connect those requirements to onboarding information.</b><br><br><b>“SSE-verified as sufficient” — why it is wrong:</b> The course does not treat a listed data source as proof that the organization's security gap has been satisfied. Local data readiness still matters.<br><br><b>“Highest-priority alert source” — why it is wrong:</b> The field identifies detection dependencies, not a ranking of which source produced the most important alert.<br><br><b>Expert distinction:</b> Read Data Sources as <i>what telemetry must support this detection?</i>`},
+ {answer:'specific',feedback:`<b>Correct — Guidance provides use-case-specific implementation and operating context.</b> The course shows information for implementation, known false positives, response, related capabilities, SPL, and help.<br><br><b>“Single deployment verdict” — why it is wrong:</b> Guidance supplies information; it does not collapse Data Availability, Alert Volume, Journey, and other considerations into one automatic readiness decision.<br><br><b>“One unchanged response procedure” — why it is wrong:</b> Guidance varies by use case rather than imposing one universal response procedure across the content library.<br><br><b>Expert distinction:</b> Guidance helps the analyst <i>understand and use a specific use case</i>; it is not a universal playbook or automatic deployment approval.`}
+];
+const detectionSelected=Array(5).fill(null);
+document.querySelectorAll('.detect-options button').forEach(btn=>btn.addEventListener('click',()=>{
+ const q=Number(btn.parentElement.dataset.q);
+ btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));
+ btn.classList.add('selected');detectionSelected[q]=btn.dataset.id;
+}));
+document.getElementById('reviewDetectionBoard').addEventListener('click',()=>{
+ let all=true,complete=true,first=null;
+ detectionReview.forEach((item,i)=>{
+   const box=document.getElementById('detectFb'+i),v=detectionSelected[i];
+   if(!v){all=false;complete=false;box.className='feedback show bad';box.innerHTML='<b>This use-case section is still open.</b> Inspect the field snapshot and record the interpretation that most precisely explains it.';if(!first)first=box;return;}
+   if(v===item.answer){box.className='feedback show good';box.innerHTML=item.feedback;}
+   else{
+     all=false;box.className='feedback show bad';
+     const selectedText=document.querySelector('.detect-options[data-q="'+i+'"] button[data-id="'+v+'"]').textContent;
+     box.innerHTML='<b>Reconsider this interpretation:</b> '+selectedText+'<br><br>This statement uses a nearby SSE idea, but it assigns this field more meaning than the course gives it or describes a different field entirely.<div class="expert-ticket"><b>Review cue:</b> Ask what this field itself communicates before deciding what the organization might do with that information. Revise your selection and review again.</div>';
+     if(!first)first=box;
+   }
+ });
+ const sum=document.getElementById('detectSummary');sum.className='feedback show '+(all?'good':'bad');
+ if(all){
+   mark('detect');
+   sum.innerHTML='<h3>Use-case handoff complete</h3><p>You interpreted five different parts of the SSE record without treating them as interchangeable: <b>Data Availability</b> addresses required data presence, <b>Alert Volume</b> frames expected alert quantity, <b>SPL Difficulty</b> relates to SPL skill, <b>Data Sources</b> identify detection dependencies, and <b>Guidance</b> provides use-case-specific implementation and response context.</p><div class="note"><b>Carry-forward insight:</b> SSE fields answer different questions. Understanding the detection means knowing what each field tells you—and just as importantly, what it does <i>not</i> prove.</div>';
+ } else {
+   sum.innerHTML=complete?'<b>The handoff needs revision.</b> Some interpretations still confuse neighboring SSE concepts. Use the coaching under each open record and try again.':'<b>The handoff is incomplete.</b> Record an interpretation for all five use-case sections.';
+ }
+ if(first)setTimeout(()=>first.scrollIntoView({behavior:'smooth',block:'center'}),50);update();
+});
+
+
+// Filters
+
+
+
+const narrowingRoute=[
+ {answer:'keyword',expert:`<b>Correct — Keyword.</b> The analyst begins with a specific phrase, so Keyword most precisely expresses the request.<br><br><b>Category — plausible, but not best:</b> “Local admin” can relate to a security concern, but Category narrows through an organized security grouping rather than the literal term being entered.<br><b>Journey — plausible, but not best:</b> Journey can further refine useful content, but it answers a maturity-stage question that the analyst has not asked yet.<br><br><b>Expert distinction:</b> Search wording itself → <b>Keyword</b>.`},
+ {answer:'journey',expert:`<b>Correct — Journey.</b> The request explicitly concerns the team's current Security Data Journey stage and therefore technical maturity.<br><br><b>Featured — plausible, but not best:</b> SME-recommended content may be useful at many maturity levels, but recommendation status does not describe the deployment's stage.<br><b>Data Source — plausible, but not best:</b> Available telemetry can affect usable content, but Data Source asks what data or technology powers a use case rather than where the deployment sits on its maturity journey.<br><br><b>Expert distinction:</b> Security Data Journey stage → <b>Journey</b>.`},
+ {answer:'category',expert:`<b>Correct — Category.</b> The analyst wants the library organized around the type of security concern represented by the content.<br><br><b>Keyword — plausible, but not best:</b> A related term could find useful content, but Keyword follows search wording rather than the organized security concern.<br><b>Data Source — plausible, but not best:</b> A security concern may depend on specific telemetry, but Data Source narrows according to the data/technology powering the use case.<br><br><b>Expert distinction:</b> Organized security concern → <b>Category</b>.`},
+ {answer:'datasource',expert:`<b>Correct — Data Source.</b> The request asks which content is supported by particular data sources and technologies—the dimension represented by Data Source filtering.<br><br><b>Journey — plausible, but not best:</b> Technical maturity can influence content selection, but it does not identify the telemetry dependency described here.<br><b>Featured — plausible, but not best:</b> A featured use case may still depend on data the organization does not have. Featured indicates SME recommendation, not source availability or dependency.<br><br><b>Expert distinction:</b> Data or technology powering the use case → <b>Data Source</b>.`},
+ {answer:'featured',expert:`<b>Correct — Featured.</b> The course defines Featured as content highly recommended by Splunk Security subject matter experts.<br><br><b>Keyword — plausible, but not best:</b> A term can find related content, but it does not communicate expert recommendation status.<br><b>Category — plausible, but not best:</b> Category organizes by security concern; it does not identify which use cases Splunk Security SMEs highly recommend.<br><br><b>Expert distinction:</b> Splunk Security SME recommendation → <b>Featured</b>.`}
+];
+const narrowingSelected=Array(5).fill(null);
+document.querySelectorAll('.route-options button').forEach(btn=>btn.addEventListener('click',()=>{
+ const i=Number(btn.parentElement.dataset.route);
+ btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));
+ btn.classList.add('selected');narrowingSelected[i]=btn.dataset.id;
+}));
+document.getElementById('reviewNarrowingRoute').addEventListener('click',()=>{
+ let all=true,complete=true,first=null;
+ narrowingRoute.forEach((item,i)=>{
+   const box=document.getElementById('routeFb'+i),v=narrowingSelected[i];
+   if(!v){all=false;complete=false;box.className='feedback show bad';box.innerHTML='<b>No filter selected.</b> Interpret the analyst request and choose the filter that answers that specific information need.';if(!first)first=box;return;}
+   if(v===item.answer){box.className='feedback show good';box.innerHTML=item.expert;}
+   else{
+     all=false;const labels={keyword:'Keyword',journey:'Journey',category:'Category',datasource:'Data Source',featured:'Featured'};
+     box.className='feedback show bad';box.innerHTML='<b>'+labels[v]+' could produce useful security content, but it answers a different narrowing question.</b><br><br><b>Where the reasoning breaks down:</b> Identify exactly what property the analyst wants SSE to examine—term, maturity stage, security concern, supporting telemetry, or SME recommendation. Then revise your decision.';
+     if(!first)first=box;
+   }
+ });
+ const sum=document.getElementById('filterSummary');sum.className='feedback show '+(all?'good':'bad');
+ if(all){mark('filters');sum.innerHTML='<h3>Content narrowing route complete</h3><p>You distinguished five SSE filters by the question each one answers: <b>Keyword</b> searches terms, <b>Journey</b> aligns to maturity stage, <b>Category</b> groups by security concern, <b>Data Source</b> narrows by supporting telemetry/technology, and <b>Featured</b> surfaces content highly recommended by Splunk Security SMEs.</p><div class="note"><b>Carry-forward insight:</b> Multiple filters can lead toward useful content, but they are not interchangeable. Understanding the route means knowing exactly what property each filter uses to reduce the search space. Filtering still does not replace local data validation or gap assessment.</div>';}
+ else sum.innerHTML=complete?'<b>The route needs revision.</b> Some selections are useful SSE filters but do not answer the specific analyst request. Reconsider those cases and review again.':'<b>The route is incomplete.</b> Complete all five analyst requests before closing the content ticket.';
+ if(first)setTimeout(()=>first.scrollIntoView({behavior:'smooth',block:'center'}),50);update();
+});
+
+
+// Cycle
+
+
+
+const cycleRelay=[
+ {answer:'hypothesis',expert:`<b>Correct — Define &amp; Predict.</b> The source begins the cycle by establishing risk and vulnerability and creating a hypothesis. This gives the later monitoring work something specific to examine.<br><br><b>“Establish frequency and determine requirements” — why it is wrong here:</b> That belongs to <b>Establish &amp; Architect</b>, after the opening risk/hypothesis has been defined.<br><b>“Add assets, identities, sources, searches, and reports” — why it is wrong here:</b> Those are implementation/collection activities that make the monitoring environment usable after requirements are established.<br><br><b>Expert connection:</b> The cycle begins by defining what concern or hypothesis the organization is trying to understand.`},
+ {answer:'requirements',expert:`<b>Correct — Establish &amp; Architect.</b> The source associates this stage with establishing frequency and determining requirements. It translates the opening concern into what the monitoring effort will require.<br><br><b>“View data and results...” — why it is wrong here:</b> That is <b>Analyze &amp; Report</b>; analysis occurs after information has been implemented and collected.<br><b>“Review findings and recommend the next cycle” — why it is wrong here:</b> That belongs to <b>Respond &amp; Review</b>, where findings from this pass help shape the next one.<br><br><b>Expert connection:</b> This stage bridges the hypothesis and the capabilities/information that must be established to examine it.`},
+ {answer:'collect',expert:`<b>Correct — Implement &amp; Collect.</b> The source places assets, identities, sources, dashboards, searches, and reports in this stage. These are the elements brought into the monitoring environment so information can be examined.<br><br><b>“Establish risk, vulnerability, and create a hypothesis” — why it is wrong here:</b> That is the opening <b>Define &amp; Predict</b> work.<br><b>“View data and results...” — why it is wrong here:</b> That belongs to <b>Analyze &amp; Report</b>; it uses what this stage has made available.<br><br><b>Expert connection:</b> Implement &amp; Collect turns requirements into the assets, identities, sources, and monitoring artifacts needed for the next stage.`},
+ {answer:'analyze',expert:`<b>Correct — Analyze &amp; Report.</b> The source describes viewing data and results and searching based on the hypothesis. This connects collected information back to the question established earlier in the cycle.<br><br><b>“Establish frequency and determine requirements” — why it is wrong here:</b> That is architecture/planning work from <b>Establish &amp; Architect</b>.<br><b>“Review findings and recommend the next cycle” — why it is wrong here:</b> That is <b>Respond &amp; Review</b>; it follows the analysis rather than replacing it.<br><br><b>Expert connection:</b> This is where collected information is interpreted in relation to the hypothesis.`},
+ {answer:'review',expert:`<b>Correct — Respond &amp; Review.</b> The source places mitigation, review of findings, and recommendations for the next cycle here. That last relationship is what makes continuous monitoring a loop rather than a one-time project.<br><br><b>“Add assets, identities, sources, searches, and reports” — why it is wrong here:</b> That is <b>Implement &amp; Collect</b>; those capabilities support the analysis earlier in the pass.<br><b>“Establish frequency and determine requirements” — why it is wrong here:</b> That is <b>Establish &amp; Architect</b>. New recommendations may influence later requirements, but the activities are not the same stage.<br><br><b>Expert connection:</b> Respond &amp; Review closes the current pass while findings and recommendations inform what should be defined, collected, or examined next.`}
+];
+const cycleSelected=Array(5).fill(null);
+document.querySelectorAll('.relay-options button').forEach(btn=>btn.addEventListener('click',()=>{
+ const i=Number(btn.parentElement.dataset.cycleq);
+ btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));
+ btn.classList.add('selected');cycleSelected[i]=btn.dataset.id;
+}));
+document.getElementById('reviewCycleRelay').addEventListener('click',()=>{
+ let all=true,complete=true,first=null;
+ cycleRelay.forEach((item,i)=>{
+   const box=document.getElementById('cycleStage'+i+'Fb'),v=cycleSelected[i];
+   if(!v){all=false;complete=false;box.className='feedback show bad';box.innerHTML='<b>This relay stage is incomplete.</b> Select the handoff note that most precisely belongs to this stage.';if(!first)first=box;return;}
+   if(v===item.answer){box.className='feedback show good';box.innerHTML=item.expert;}
+   else{
+     all=false;box.className='feedback show bad';
+     box.innerHTML='<b>This note belongs somewhere in the monitoring cycle, but not at this stage.</b><br><br><b>Where the reasoning breaks down:</b> Distinguish whether the stage is defining the concern, establishing requirements, making information available, examining results, or using findings to respond and inform the next pass. Revise the handoff note and review again.';
+     if(!first)first=box;
+   }
+ });
+ const sum=document.getElementById('cycleFb');sum.className='feedback show '+(all?'good':'bad');
+ if(all){mark('cycle');sum.innerHTML='<h3>Continuous monitoring relay restored</h3><p><b>Define &amp; Predict</b> establishes the concern and hypothesis → <b>Establish &amp; Architect</b> determines frequency and requirements → <b>Implement &amp; Collect</b> makes assets, identities, sources, searches, and reports available → <b>Analyze &amp; Report</b> examines data and results against the hypothesis → <b>Respond &amp; Review</b> mitigates, reviews findings, and recommends what should inform the next cycle.</p><div class="note"><b>Carry-forward insight:</b> The final stage does more than end the work. Its findings and recommendations create the connection back into the next monitoring cycle, which is why the source presents continuous monitoring as an ongoing loop.</div>';}
+ else sum.innerHTML=complete?'<b>The relay needs revision.</b> Some notes are legitimate cycle activities but belong to a different stage. Use the stage-specific coaching and try again.':'<b>The relay is incomplete.</b> Complete all five stage handoffs before closing the monitoring brief.';
+ if(first)setTimeout(()=>first.scrollIntoView({behavior:'smooth',block:'center'}),50);update();
+});
+
+
+// Framework / stories
+
+const frameworkDossier=[
+ {answer:'security frameworks',aliases:['frameworks','security framework'],hint:'Look for the concept that places content in models such as MITRE ATT&CK and Cyber Kill Chain.',expert:`<b>Correct — Security Frameworks.</b> SSE maps content to frameworks such as MITRE ATT&amp;CK and Cyber Kill Chain, giving a detection broader security-model context.<br><br><b>Why Analytic Stories can seem plausible:</b> Analytic Stories also add context around detections, but they group related guidance and detections around a security theme rather than serving as the framework mapping itself.<br><b>Why Security Data Journey does not fit:</b> It adds maturity context, not ATT&amp;CK/Kill Chain context.<br><b>Why Sankey diagram does not fit:</b> It visualizes relationships among use cases, data sources, and Splunk apps rather than mapping a detection to a security framework.<br><br><b>Expert distinction:</b> ATT&amp;CK/Kill Chain mapping → <b>Security Frameworks</b>.`},
+ {answer:'analytic stories',aliases:['analytic story'],hint:'Look for the concept that groups actionable guidance and related detections around a security theme.',expert:`<b>Correct — Analytic Stories.</b> Analytic Stories group actionable guidance and related detections around a security theme and include mappings and references.<br><br><b>Why Security Frameworks can seem plausible:</b> Stories can include framework mappings, but the story is the thematic grouping; the framework is the broader security model used to contextualize content.<br><b>Why Security Data Journey does not fit:</b> Journey describes maturity stages rather than a themed collection of related detections.<br><b>Why Sankey diagram does not fit:</b> The Sankey view visualizes relationships; it does not create the thematic narrative itself.<br><br><b>Expert distinction:</b> Related guidance + detections around one security theme → <b>Analytic Story</b>.`},
+ {answer:'security data journey',aliases:['data journey','journey'],hint:'Look for the concept that aligns security content to stages of technical maturity.',expert:`<b>Correct — Security Data Journey.</b> SSE associates security content with maturity stages so analysts can understand content relative to the technical maturity of the Splunk deployment.<br><br><b>Why Security Frameworks can seem plausible:</b> Frameworks also organize security understanding, but they map content to models such as MITRE ATT&amp;CK and Cyber Kill Chain rather than to deployment maturity.<br><b>Why Analytic Stories do not fit:</b> Stories organize related detections and guidance around a security theme, not a maturity progression.<br><b>Why Sankey diagram does not fit:</b> The Sankey view shows relationships among content, data sources, and apps rather than maturity stages.<br><br><b>Expert distinction:</b> Technical maturity progression → <b>Security Data Journey</b>.`},
+ {answer:'sankey diagram',aliases:['sankey','sankey visualization'],hint:'Look for the visual that shows relationships among use cases, data sources, and Splunk apps.',expert:`<b>Correct — Sankey diagram.</b> The Security Content Overview uses a Sankey visualization to show relationships among use cases, data sources, and Splunk apps.<br><br><b>Why Security Frameworks can seem plausible:</b> Frameworks connect detections to broader models, but that is a conceptual mapping rather than this relationship visualization.<br><b>Why Analytic Stories do not fit:</b> Stories group related guidance and detections around a theme; they are not the visualization described here.<br><b>Why Security Data Journey does not fit:</b> Journey adds maturity context, not a visual relationship map among content, data, and apps.<br><br><b>Expert distinction:</b> Visual relationship among use case + data source + Splunk app → <b>Sankey diagram</b>.`}
+];
+function normFramework(v){return v.trim().toLowerCase().replace(/[-_]+/g,' ').replace(/\s+/g,' ')}
+document.getElementById('reviewContextDossier').addEventListener('click',()=>{
+ let all=true,complete=true,first=null;
+ frameworkDossier.forEach((item,i)=>{
+   const input=document.getElementById('frameworkEntry'+i),box=document.getElementById('frameworkEntry'+i+'Fb'),v=normFramework(input.value);
+   input.classList.remove('entry-good','entry-bad');
+   if(!v){all=false;complete=false;input.classList.add('entry-bad');box.className='feedback show bad';box.innerHTML='<b>This annotation is incomplete.</b> Read the evidence excerpt and name the SSE concept that adds this kind of context.';if(!first)first=input;return;}
+   const ok=v===item.answer || item.aliases.includes(v);
+   if(ok){input.classList.add('entry-good');box.className='feedback show good';box.innerHTML=item.expert;}
+   else{all=false;input.classList.add('entry-bad');box.className='feedback show bad';box.innerHTML='<b>'+input.value.trim()+' does not explain this evidence excerpt precisely.</b><br><br><b>Conceptual clue:</b> '+item.hint+'<br><br><b>Where the reasoning breaks down:</b> Framework, theme, maturity, and relationship visualization all add context, but they answer different questions. Revise the annotation yourself; the correct term will not be inserted for you.';if(!first)first=input;}
+ });
+ const sum=document.getElementById('frameworkFb');sum.className='feedback show '+(all?'good':'bad');
+ if(all){mark('framework');sum.innerHTML='<h3>Detection context dossier complete</h3><p>You reconstructed four distinct SSE context layers: <b>Security Frameworks</b> connect content to models such as MITRE ATT&amp;CK and Cyber Kill Chain; <b>Analytic Stories</b> group related guidance and detections around a security theme; the <b>Security Data Journey</b> adds technical-maturity context; and the <b>Sankey diagram</b> visualizes relationships among use cases, data sources, and Splunk apps.</p><div class="note"><b>Carry-forward insight:</b> A detection can be understood through several lenses at once. The key is not merely recognizing the terms—it is knowing what kind of context each lens contributes and not treating them as interchangeable.</div>';}
+ else sum.innerHTML=complete?'<b>The dossier needs revision.</b> Some annotations identify a neighboring type of context. Use the clues beneath those entries and revise them.':'<b>The dossier is incomplete.</b> Complete all four annotations before closing the handoff.';
+ if(first)setTimeout(()=>first.scrollIntoView({behavior:'smooth',block:'center'}),50);update();
+});
+document.getElementById('clearContextDossier').addEventListener('click',()=>{
+ frameworkDossier.forEach((_,i)=>{const input=document.getElementById('frameworkEntry'+i),box=document.getElementById('frameworkEntry'+i+'Fb');input.value='';input.classList.remove('entry-good','entry-bad');box.className='feedback';box.innerHTML='';});
+ const sum=document.getElementById('frameworkFb');sum.className='feedback';sum.innerHTML='';
+});
+
+
+const fullData=[
+['Threat hunting','Relationship','Begins with a hypothesis and proactively seeks evidence that automated detection may have missed.'],
+['5 Ws','Relationship','Organize incident understanding around Who, What, When, Where, and Why.'],
+['Analyst documentation','Relationship','Carries findings into communication, recommendations, improvement requests, automation opportunities, and remediation.'],
+['SOC metrics','Relationship','Support operational understanding but should remain connected to preventing harm and improving tools/processes.'],
+['SSE gap assessment','Relationship','Confirms that required detection data exists and has been onboarded correctly before relying on a use case.'],
+['Security Data Journey','Relationship','Connects security content to the technical maturity of the Splunk deployment, from foundational collection toward advanced detection.'],
+['Data Source Onboarding Guide','Relationship','Explains onboarding, indexes/source types, forwarder setup, and sizing information for a required source.'],
+['Content status','Relationship','Communicates management/readiness states such as Not on List, Waiting for data, or Deployment Issues.'],
+['Framework/content lenses','Relationship','Allow content to be understood through MITRE ATT&CK, Cyber Kill Chain, ransomware, and Risk-Based Alerting contexts.'],
+['Analytic Story','Relationship','Groups related security guidance and detections around a theme so content is not understood only as isolated detections.']
+];
+rows('fullRows',fullData,fullData.map(x=>x[2]));
+function checkFull(){checkRows('fullRows','full','fullFb','The complete-source map is aligned. Notice the bridge between the lessons: SOC concepts explain the analyst environment and work; SSE organizes detections, data requirements, guidance, maturity, and framework context that can support that work.')}
+
+
+const roleTickets=[
+ {id:'roleTicket1',answer:'Defense Analyst',why:`<b>Correct — Defense Analyst:</b> The central work product is an <i>investigated and dispositioned notable event</i>. The course assigns the analyst responsibility for investigating notable events, researching indicators, following runbooks, and identifying true versus false positives. Those actions match the ticket from beginning to end.<br><br><b>Engineer — plausible, but wrong:</b> An engineer could become involved if the investigation revealed a noisy or ineffective detection. However, the ticket is not asking someone to create, test, or improve detection logic. The alert already exists; the immediate task is to determine what it means.<br><br><b>Architect — plausible, but wrong:</b> An architect may ensure that the SOC has the tools, data, assets, and identities needed for investigation, but this ticket does not ask for a new solution or data architecture. The infrastructure is already producing the event.<br><br><b>SOC Manager — plausible, but wrong:</b> The manager can guide the analyst, manage workload, and support escalation, but guidance is not the same as owning the investigation. The source places notable-event investigation with the analyst.<br><br><b>CISO — plausible, but wrong:</b> A serious incident may eventually require executive visibility, but the CISO's source-defined responsibility is company-facing security leadership and budget approval, not first-line event validation.<br><br><b>Decision cue:</b> When the ticket asks, “What happened, what evidence supports it, and is this a true or false positive?” think <b>Defense Analyst</b>.`},
+ {id:'roleTicket2',answer:'Engineer',why:`<b>Correct — Engineer:</b> The work product is an <i>improved detection</i>. The lesson assigns engineers responsibility for creating and testing detections, evaluating and ingesting threat intelligence, and improving detection performance. The ticket specifically asks for behavior review, testing, intelligence review, and noise reduction—each points to detection engineering.<br><br><b>Defense Analyst — plausible, but wrong:</b> Analysts are often the people who first notice excessive false positives because they investigate the alerts. Their feedback can trigger this work, but investigating individual alerts is different from modifying and testing the detection that generated them.<br><br><b>Architect — plausible, but wrong:</b> An architect becomes the stronger owner when the problem concerns selecting/implementing a security solution or enabling required Splunk data, assets, and identities. Here the platform stays in place; the detection needs improvement inside it.<br><br><b>SOC Manager — plausible, but wrong:</b> The manager may prioritize the issue because noisy alerts affect analyst workload, but operational prioritization does not make the manager the technical owner of detection logic.<br><br><b>CISO — plausible, but wrong:</b> Alert fatigue can affect organizational risk, but no executive representation or budget approval is requested. The required work is technical and detection-focused.<br><br><b>Decision cue:</b> When the ticket asks to <b>create, test, tune, or improve a detection</b>, think <b>Engineer</b>.`},
+ {id:'roleTicket3',answer:'Architect',why:`<b>Correct — Architect:</b> The work product is an <i>implemented security capability with the required Splunk data context</i>. The course assigns architects responsibility for choosing and implementing security tools/solutions and working with administrators to get data, assets, and identities into Splunk. The scenario requires both solution fit and data enablement.<br><br><b>Engineer — plausible, but wrong:</b> Engineers may later create detections that use the new capability and its data. But the ticket occurs one layer earlier: the organization still needs the solution introduced and the supporting information made available.<br><br><b>Defense Analyst — plausible, but wrong:</b> Analysts benefit from the resulting telemetry and may use it during investigations, but consuming security data is different from designing how the capability and data enter the environment.<br><br><b>SOC Manager — plausible, but wrong:</b> The manager may coordinate people and priorities during the rollout, but the technical responsibility described by the source belongs to architecture.<br><br><b>CISO — plausible, but wrong:</b> The CISO can approve funding and represent the security need to leadership. Once the task becomes selecting/implementing the solution and enabling Splunk data, however, the source-defined owner is the Architect.<br><br><b>Decision cue:</b> When the ticket asks, “What security solution should we implement, and how will its data/assets/identities become usable in Splunk?” think <b>Architect</b>.`},
+ {id:'roleTicket4',answer:'SOC Manager',why:`<b>Correct — SOC Manager:</b> The work product is <i>coordinated, supported day-to-day SOC operations</i>. The source describes the SOC Manager as providing guidance and support and helping ensure smooth SOC operations. Queue prioritization, consistent handoff behavior, analyst support, and shift continuity all fit that operational responsibility.<br><br><b>Defense Analyst — plausible, but wrong:</b> Analysts participate in handoffs and manage their assigned investigations, but this ticket spans multiple analysts and the operation of the shift itself. It is asking for coordination rather than ownership of one investigation.<br><br><b>Engineer — plausible, but wrong:</b> An engineer might fix a detection problem affecting the queue, but no detection logic or threat-intelligence ingestion is the requested work product here.<br><br><b>Architect — plausible, but wrong:</b> Architecture can influence how efficiently analysts work, but no tool selection, implementation, or data enablement is being requested.<br><br><b>CISO — plausible, but wrong:</b> The CISO leads at the organizational/executive level in the course's role model. This ticket is about immediate SOC workflow and analyst support rather than company-facing representation or budget authority.<br><br><b>Decision cue:</b> When the issue is <b>people, guidance, coordination, and smooth daily SOC operations</b>, think <b>SOC Manager</b>.`},
+ {id:'roleTicket5',answer:'CISO',why:`<b>Correct — CISO:</b> The work product is an <i>executive security decision and company-facing representation</i>. In the lesson's role matching, the CISO is the face of the SOC to the rest of the company and approves budget. Both defining responsibilities appear in this scenario.<br><br><b>SOC Manager — plausible, but wrong:</b> The manager can provide operational evidence explaining why the SOC needs the investment, but the course does not assign final budget approval or organization-wide security representation to this role.<br><br><b>Architect — plausible, but wrong:</b> The architect can explain technical requirements and evaluate which solution should be implemented. That expertise can inform the proposal, but technical selection is different from approving the security budget and representing the need to business leadership.<br><br><b>Engineer — plausible, but wrong:</b> An engineer could provide evidence about detection limitations or technical benefits, but the ticket does not ask for detection creation/testing or performance improvement.<br><br><b>Defense Analyst — plausible, but wrong:</b> Analysts can contribute investigation evidence demonstrating operational need, but they do not own the executive representation and budget-approval responsibility defined in the lesson.<br><br><b>Decision cue:</b> When the ticket centers on <b>representing security to the wider company and approving budget</b>, think <b>CISO</b>.`}
+];
+
+document.getElementById('reviewRoleHandoff').addEventListener('click',()=>{
+ let all=true, attempted=true;
+ roleTickets.forEach((t,i)=>{
+   const el=document.getElementById(t.id), box=document.getElementById(t.id+'Fb');
+   if(!el.value){
+      attempted=false; all=false;
+      box.className='feedback show bad';
+      box.innerHTML='<b>Ticket '+String(i+1).padStart(2,'0')+' is incomplete.</b> Select a primary owner before reviewing this ticket.';
+      return;
+   }
+   if(el.value===t.answer){
+      box.className='feedback show good';
+      box.innerHTML='<b>Correct — '+t.answer+'.</b><div class="expert-ticket">'+t.why+'</div>';
+   } else {
+      all=false;
+      box.className='feedback show bad';
+      box.innerHTML='<b>'+el.value+' is not the best primary owner.</b><div class="expert-ticket">'+t.why+'</div><div style="margin-top:10px"><b>Try again:</b> Re-read the ticket, use the expert distinctions above, and choose the role whose primary responsibility most directly produces the requested work product.</div>';
+   }
+ });
+ const sum=document.getElementById('roleHandoffSummary');
+ sum.className='feedback show '+(all?'good':'bad');
+ if(all){
+   mark('roles');
+   sum.innerHTML='<h3>Handoff complete</h3><p>All five tickets are correctly routed. The expert reasoning for every correct and incorrect role is displayed directly beneath each ticket above.</p>';
+ } else {
+   sum.innerHTML=attempted?'<b>Handoff still open.</b> Expert feedback is now displayed beneath every ticket. Use it to revise the incorrect assignments, then select <b>Review handoff</b> again.':'<b>Complete all five tickets.</b> Expert feedback is displayed for tickets you attempted. Assign the remaining owners and review again.';
+ }
+ // Bring the first incorrect/incomplete ticket into view; otherwise show completion.
+ const firstProblem=roleTickets.find(t=>document.getElementById(t.id).value!==t.answer);
+ const target=firstProblem?document.getElementById(firstProblem.id+'Fb'):sum;
+ setTimeout(()=>target.scrollIntoView({behavior:'smooth',block:'center'}),50);
+ update();
+});
+
+// Reflection/session memory
+document.querySelectorAll('[data-save]').forEach(t=>t.addEventListener('input',e=>state.responses[e.target.dataset.save]=e.target.value));
+function completeReflection(){let ts=[...document.querySelectorAll('[data-save]')],ok=ts.every(t=>t.value.trim().length>=20);if(ok){mark('reflection');fb('reflectFb',true,'Your reflection is saved for this browser session. Bring the questions you identified into instructor-led class.')}else fb('reflectFb',false,'Add a little more explanation to each response (at least a short sentence) so the reflection captures your understanding.')}
+
+function renderChecklist(){
+ let e=document.getElementById('checklist');if(!e)return;
+ const items=[['Essential Vocabulary reviewed',state.done.vocab],['Reporter phase completed',state.done.roles&&state.done.triage&&state.done.metrics&&state.done.sse],
+ ['Translator phase completed',state.done.posture&&state.done.disp&&state.done.detect&&state.done.filters&&state.done.cycle&&state.done.framework&&state.done.full],
+ ['Final Reflection completed',state.done.reflection],['Questions for class identified',(state.responses.r3||'').trim().length>=20]];
+ e.innerHTML=items.map(x=>`<div class="checkline"><span style="font-size:20px">${x[1]?'☑':'☐'}</span><div><b>${x[0]}</b><div style="color:var(--muted);font-size:12px">${x[1]?'Confirmed':'Not yet confirmed'}</div></div></div>`).join('');
+ let all=items.every(x=>x[1]);let n=document.getElementById('readyNote');n.innerHTML=all?'<b>Status: Ready.</b> You have completed the required prework pathway.':'<b>Status:</b> Continue reviewing any unfinished items. You may navigate freely and return here.';n.style.borderLeftColor=all?'var(--ok)':'var(--ochre)';
+}
+navBuild();
+</script></body></html>
